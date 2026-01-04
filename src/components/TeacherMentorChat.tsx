@@ -110,7 +110,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
 
             {/* Float Button */}
             {!isOpen && (
-                <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 group">
+                <div className="fixed bottom-8 right-8 z-[9999] flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 group">
                     <div className="bg-purple-600 text-white px-4 py-2 rounded-xl rounded-br-none shadow-lg mb-2 mr-4 text-sm font-bold transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border border-white/10">
                         Ассистент учителя 🎓
                     </div>
@@ -125,7 +125,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
 
             {/* Chat Panel */}
             {isOpen && (
-                <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#0A0A0A] border-l border-white/10 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+                <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#0A0A0A] border-l border-white/10 shadow-2xl z-[9999] flex flex-col animate-in slide-in-from-right duration-300">
                     {/* Header */}
                     <div className="p-4 border-b border-white/10 flex items-center justify-between bg-[#111]">
                         <div className="flex items-center gap-3">
