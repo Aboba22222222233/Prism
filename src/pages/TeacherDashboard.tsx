@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { supabase } from '../lib/supabase';
 import { getGeminiInsight } from '../lib/gemini';
+import { TeacherMentorChat } from '../components/TeacherMentorChat';
 
 const TeacherDashboard = () => {
     const [selectedPeriod, setSelectedPeriod] = useState('Неделя');
