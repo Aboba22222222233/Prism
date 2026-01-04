@@ -188,7 +188,17 @@ const TeacherDashboard = () => {
                 .from('checkins')
                 .select('*')
                 .eq('class_id', classId)
+                .eq('class_id', classId)
                 .order('created_at', { ascending: true }); // Ascending for chart
+
+            // 3. Fetch Tasks
+            const { data: classTasks } = await supabase
+                .from('tasks')
+                .select('*, student_tasks(*)')
+                .eq('class_id', classId)
+                .order('created_at', { ascending: false });
+
+            setTasks(classTasks || []);
 
 
 
@@ -720,7 +730,7 @@ const TeacherDashboard = () => {
                         <div className="grid gap-4">
                             {tasks.map(task => (
                                 <div key={task.id} className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <h4 className="text-lg font-bold mb-1">{task.title}</h4>
                                             <span className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded">
@@ -728,6 +738,35 @@ const TeacherDashboard = () => {
                                             </span>
                                         </div>
                                         <button className="text-red-400 hover:text-red-300 text-sm opacity-50 hover:opacity-100">Удалить</button>
+                                    </div>
+
+                                    {/* Submissions List */}
+                                    <div className="border-t border-white/5 pt-4">
+                                        <h5 className="text-xs font-bold text-slate-500 uppercase mb-3">
+                                            Ответы ({task.student_tasks?.length || 0})
+                                        </h5>
+                                        <div className="space-y-3">
+                                            {task.student_tasks && task.student_tasks.length > 0 ? (
+                                                task.student_tasks.map((submission: any) => {
+                                                    const student = students.find(s => s.id === submission.student_id);
+                                                    return (
+                                                        <div key={submission.id} className="bg-black/30 rounded-lg p-3 text-sm">
+                                                            <div className="flex justify-between items-center mb-1">
+                                                                <span className="font-bold text-purple-300">
+                                                                    {student ? (isAnonymous ? student.anonName : student.realName) : 'Неизвестный'}
+                                                                </span>
+                                                                <span className="text-xs text-slate-600">
+                                                                    {new Date(submission.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-slate-300">{submission.response}</p>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <p className="text-slate-600 italic text-sm">Пока нет ответов</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
