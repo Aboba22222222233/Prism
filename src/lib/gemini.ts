@@ -6,14 +6,30 @@ const SITE_NAME = "Prism Classroom";
 
 export async function getGeminiInsight(prompt: string) {
   const models = [
-    "google/gemini-2.0-flash-exp:free",
-    "google/gemini-exp-1206:free",
-    "meta-llama/llama-3.3-70b-instruct:free"
+    "nvidia/nemotron-3-nano-30b-a3b:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemini-2.0-flash-exp:free"
   ];
 
   for (const model of models) {
     try {
       console.log(`Trying AI model: ${model}...`);
+
+      const body: any = {
+        "model": model,
+        "messages": [
+          {
+            "role": "user",
+            "content": prompt
+          }
+        ]
+      };
+
+      // Enable reasoning for specific models
+      if (model.includes("nemotron") || model.includes("mimo") || model.includes("gpt-oss")) {
+        body["reasoning"] = { "enabled": true };
+      }
+
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -22,15 +38,7 @@ export async function getGeminiInsight(prompt: string) {
           "X-Title": SITE_NAME,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          "model": model,
-          "messages": [
-            {
-              "role": "user",
-              "content": prompt
-            }
-          ]
-        })
+        body: JSON.stringify(body)
       });
 
       if (response.ok) {
@@ -64,7 +72,7 @@ export async function getChatResponse(messages: any[], model: string) {
     };
 
     // Enable reasoning for supported models
-    if (model.includes("mimo") || model.includes("gpt-oss")) {
+    if (model.includes("nemotron") || model.includes("mimo") || model.includes("gpt-oss")) {
       body["reasoning"] = { "enabled": true };
     }
 
