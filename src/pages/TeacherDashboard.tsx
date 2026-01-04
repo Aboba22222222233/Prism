@@ -875,7 +875,7 @@ const TeacherDashboard = () => {
                                             <h3 className="font-bold text-indigo-100">AI Аналитик</h3>
                                         </div>
                                         <button
-                                            onClick={() => getGeminiInsight(students, setInsightText, setAnalyzing)}
+                                            onClick={runAIAnalysis}
                                             disabled={analyzing}
                                             className="text-xs bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                         >
