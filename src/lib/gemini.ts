@@ -2,7 +2,7 @@ import { OpenRouter } from "@openrouter/sdk";
 
 const OPENROUTER_API_KEY = "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";
 const SITE_URL = "http://localhost:5173"; // Localhost for dev
-const SITE_NAME = "Prism Classroom";
+const SITE_NAME = "Ramp Classroom";
 
 export async function getGeminiInsight(prompt: string) {
   const models = [

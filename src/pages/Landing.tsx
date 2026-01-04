@@ -34,13 +34,13 @@ const Navbar = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-purple-500 blur-lg opacity-50 group-hover:opacity-100 transition-opacity"></div>
             <img
-              src="https://i.pinimg.com/736x/c6/5d/e7/c65de7404240bcbc3e45c162551bc009.jpg"
-              alt="Prism Logo"
+              src="https://wingassistant.com/wp-content/uploads/2022/07/ramp-logo.png"
+              alt="Ramp Logo"
               className="w-10 h-10 relative z-10 rounded-lg"
             />
           </div>
           <span className="text-2xl font-black tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
-            Prism
+            Ramp
           </span>
         </div>
 
@@ -282,11 +282,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 flex justify-center">
         <div className="flex items-center gap-2 font-bold text-white text-xl opacity-50 hover:opacity-100 transition-opacity">
           <img
-            src="https://i.pinimg.com/736x/c6/5d/e7/c65de7404240bcbc3e45c162551bc009.jpg"
-            alt="Prism Logo"
+            src="https://wingassistant.com/wp-content/uploads/2022/07/ramp-logo.png"
+            alt="Ramp Logo"
             className="w-6 h-6 rounded-md grayscale"
           />
-          <span>Prism</span>
+          <span>Ramp</span>
         </div>
       </div>
     </footer>
