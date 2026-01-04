@@ -404,12 +404,12 @@ const TeacherDashboard = () => {
             setLoading(true);
 
             // 1. Delete associated check-ins (manual cascade)
-            const { error: checkinError } = await supabase
-                .from('checkins')
-                .delete()
-                .eq('class_id', selectedClass.id);
-
-            if (checkinError) console.error("Error cleaning checkins:", checkinError);
+            // NOTE: Commenting out to rely on DB Cascade and avoid "text=uuid" error
+            // const { error: checkinError } = await supabase
+            //     .from('checkins')
+            //     .delete()
+            //     .eq('class_id', selectedClass.id);
+            // if (checkinError) console.error("Error cleaning checkins:", checkinError);
 
             // 2. Delete class (enrollments verify cascade)
             const { error } = await supabase
