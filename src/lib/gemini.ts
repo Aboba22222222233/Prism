@@ -5,7 +5,6 @@ const SITE_URL = "http://localhost:5173"; // Localhost for dev
 const SITE_NAME = "Prism Classroom";
 
 export async function getGeminiInsight(prompt: string) {
-  // List of models to try in order of preference
   const models = [
     "google/gemini-2.0-flash-exp:free",
     "google/gemini-exp-1206:free",
