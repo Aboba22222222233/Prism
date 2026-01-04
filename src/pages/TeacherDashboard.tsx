@@ -255,7 +255,7 @@ const TeacherDashboard = () => {
                     email: e.profiles.email,
                     avatar: e.profiles.avatar_url,
                     avgMood,
-                    lastCheckin: lastCheckin ? new Date(lastCheckin.created_at).toLocaleDateString('ru-RU') : 'Нет записей',
+                    lastCheckin: lastCheckin, // Pass raw object or null
                     isRisk,
                     status: isRisk ? 'risk' : 'ok',
                     history: chartHistory,
