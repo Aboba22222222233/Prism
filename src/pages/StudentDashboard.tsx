@@ -334,9 +334,9 @@ ${summary}
             setClasses(prev => prev.filter(c => c.id !== classId));
             alert('Вы успешно покинули курс');
 
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            alert('Ошибка при выходе из курса');
+            alert(`Ошибка при выходе из курса: ${err.message || JSON.stringify(err)}`);
         }
     };
 
