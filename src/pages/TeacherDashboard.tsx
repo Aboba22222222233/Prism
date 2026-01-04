@@ -1154,20 +1154,24 @@ const TeacherDashboard = () => {
                 ) : null}
 
                 {/* AI Assistant */}
-                <TeacherMentorChat
-                    teacherName={"Учитель"}
-                    classStats={{
-                        avgMood: stats.avgMood,
-                        riskCount: stats.riskCount,
-                        activeCount: stats.activeCount,
-                        totalStudents: stats.totalStudents
-                    }}
-                    events={events}
-                />
 
 
-            </main >
-        </div >
+
+            </main>
+
+            {/* AI Assistant - Moved outside main for better fixed positioning context */}
+            <TeacherMentorChat
+                teacherName={"Учитель"}
+                classStats={{
+                    avgMood: stats.avgMood,
+                    riskCount: stats.riskCount,
+                    activeCount: stats.activeCount,
+                    totalStudents: stats.totalStudents
+                }}
+                events={events}
+            />
+
+        </div>
     );
 };
 
