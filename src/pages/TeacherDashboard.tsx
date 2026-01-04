@@ -132,6 +132,26 @@ const TeacherDashboard = () => {
         }
     };
 
+    const deleteTask = async (taskId: string) => {
+        if (!confirm('Вы уверены, что хотите удалить это задание? Это также удалит все ответы учеников.')) return;
+
+        try {
+            // Optimistic Update
+            setTasks(prev => prev.filter(t => t.id !== taskId));
+
+            const { error } = await supabase
+                .from('tasks')
+                .delete()
+                .eq('id', taskId);
+
+            if (error) throw error;
+
+        } catch (error) {
+            console.error(error);
+            alert('Ошибка при удалении задания. Попробуйте обновить страницу.');
+        }
+    };
+
     const createClass = async (e: React.FormEvent) => {
         e.preventDefault();
         setCreatingClass(true);
@@ -737,7 +757,12 @@ const TeacherDashboard = () => {
                                                 {new Date(task.created_at).toLocaleDateString('ru-RU')}
                                             </span>
                                         </div>
-                                        <button className="text-red-400 hover:text-red-300 text-sm opacity-50 hover:opacity-100">Удалить</button>
+                                        <button
+                                            onClick={() => deleteTask(task.id)}
+                                            className="text-red-400 hover:text-red-300 text-sm opacity-50 hover:opacity-100 transition-opacity"
+                                        >
+                                            Удалить
+                                        </button>
                                     </div>
 
                                     {/* Submissions List */}
