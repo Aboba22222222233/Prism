@@ -786,6 +786,12 @@ const TeacherDashboard = () => {
                     >
                         Задания ({tasks.length})
                     </button>
+                    <button
+                        onClick={() => setActiveTab('calendar')}
+                        className={`pb-3 px-2 font-bold transition-colors ${activeTab === 'calendar' ? 'text-white border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
+                    >
+                        Календарь
+                    </button>
                 </div>
 
 
@@ -1046,7 +1052,118 @@ const TeacherDashboard = () => {
 
                         </div>
                     </>
+                ) : activeTab === 'calendar' ? (
+                    <div>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold">Расписание и оценки</h3>
+                            <button
+                                onClick={() => setShowEventModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-colors"
+                            >
+                                <Plus className="w-4 h-4" /> Добавить
+                            </button>
+                        </div>
+
+                        {/* Calendar Grid / List */}
+                        <div className="grid gap-4">
+                            {events.map((ev) => (
+                                <div key={ev.id} className="bg-[#0A0A0A] border border-white/10 p-4 rounded-xl flex justify-between items-center group">
+                                    <div className="flex items-start gap-4">
+                                        <div className={`p-3 rounded-xl border ${ev.type === 'sor' ? 'bg-orange-500/10 border-orange-500/20 text-orange-400' :
+                                            ev.type === 'soch' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+                                                'bg-purple-500/10 border-purple-500/20 text-purple-400'
+                                            }`}>
+                                            <CalendarIcon className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-lg">{ev.title}</h4>
+                                            <div className="flex items-center gap-4 text-sm text-slate-400 mt-1">
+                                                <span className="flex items-center gap-1">
+                                                    <Clock className="w-4 h-4" />
+                                                    {new Date(ev.date).toLocaleDateString()} {new Date(ev.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                                <span className="capitalize px-2 py-0.5 rounded bg-white/5 border border-white/10 text-xs">
+                                                    {ev.type}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button className="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            ))}
+                            {events.length === 0 && (
+                                <div className="text-center py-12 text-slate-500 border border-dashed border-white/10 rounded-2xl">
+                                    <p>Нет запланированных событий</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Event Modal */}
+                        {showEventModal && (
+                            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                                <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
+                                    <h3 className="text-xl font-bold mb-4">Новое событие</h3>
+                                    <form onSubmit={createEvent} className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs text-slate-400 mb-1">Название</label>
+                                            <input
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none"
+                                                value={newEventTitle}
+                                                onChange={e => setNewEventTitle(e.target.value)}
+                                                placeholder="СОР по Алгебре"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-slate-400 mb-1">Дата и время</label>
+                                            <input
+                                                type="datetime-local"
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none scheme-dark text-slate-400"
+                                                value={newEventDate}
+                                                onChange={e => setNewEventDate(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs text-slate-400 mb-1">Тип</label>
+                                            <select
+                                                className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none text-slate-300"
+                                                value={newEventType}
+                                                onChange={e => setNewEventType(e.target.value)}
+                                            >
+                                                <option value="sor">СОР</option>
+                                                <option value="soch">СОЧ</option>
+                                                <option value="control_work">Контрольная</option>
+                                                <option value="homework">ДЗ</option>
+                                                <option value="other">Другое</option>
+                                            </select>
+                                        </div>
+                                        <div className="flex gap-3 pt-2">
+                                            <button type="button" onClick={() => setShowEventModal(false)} className="flex-1 py-3 bg-white/5 rounded-lg text-slate-400 hover:text-white">Отмена</button>
+                                            <button type="submit" disabled={creatingEvent} className="flex-1 py-3 bg-purple-600 rounded-lg hover:bg-purple-500 font-bold">
+                                                {creatingEvent ? '...' : 'Создать'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 ) : null}
+
+                {/* AI Assistant */}
+                <TeacherMentorChat
+                    teacherName={"Учитель"}
+                    classStats={{
+                        avgMood: stats.avgMood,
+                        riskCount: stats.riskCount,
+                        activeCount: stats.activeCount,
+                        totalStudents: stats.totalStudents
+                    }}
+                    events={events}
+                />
 
 
             </main >
