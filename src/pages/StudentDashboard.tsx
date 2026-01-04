@@ -322,7 +322,7 @@ ${summary}
         if (!confirm('Вы уверены, что хотите покинуть этот класс?')) return;
 
         try {
-            // 1. Remove from enrollments
+            // Remove from enrollments
             const { error } = await supabase
                 .from('class_enrollments')
                 .delete()
@@ -331,16 +331,8 @@ ${summary}
 
             if (error) throw error;
 
-            // 2. Clear legacy profile link to prevent auto-rejoin
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .update({ class_id: null })
-                .eq('id', userProfile.id)
-                .eq('class_id', classId);
-
-            if (profileError) throw profileError;
-
             setClasses(prev => prev.filter(c => c.id !== classId));
+            alert('Вы успешно покинули курс');
 
         } catch (err) {
             console.error(err);
