@@ -14,6 +14,7 @@ export async function getGeminiInsight(prompt: string) {
   for (const model of models) {
     try {
       console.log(`Trying AI model: ${model}...`);
+      console.log("DEBUG PROMPT:", prompt); // Debug
 
       const body: any = {
         "model": model,
@@ -24,6 +25,8 @@ export async function getGeminiInsight(prompt: string) {
           }
         ]
       };
+
+      console.log("DEBUG BODY:", JSON.stringify(body)); // Debug
 
       // Enable reasoning for specific models
       if (model.includes("nemotron") || model.includes("mimo") || model.includes("gpt-oss")) {
