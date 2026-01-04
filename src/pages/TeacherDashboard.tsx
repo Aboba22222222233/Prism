@@ -1054,20 +1054,6 @@ const TeacherDashboard = () => {
     );
 };
 
-const KpiCard = ({ title, value, status }: any) => {
-    const colors = {
-        green: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-        red: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
-        yellow: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-        neutral: 'text-slate-300 bg-white/5 border-white/10'
-    }[status as string] || 'text-slate-300';
 
-    return (
-        <div className={`p-4 rounded-xl border ${colors.split(' ').slice(1).join(' ')}`}>
-            <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">{title}</div>
-            <div className={`text-2xl font-bold ${colors.split(' ')[0]}`}>{value}</div>
-        </div>
-    );
-}
 
 export default TeacherDashboard;
