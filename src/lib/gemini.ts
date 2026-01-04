@@ -6,7 +6,8 @@ const SITE_NAME = "Prism Classroom";
 
 export async function getGeminiInsight(prompt: string) {
   // List of models to try in order of preference
-  "google/gemini-2.0-flash-exp:free",
+  const models = [
+    "google/gemini-2.0-flash-exp:free",
     "google/gemini-exp-1206:free",
     "meta-llama/llama-3.3-70b-instruct:free"
   ];
