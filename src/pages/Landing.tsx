@@ -1,13 +1,26 @@
 import React from 'react';
 import {
-  Users, Activity, FileText, BrainCircuit, Menu, X, ChevronRight, Smile, Zap, Lock,
-  Calendar, CheckCircle, BarChart3, Shield, BookOpen, MessageCircle
+  Users, Activity, FileText, BrainCircuit, Menu, X, ChevronRight, Smile, Zap, Lock
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import ColorBends from '../../ColorBends';
+
+interface TestimonialProps {
+  name: string;
+  role: string;
+  text: string;
+  initials: string;
+}
+
+interface StepProps {
+  number: string;
+  title: string;
+  description: string;
+  icon: React.ElementType;
+}
 
 interface FeatureProps {
   title: string;
@@ -34,19 +47,20 @@ const Navbar = () => {
           <div className="relative">
             <div className="absolute inset-0 bg-purple-500 blur-lg opacity-50 group-hover:opacity-100 transition-opacity"></div>
             <img
-              src="https://wingassistant.com/wp-content/uploads/2022/07/ramp-logo.png"
-              alt="Ramp Logo"
+              src="https://i.pinimg.com/736x/c6/5d/e7/c65de7404240bcbc3e45c162551bc009.jpg"
+              alt="Prism Logo"
               className="w-10 h-10 relative z-10 rounded-lg"
             />
           </div>
           <span className="text-2xl font-black tracking-tight text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
-            Ramp
+            Prism
           </span>
         </div>
 
         <div className="hidden md:flex gap-8 text-sm font-medium text-white z-10">
-          <a href="#teachers" className="hover:text-cyan-400 transition-colors duration-300">Для Учителей</a>
-          <a href="#students" className="hover:text-purple-400 transition-colors duration-300">Для Учеников</a>
+          <a href="#how-it-works" className="hover:text-cyan-400 transition-colors duration-300">Как это работает</a>
+          <a href="#benefits" className="hover:text-purple-400 transition-colors duration-300">Преимущества</a>
+          <a href="#reviews" className="hover:text-pink-400 transition-colors duration-300">Отзывы</a>
         </div>
 
         <div className="hidden md:flex items-center gap-4 z-10 ml-auto">
@@ -74,8 +88,9 @@ const Navbar = () => {
 
       {isOpen && (
         <div className="absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl shadow-2xl p-6 flex flex-col gap-6 text-white md:hidden border-b border-white/10">
-          <a href="#teachers" onClick={() => setIsOpen(false)} className="text-lg">Для Учителей</a>
-          <a href="#students" onClick={() => setIsOpen(false)} className="text-lg">Для Учеников</a>
+          <a href="#how-it-works" onClick={() => setIsOpen(false)} className="text-lg">Как это работает</a>
+          <a href="#benefits" onClick={() => setIsOpen(false)} className="text-lg">Преимущества</a>
+          <a href="#reviews" onClick={() => setIsOpen(false)} className="text-lg">Отзывы</a>
           <div className="flex flex-col gap-4 mt-4 pt-4 border-t border-white/10">
             <button onClick={() => navigate('/login')} className="w-full px-6 py-3 rounded-full bg-white text-black font-bold">
               Вход для учеников
@@ -118,7 +133,7 @@ const HeroSection = () => {
             <span className="text-white">школьной психологии</span>
           </h1>
           <p className="text-lg md:text-xl text-slate-400 max-w-xl leading-relaxed mx-auto lg:mx-0">
-            Искусственный интеллект и аналитика данных для мониторинга эмоционального климата класса в реальном времени. Все фишки в одном месте.
+            Искусственный интеллект и аналитика данных для мониторинга эмоционального климата класса в реальном времени.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <button
@@ -127,6 +142,9 @@ const HeroSection = () => {
             >
               Начать бесплатно
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button className="px-8 py-4 bg-transparent border border-white/10 rounded-full font-semibold hover:bg-white/5 hover:border-white/30 transition-all text-white flex items-center justify-center backdrop-blur-sm">
+              Как это работает
             </button>
           </div>
         </div>
@@ -186,8 +204,55 @@ const HeroSection = () => {
   );
 };
 
+const StepCard: React.FC<StepProps> = ({ number, title, description, icon: Icon }) => (
+  <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/5 hover:border-purple-500/30 transition-all duration-300 group hover:-translate-y-1 relative overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-purple-400 font-bold text-xl mb-6 border border-white/10 group-hover:border-purple-500/30 group-hover:text-cyan-400 transition-colors relative z-10">
+      {number}
+    </div>
+    <h3 className="text-xl font-bold text-white mb-3 relative z-10 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-300 group-hover:to-cyan-300 transition-all">{title}</h3>
+    <p className="text-slate-400 leading-relaxed relative z-10">{description}</p>
+  </div>
+);
+
+const HowItWorksSection = () => {
+  return (
+    <section id="how-it-works" className="py-32 bg-black border-t border-white/5 relative">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">Как работает <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">Prism</span>?</h2>
+          <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+            Полная автоматизация процессов диагностики и аналитики.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          <StepCard
+            number="01"
+            title="Интеграция"
+            description="Учитель создает цифровой класс за 30 секунд. Ученики подключаются через QR-код."
+            icon={Users}
+          />
+          <StepCard
+            number="02"
+            title="Сбор данных"
+            description="Геймифицированные чек-ины занимают меньше минуты. Система работает фоном."
+            icon={Activity}
+          />
+          <StepCard
+            number="03"
+            title="Инсайты"
+            description="ИИ анализирует паттерны и подсвечивает учеников, которым нужна помощь."
+            icon={BrainCircuit}
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const FeatureCard: React.FC<FeatureProps> = ({ title, description, icon: Icon }) => (
-  <div className="flex flex-col items-start p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 backdrop-blur-sm group h-full">
+  <div className="flex flex-col items-start p-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-cyan-500/20 transition-all duration-300 backdrop-blur-sm group">
     <div className="p-3 bg-white/5 rounded-lg text-cyan-400 mb-4 ring-1 ring-white/10 group-hover:text-pink-400 group-hover:ring-pink-500/30 transition-all">
       <Icon className="w-6 h-6" />
     </div>
@@ -196,97 +261,123 @@ const FeatureCard: React.FC<FeatureProps> = ({ title, description, icon: Icon })
   </div>
 );
 
-const FeaturesSection = () => {
+const BenefitsSection = () => {
   return (
-    <section className="bg-black relative overflow-hidden py-20">
-      <div id="teachers" className="max-w-7xl mx-auto px-6 mb-32 relative">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none"></div>
+    <section id="benefits" className="py-32 bg-black relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-900/20 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 relative z-10">
-          <div>
-            <span className="text-purple-400 font-bold uppercase tracking-wider text-sm mb-2 block">Возможности</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white">Для Учителей</h2>
-          </div>
-          <p className="text-slate-400 max-w-md text-right mt-4 md:mt-0">
-            Полный контроль над атмосферой в классе и инструменты для своевременной поддержки.
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+            Экосистема безопасности
+          </h2>
+          <p className="text-slate-400 max-w-2xl mx-auto text-lg">
+            Инструменты профессионального уровня для современной школы.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 relative z-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <FeatureCard
-            title="Умный Мониторинг"
-            description="Отслеживайте настроение и уровень стресса класса в реальном времени на едином дашборде."
-            icon={BarChart3}
+            title="Анти-стресс"
+            description="Проактивное выявление признаков выгорания и тревожности у учащихся перед экзаменами."
+            icon={Smile}
           />
           <FeatureCard
-            title="AI Аналитик"
-            description="Получайте ежедневные сводки и педагогические советы от искусственного интеллекта."
-            icon={BrainCircuit}
-          />
-          <FeatureCard
-            title="Календарь Оценок"
-            description="Планируйте СОРы и СОЧи. Система учитывает нагрузку и предупреждает о стрессовых периодах."
-            icon={Calendar}
-          />
-          <FeatureCard
-            title="Управление Классом"
-            description="Легко добавляйте учеников, управляйте списками и исключайте неактивных пользователей."
-            icon={Users}
-          />
-        </div>
-      </div>
-
-      <div id="students" className="max-w-7xl mx-auto px-6 relative">
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-900/20 rounded-full blur-[120px] pointer-events-none"></div>
-
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 relative z-10">
-          <div>
-            <span className="text-cyan-400 font-bold uppercase tracking-wider text-sm mb-2 block">Возможности</span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white">Для Учеников</h2>
-          </div>
-          <p className="text-slate-400 max-w-md text-right mt-4 md:mt-0">
-            Безопасное пространство для саморефлексии, поддержки и личностного роста.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-4 gap-6 relative z-10">
-          <FeatureCard
-            title="Трекер Настроения"
-            description="Отмечайте свое самочувствие, сон и энергию за 30 секунд. Анализируйте свои тренды."
-            icon={Activity}
-          />
-          <FeatureCard
-            title="Pixel Year"
-            description="Визуализируйте свой год в пикселях. Превратите заботу о себе в полезную привычку."
+            title="Ранняя диагностика"
+            description="Алгоритмы замечают изменения в поведении, которые могут указывать на буллинг или конфликты."
             icon={Zap}
           />
           <FeatureCard
-            title="Личный Ментор"
-            description="Анонимный чат с AI-наставником. Получайте советы по учебе и поддержку 24/7."
-            icon={MessageCircle}
+            title="Умная отчетность"
+            description="Генерация профессиональных отчетов для администрации и психологов в один клик."
+            icon={FileText}
           />
           <FeatureCard
-            title="Ресурсный Хаб"
-            description="Доступ к библиотеке медитаций, дыхательных практик и полезных статей для снятия стресса."
-            icon={BookOpen}
+            title="Приватность"
+            description="Сквозное шифрование и анонимизация данных. Соответствие стандартам безопасности."
+            icon={Lock}
           />
         </div>
       </div>
     </section>
   );
-}
+};
+
+const TestimonialCard: React.FC<TestimonialProps> = ({ name, role, text, initials }) => (
+  <div className="bg-white/5 p-8 rounded-2xl border border-white/10 relative hover:border-pink-500/30 transition-colors backdrop-blur-sm">
+    <div className="flex items-center gap-4 mb-6">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg ring-2 ring-white/10">
+        {initials}
+      </div>
+      <div>
+        <h4 className="text-white font-bold">{name}</h4>
+        <p className="text-purple-400 text-xs uppercase tracking-wide font-semibold">{role}</p>
+      </div>
+    </div>
+    <p className="text-slate-300 text-sm leading-relaxed">
+      "{text}"
+    </p>
+  </div>
+);
+
+const ReviewsSection = () => {
+  return (
+    <section id="reviews" className="py-32 bg-black border-t border-white/5 relative">
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-900/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <h2 className="text-3xl md:text-5xl font-bold text-white mb-16 text-center">
+          Опыт внедрения
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          <TestimonialCard
+            initials="АВ"
+            name="Анна Васильевна"
+            role="Классный руководитель"
+            text="Prism изменил мой подход к классу. Я больше не гадаю, почему дети уставшие — я вижу данные и корректирую нагрузку. Это работает."
+          />
+          <TestimonialCard
+            initials="ЕС"
+            name="Ержан С."
+            role="Школьный психолог"
+            text="С помощью платформы я смог выявить двух учеников в группе риска, которые внешне казались совершенно спокойными. Это бесценно."
+          />
+          <TestimonialCard
+            initials="МК"
+            name="Марина К."
+            role="Завуч"
+            text="Администрация в восторге от автоматических отчетов. Мы видим реальную картину по школе, а не просто цифры успеваемости."
+          />
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const Footer = () => {
   return (
     <footer className="bg-black text-slate-500 py-16 border-t border-white/10">
-      <div className="max-w-7xl mx-auto px-6 flex justify-center">
-        <div className="flex items-center gap-2 font-bold text-white text-xl opacity-50 hover:opacity-100 transition-opacity">
-          <img
-            src="https://wingassistant.com/wp-content/uploads/2022/07/ramp-logo.png"
-            alt="Ramp Logo"
-            className="w-6 h-6 rounded-md grayscale"
-          />
-          <span>Ramp</span>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-2 font-bold text-white text-xl">
+            <img
+              src="https://i.pinimg.com/736x/c6/5d/e7/c65de7404240bcbc3e45c162551bc009.jpg"
+              alt="Prism Logo"
+              className="w-8 h-8 rounded-md"
+            />
+            <span>Prism</span>
+          </div>
+
+          <div className="flex gap-8 text-sm font-medium">
+            <a href="#" className="hover:text-cyan-400 transition-colors">Privacy</a>
+            <a href="#" className="hover:text-cyan-400 transition-colors">Terms</a>
+            <a href="#" className="hover:text-cyan-400 transition-colors">Contact</a>
+          </div>
+
+          <div className="text-sm">
+            © {new Date().getFullYear()} Prism Analytics.
+          </div>
         </div>
       </div>
     </footer>
@@ -298,7 +389,9 @@ const Landing = () => {
     <div className="min-h-screen font-sans selection:bg-pink-500 selection:text-white bg-black text-white">
       <Navbar />
       <HeroSection />
-      <FeaturesSection />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <ReviewsSection />
       <Footer />
     </div>
   );

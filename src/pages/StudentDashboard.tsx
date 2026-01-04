@@ -442,8 +442,8 @@ ${summary}
                             <div className="w-6 h-0.5 bg-slate-300"></div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <img src="https://wingassistant.com/wp-content/uploads/2022/07/ramp-logo.png" className="w-8 h-8 rounded-md" alt="Logo" />
-                            <h1 className="text-xl font-medium text-slate-200">Ramp Classroom</h1>
+                            <img src="https://i.pinimg.com/736x/c6/5d/e7/c65de7404240bcbc3e45c162551bc009.jpg" className="w-8 h-8 rounded-md" alt="Logo" />
+                            <h1 className="text-xl font-medium text-slate-200">Prism Classroom</h1>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
