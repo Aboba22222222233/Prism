@@ -40,7 +40,7 @@ const Login = () => {
 
   const verifyTeacherCode = (e: React.FormEvent) => {
     e.preventDefault();
-    if (secretCode === 'Zerdele2025') {
+    if (secretCode === 'Zerde2025') {
       setTeacherVerified(true);
       setError(null);
     } else {
