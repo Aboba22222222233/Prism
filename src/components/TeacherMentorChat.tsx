@@ -11,14 +11,15 @@ interface TeacherMentorChatProps {
         totalStudents: number;
     };
     events?: any[];
+    studentsData?: any[]; // Данные учеников с их последними записями
 }
 
 const MODELS = [
-    { id: "xiaomi/mimo-v2-flash:free", name: "Xiaomi Mimo" },
+    { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
-export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, classStats, events = [] }) => {
+export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, classStats, events = [], studentsData = [] }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -48,18 +49,31 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
         setLoading(true);
 
         try {
+            // Prepare students context (last 3 checkins per student)
+            const studentsContext = studentsData.slice(0, 10).map((s, i) => {
+                const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
+                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10${c.comment ? `, "${c.comment}"` : ''}`
+                ).join('\n') || '  Нет записей';
+                return `${i + 1}. ${s.anonName} ${s.isRisk ? '⚠️ РИСК' : '✓'}:\n${recentCheckins}`;
+            }).join('\n\n') || 'Нет данных об учениках';
+
             // Prepare context prompt
             const contextSystemMsg = {
                 role: 'system',
                 content: `Ты - опытный педагогический ассистент и ментор для учителя.
                 Твой коллега: ${teacherName || 'Учитель'}.
-                Статистика класса:
+                
+                СТАТИСТИКА КЛАССА:
                 - Среднее настроение: ${classStats.avgMood}/5
                 - В зоне риска: ${classStats.riskCount} учеников
                 - Активных сегодня: ${classStats.activeCount} из ${classStats.totalStudents}
-                - Ближайшие события: ${events.slice(0, 3).map(e => `${e.title} (${new Date(e.date).toLocaleDateString()})`).join(', ') || 'Нет событий'}
+                - Ближайшие события: ${events.slice(0, 3).map(e => e.title + ' (' + new Date(e.date).toLocaleDateString() + ')').join(', ') || 'Нет событий'}
+                
+                ДАННЫЕ УЧЕНИКОВ (последние 3 записи каждого):
+                ${studentsContext}
                 
                 Твоя цель: Помогать учителю анализировать состояние класса, предлагать методики поддержки, генерировать идеи для уроков и снижать уровень стресса в классе.
+                Используй данные учеников для персонализированных рекомендаций. Обращай внимание на учеников в зоне риска.
                 Отвечай профессионально, но дружелюбно. Используй Markdown.`
             };
 
@@ -93,20 +107,20 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
     return (
         <>
             <style>{`
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 6px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-track {
-                    background: transparent;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #334155;
-                    border-radius: 10px;
-                }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #475569;
-                }
-            `}</style>
+                    .custom - scrollbar::- webkit - scrollbar {
+                        width: 6px;
+        }
+                .custom - scrollbar:: -webkit - scrollbar - track {
+    background: transparent;
+}
+                .custom - scrollbar:: -webkit - scrollbar - thumb {
+    background: #334155;
+    border - radius: 10px;
+}
+                .custom - scrollbar:: -webkit - scrollbar - thumb:hover {
+    background: #475569;
+}
+`}</style>
 
             {/* Float Button */}
             {!isOpen && (
@@ -161,24 +175,24 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                     {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 custom-scrollbar bg-[#0A0A0A]">
                         {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${msg.role === 'user' ? 'bg-purple-600' : 'bg-[#222] border border-white/10'}`}>
+                            <div key={idx} className={`flex gap - 3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} `}>
+                                <div className={`w - 8 h - 8 rounded - full flex items - center justify - center flex - shrink - 0 overflow - hidden ${msg.role === 'user' ? 'bg-purple-600' : 'bg-[#222] border border-white/10'} `}>
                                     {msg.role === 'user' ? (
                                         <User className="w-4 h-4 text-white" />
                                     ) : (
                                         <Bot className="w-4 h-4 text-purple-400" />
                                     )}
                                 </div>
-                                <div className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                <div className={`flex flex - col max - w - [85 %] ${msg.role === 'user' ? 'items-end' : 'items-start'} `}>
                                     <div className={`
-                                        p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
+p - 3 rounded - 2xl text - sm leading - relaxed whitespace - pre - wrap
                                         ${msg.role === 'user'
                                             ? 'bg-purple-600 text-white border border-purple-500 rounded-tr-sm'
                                             : msg.isError
                                                 ? 'bg-red-900/20 border border-red-500/30 text-red-200'
                                                 : 'bg-[#1A1A1A] border border-white/10 text-slate-300 rounded-tl-sm'
                                         }
-                                    `}>
+`}>
                                         {msg.content}
                                     </div>
                                 </div>

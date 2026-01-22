@@ -379,25 +379,36 @@ const TeacherDashboard = () => {
 
         try {
             // Aggregate anonymous data
-            const moodCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as any;
-
             const lowMoodCount = students.filter(s => s.avgMood !== '-' && Number(s.avgMood) <= 2).length;
             const highMoodCount = students.filter(s => s.avgMood !== '-' && Number(s.avgMood) >= 4).length;
 
+            // Prepare students context (last 3 checkins per student)
+            const studentsContext = students.slice(0, 10).map((s, i) => {
+                const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
+                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10${c.factors?.length ? ', Факторы: ' + c.factors.join(', ') : ''}`
+                ).join('\n') || '  Нет записей';
+                return `${s.anonName} ${s.isRisk ? '⚠️ РИСК' : ''}:\n${recentCheckins}`;
+            }).join('\n\n');
+
             const prompt = `Роль: Ты педагогический ассистент.
-Задача: Проанализируй состояние класса.
-Данные:
+Задача: Проанализируй состояние класса на основе РЕАЛЬНЫХ данных учеников.
+
+СТАТИСТИКА КЛАССА:
 - Всего учеников: ${stats.totalStudents}
 - В зоне риска (стресс/плохое настроение): ${stats.riskCount}
 - Среднее настроение по классу (1-5): ${stats.avgMood}
 - Учеников с плохим настроением: ${lowMoodCount}
 - Учеников с хорошим настроением: ${highMoodCount}
 
+ДАННЫЕ УЧЕНИКОВ (последние 3 записи каждого):
+${studentsContext}
+
 Выдай:
-1. Краткую сводку атмосферы в классе (1 предложение).
+1. Краткую сводку атмосферы в классе (1-2 предложения), упоминая конкретные паттерны если видишь.
 2. Один конкретный совет учителю, как провести урок или поддержать класс сегодня.
-3. Тон: Профессиональный, поддерживающий.
-4. Формат: Обычный текст (без **звездочек**, без markdown). Используй нумерованный список (1. и 2.).`;
+3. Если есть ученики в зоне риска — укажи на что обратить внимание (без имен, анонимно).
+4. Тон: Профессиональный, поддерживающий.
+5. Формат: Обычный текст (без **звездочек**, без markdown). Используй нумерованный список.`;
 
             const insight = await getGeminiInsight(prompt);
             setInsightText(insight);
@@ -1169,6 +1180,7 @@ const TeacherDashboard = () => {
                     totalStudents: stats.totalStudents
                 }}
                 events={events}
+                studentsData={students}
             />
 
         </div>

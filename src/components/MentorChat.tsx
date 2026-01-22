@@ -5,14 +5,15 @@ import { getChatResponse } from '../lib/gemini';
 interface MentorChatProps {
     userProfile: any;
     studentStats: any;
+    recentCheckins?: any[]; // Последние 5 записей для контекста AI
 }
 
 const MODELS = [
-    { id: "xiaomi/mimo-v2-flash:free", name: "Xiaomi Mimo" },
+    { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
-export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStats }) => {
+export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStats, recentCheckins = [] }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -42,16 +43,25 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
         setLoading(true);
 
         try {
-            // Prepare context prompt
+            // Prepare context prompt with recent checkins
+            const checkinsContext = recentCheckins.slice(0, 5).map((c, i) =>
+                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10, Сон ${c.sleep_hours || '?'}ч, Энергия ${c.energy_level || '?'}/10${c.comment ? `, Заметка: "${c.comment}"` : ''}${c.factors?.length ? `, Факторы: ${c.factors.join(', ')}` : ''}`
+            ).join('\n') || 'Нет записей';
+
             const contextSystemMsg = {
                 role: 'system',
                 content: `Ты - Клаудик, поддерживающий ментор для студента. 
                 Твой ученик: ${userProfile?.full_name || 'Студент'}.
-                Его текущее состояние:
+                
+                ПОСЛЕДНИЕ 5 ЗАПИСЕЙ УЧЕНИКА:
+                ${checkinsContext}
+                
+                Текущее состояние (последняя запись):
                 - Настроение: ${studentStats?.mood || 'Неизвестно'}/5
                 - Энергия: ${studentStats?.energy || 'Неизвестно'}
                 - Сон: ${studentStats?.sleep || 'Неизвестно'} ч.
                 
+                Используй эти данные для персонализированных советов. Замечай тренды (улучшение/ухудшение).
                 Отвечай кратко, по делу, с эмпатией. Используй Markdown для форматирования.`
             };
 

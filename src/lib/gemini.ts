@@ -26,7 +26,7 @@ export async function getGeminiInsight(prompt: string) {
       };
 
       // Enable reasoning for specific models
-      if (model.includes("nemotron") || model.includes("mimo") || model.includes("gpt-oss")) {
+      if (model.includes("nemotron") || model.includes("gpt-oss")) {
         body["reasoning"] = { "enabled": true };
       }
 
@@ -72,7 +72,7 @@ export async function getChatResponse(messages: any[], model: string) {
     };
 
     // Enable reasoning for supported models
-    if (model.includes("nemotron") || model.includes("mimo") || model.includes("gpt-oss")) {
+    if (model.includes("nemotron") || model.includes("gpt-oss")) {
       body["reasoning"] = { "enabled": true };
     }
 

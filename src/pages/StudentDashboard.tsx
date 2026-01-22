@@ -946,6 +946,7 @@ ${summary}
                         energy: checkins[0].energy_level,
                         sleep: checkins[0].sleep_hours
                     } : null}
+                recentCheckins={checkins.slice(0, 5)}
             />
 
             {/* Resource Hub Modal */}
