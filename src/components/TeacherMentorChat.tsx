@@ -15,7 +15,7 @@ interface TeacherMentorChatProps {
 }
 
 const MODELS = [
-    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1" },
+    { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
@@ -61,6 +61,9 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
             const contextSystemMsg = {
                 role: 'system',
                 content: `Ты - опытный педагогический ассистент и ментор для учителя.
+                
+                ВАЖНО: Отвечай ТОЛЬКО на русском языке. НЕ используй китайские иероглифы, японские символы или другие нелатинские символы кроме кириллицы. Минимум эмодзи. Не используй странные скобки типа「」.
+                
                 Твой коллега: ${teacherName || 'Учитель'}.
                 
                 СТАТИСТИКА КЛАССА:
@@ -72,9 +75,9 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                 ДАННЫЕ УЧЕНИКОВ (последние 3 записи каждого):
                 ${studentsContext}
                 
-                Твоя цель: Помогать учителю анализировать состояние класса, предлагать методики поддержки, генерировать идеи для уроков и снижать уровень стресса в классе.
+                Твоя цель: Помогать учителю анализировать состояние класса, предлагать методики поддержки, генерировать идеи для уроков.
                 Используй данные учеников для персонализированных рекомендаций. Обращай внимание на учеников в зоне риска.
-                Отвечай профессионально, но дружелюбно. Используй Markdown.`
+                Отвечай профессионально, но дружелюбно.`
             };
 
             // Combine history (limit last 10 messages)

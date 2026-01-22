@@ -9,7 +9,7 @@ interface MentorChatProps {
 }
 
 const MODELS = [
-    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1" },
+    { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
@@ -50,7 +50,10 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
 
             const contextSystemMsg = {
                 role: 'system',
-                content: `Ты - Клаудик, поддерживающий ментор для студента. 
+                content: `Ты - Клаудик, поддерживающий ментор для студента.
+                
+                ВАЖНО: Отвечай ТОЛЬКО на русском языке. НЕ используй китайские иероглифы, японские символы или другие нелатинские символы кроме кириллицы. Минимум эмодзи (максимум 1-2 за сообщение). Не используй странные скобки типа「」.
+                
                 Твой ученик: ${userProfile?.full_name || 'Студент'}.
                 
                 ПОСЛЕДНИЕ 5 ЗАПИСЕЙ УЧЕНИКА:
@@ -62,7 +65,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
                 - Сон: ${studentStats?.sleep || 'Неизвестно'} ч.
                 
                 Используй эти данные для персонализированных советов. Замечай тренды (улучшение/ухудшение).
-                Отвечай кратко, по делу, с эмпатией. Используй Markdown для форматирования.`
+                Отвечай кратко, по делу, с эмпатией.`
             };
 
             // Combine history (limit last 10 messages to save tokens)
