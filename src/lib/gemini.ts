@@ -6,9 +6,9 @@ const SITE_NAME = "Prism Classroom";
 
 export async function getGeminiInsight(prompt: string) {
   const models = [
-    "nvidia/nemotron-3-nano-30b-a3b:free",
+    "deepseek/deepseek-r1-0528:free",
     "meta-llama/llama-3.3-70b-instruct:free",
-    "google/gemini-2.0-flash-exp:free"
+    "nvidia/nemotron-3-nano-30b-a3b:free"
   ];
 
   for (const model of models) {

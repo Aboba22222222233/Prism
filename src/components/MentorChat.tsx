@@ -9,7 +9,7 @@ interface MentorChatProps {
 }
 
 const MODELS = [
-    { id: "google/gemini-2.0-flash-exp:free", name: "Gemini 2.0 Flash" },
+    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
