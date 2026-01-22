@@ -178,24 +178,24 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                     {/* Messages Area */}
                     <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 custom-scrollbar bg-[#0A0A0A]">
                         {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex gap - 3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} `}>
-                                <div className={`w - 8 h - 8 rounded - full flex items - center justify - center flex - shrink - 0 overflow - hidden ${msg.role === 'user' ? 'bg-purple-600' : 'bg-[#222] border border-white/10'} `}>
+                            <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${msg.role === 'user' ? 'bg-purple-600' : 'bg-[#222] border border-white/10'}`}>
                                     {msg.role === 'user' ? (
                                         <User className="w-4 h-4 text-white" />
                                     ) : (
                                         <Bot className="w-4 h-4 text-purple-400" />
                                     )}
                                 </div>
-                                <div className={`flex flex - col max - w - [85 %] ${msg.role === 'user' ? 'items-end' : 'items-start'} `}>
+                                <div className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                                     <div className={`
-p - 3 rounded - 2xl text - sm leading - relaxed whitespace - pre - wrap
+                                        p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
                                         ${msg.role === 'user'
                                             ? 'bg-purple-600 text-white border border-purple-500 rounded-tr-sm'
                                             : msg.isError
                                                 ? 'bg-red-900/20 border border-red-500/30 text-red-200'
                                                 : 'bg-[#1A1A1A] border border-white/10 text-slate-300 rounded-tl-sm'
                                         }
-`}>
+                                    `}>
                                         {msg.content}
                                     </div>
                                 </div>
