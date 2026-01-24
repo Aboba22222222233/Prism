@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Users, Activity, Bell, Search, Settings,
     TrendingUp, TrendingDown, AlertTriangle, CheckCircle, AlertCircle,
-    BrainCircuit, ChevronDown, Plus, Copy, Eye, EyeOff, Bot, X, Trash2, FileText, Calendar as CalendarIcon, Clock
+    BrainCircuit, ChevronDown, Plus, Copy, Eye, EyeOff, Bot, X, Trash2, FileText, Calendar as CalendarIcon, Clock, LogOut
 } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell
@@ -10,6 +10,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { getGeminiInsight } from '../lib/gemini';
 import { TeacherMentorChat } from '../components/TeacherMentorChat';
+import { useNavigate } from 'react-router-dom';
 
 const KpiCard = ({ title, value, status }: any) => {
     const colors = {
@@ -28,7 +29,13 @@ const KpiCard = ({ title, value, status }: any) => {
 }
 
 const TeacherDashboard = () => {
+    const navigate = useNavigate();
     const [selectedPeriod, setSelectedPeriod] = useState('Неделя');
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/login');
+    };
 
     // AI State
     const [showInsight, setShowInsight] = useState(false);
@@ -59,6 +66,7 @@ const TeacherDashboard = () => {
     const [newEventType, setNewEventType] = useState('sor');
     const [creatingEvent, setCreatingEvent] = useState(false);
     const [showEventModal, setShowEventModal] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     // Detailed Profile State
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -775,7 +783,14 @@ ${studentsContext}
                             {isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             <span className="text-sm font-bold">{isAnonymous ? 'Имена скрыты' : 'Имена открыты'}</span>
                         </button>
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-600 border border-white/20"></div>
+                        <button
+                            onClick={() => setShowLogoutModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 rounded-full border bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
+                            title="Выйти из аккаунта"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            <span className="text-sm font-bold">Выйти</span>
+                        </button>
                     </div>
                 </header>
 
@@ -942,12 +957,12 @@ ${studentsContext}
                                                             </div>
                                                         </td>
                                                         <td className="py-4">
-                                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${Number(s.avgMood) < 2.5
+                                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${s.isRisk
                                                                 ? 'bg-red-500/10 text-red-400 border-red-500/20'
                                                                 : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                                                 }`}>
-                                                                {Number(s.avgMood) < 2.5 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                                                                {Number(s.avgMood) < 2.5 ? 'Риск' : 'Норма'}
+                                                                {s.isRisk ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                                                                {s.isRisk ? 'Риск' : 'Норма'}
                                                             </span>
                                                         </td>
                                                         <td className="py-4 text-right text-slate-500 pr-2">
@@ -1177,6 +1192,40 @@ ${studentsContext}
                 events={events}
                 studentsData={students}
             />
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowLogoutModal(false)}
+                    />
+                    <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
+                                <LogOut className="w-8 h-8 text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Выйти из аккаунта?</h3>
+                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-medium hover:bg-white/10 transition-colors"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+                                >
+                                    Выйти
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

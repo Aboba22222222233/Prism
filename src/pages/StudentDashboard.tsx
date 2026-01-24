@@ -27,6 +27,7 @@ const StudentDashboard = () => {
     const [selectedClass, setSelectedClass] = useState<any>(null);
     const [activeTab, setActiveTab] = useState('home'); // 'home', 'diary', 'stats', 'settings'
     const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showResources, setShowResources] = useState(false);
     const [tasks, setTasks] = useState<any[]>([]);
     const [viewingTask, setViewingTask] = useState<any>(null);
@@ -478,7 +479,7 @@ const StudentDashboard = () => {
                                             <p className="text-xs text-slate-400 truncate">{userProfile?.email}</p>
                                         </div>
                                         <button
-                                            onClick={handleLogout}
+                                            onClick={() => { setShowProfileMenu(false); setShowLogoutModal(true); }}
                                             className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 flex items-center gap-3 transition-colors"
                                         >
                                             <LogOut className="w-4 h-4" />
@@ -968,6 +969,40 @@ const StudentDashboard = () => {
                         <div className="flex justify-end gap-3">
                             <button onClick={() => setViewingTask(null)} className="px-6 py-3 text-slate-400 font-bold hover:text-white">Отмена</button>
                             <button onClick={submitTask} className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)]">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setShowLogoutModal(false)}
+                    />
+                    <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
+                                <LogOut className="w-8 h-8 text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-2">Выйти из аккаунта?</h3>
+                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-medium hover:bg-white/10 transition-colors"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+                                >
+                                    Выйти
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
