@@ -8,7 +8,7 @@ import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell
 } from 'recharts';
 import { supabase } from '../lib/supabase';
-import { getGeminiInsight } from '../lib/gemini';
+import { getGeminiInsight, assessStudentRisk } from '../lib/gemini';
 import { TeacherMentorChat } from '../components/TeacherMentorChat';
 import { useNavigate } from 'react-router-dom';
 
@@ -78,6 +78,16 @@ const TeacherDashboard = () => {
         activeCount: 0,
         totalStudents: 0
     });
+
+    // AI Risk Assessment State
+    const [aiRiskAssessments, setAiRiskAssessments] = useState<Record<string, {
+        isRisk: boolean;
+        riskLevel: number;
+        status: 'critical' | 'warning' | 'attention' | 'normal';
+        reason: string;
+    }>>({});
+    const [assessingRisk, setAssessingRisk] = useState(false);
+    const [assessingStudentId, setAssessingStudentId] = useState<string | null>(null);
 
     useEffect(() => {
         checkAccessAndFetch();
@@ -360,7 +370,7 @@ const TeacherDashboard = () => {
                     if (!acc[date]) {
                         acc[date] = { sum: 0, count: 0, name: date };
                     }
-                    acc[date].sum += curr.mood_score; // Using Mood instead of Stress for better positivity
+                    acc[date].sum += curr.mood_score;
                     acc[date].count += 1;
                     return acc;
                 }, {});
@@ -372,6 +382,29 @@ const TeacherDashboard = () => {
                 setStressData(chart);
             } else {
                 setStressData([]);
+            }
+
+            // Load saved AI Risk Assessments
+            const { data: savedAssessments } = await supabase
+                .from('ai_risk_assessments')
+                .select('*')
+                .eq('class_id', classId);
+
+            if (savedAssessments && savedAssessments.length > 0) {
+                const assessmentsMap: Record<string, any> = {};
+                savedAssessments.forEach((a: any) => {
+                    assessmentsMap[a.student_id] = {
+                        isRisk: a.risk_level >= 5,
+                        riskLevel: a.risk_level,
+                        status: a.status,
+                        reason: a.reason
+                    };
+                });
+                setAiRiskAssessments(assessmentsMap);
+
+                // Update risk count based on saved assessments
+                const aiRiskCount = savedAssessments.filter((a: any) => a.risk_level >= 5).length;
+                setStats(prev => ({ ...prev, riskCount: aiRiskCount }));
             }
 
         } catch (error) {
@@ -423,6 +456,80 @@ ${studentsContext}
         } finally {
             setAnalyzing(false);
         }
+    };
+
+    // AI Risk Assessment for all students
+    const runAIRiskAssessment = async () => {
+        if (students.length === 0) return;
+        setAssessingRisk(true);
+
+        const newAssessments: Record<string, any> = {};
+
+        for (const student of students) {
+            setAssessingStudentId(student.id);
+
+            try {
+                // Prepare checkins data
+                const checkinsData = (student.rawCheckins || []).slice(-7).map((c: any) => ({
+                    date: new Date(c.created_at).toLocaleDateString('ru-RU'),
+                    mood: c.mood_score,
+                    stress: c.stress_score,
+                    sleep: c.sleep_hours || 7,
+                    energy: c.energy_level || 3,
+                    factors: c.factors || [],
+                    comment: c.comment || ''
+                }));
+
+                const assessment = await assessStudentRisk({
+                    name: isAnonymous ? student.anonName : student.realName,
+                    checkins: checkinsData
+                });
+
+                newAssessments[student.id] = assessment;
+
+                // Small delay to avoid rate limiting
+                await new Promise(res => setTimeout(res, 500));
+
+            } catch (error) {
+                console.error(`Failed to assess ${student.id}:`, error);
+                newAssessments[student.id] = {
+                    isRisk: false,
+                    riskLevel: 0,
+                    status: 'normal',
+                    reason: 'Ошибка анализа'
+                };
+            }
+        }
+
+        setAiRiskAssessments(newAssessments);
+
+        // Update risk count based on AI assessment
+        const aiRiskCount = Object.values(newAssessments).filter((a: any) => a.isRisk).length;
+        setStats(prev => ({ ...prev, riskCount: aiRiskCount }));
+
+        // Save to database
+        try {
+            for (const [studentId, assessment] of Object.entries(newAssessments)) {
+                await supabase
+                    .from('ai_risk_assessments')
+                    .upsert({
+                        student_id: studentId,
+                        class_id: selectedClass.id,
+                        risk_level: (assessment as any).riskLevel,
+                        status: (assessment as any).status,
+                        reason: (assessment as any).reason,
+                        assessed_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'student_id,class_id'
+                    });
+            }
+            console.log('AI assessments saved to database');
+        } catch (error) {
+            console.error('Failed to save assessments:', error);
+        }
+
+        setAssessingStudentId(null);
+        setAssessingRisk(false);
     };
 
 
@@ -601,16 +708,52 @@ ${studentsContext}
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                                     <div className="text-xs text-slate-500 uppercase font-bold mb-1">Статус</div>
-                                    <div className="text-2xl font-bold">
-                                        {selectedStudent.isRisk ? (
-                                            <span className="text-red-400 flex items-center gap-2">
-                                                <AlertTriangle className="w-5 h-5" /> Риск
-                                            </span>
-                                        ) : (
-                                            <span className="text-emerald-400 flex items-center gap-2">
-                                                <CheckCircle className="w-5 h-5" /> Норма
-                                            </span>
-                                        )}
+                                    <div className="text-xl font-bold">
+                                        {(() => {
+                                            const aiAssessment = aiRiskAssessments[selectedStudent.id];
+
+                                            if (aiAssessment) {
+                                                const statusColors = {
+                                                    critical: 'text-red-400',
+                                                    warning: 'text-orange-400',
+                                                    attention: 'text-yellow-400',
+                                                    normal: 'text-emerald-400'
+                                                };
+                                                const statusLabels = {
+                                                    critical: 'Критично',
+                                                    warning: 'Риск',
+                                                    attention: 'Внимание',
+                                                    normal: 'Норма'
+                                                };
+                                                const StatusIcon = {
+                                                    critical: AlertCircle,
+                                                    warning: AlertTriangle,
+                                                    attention: Activity,
+                                                    normal: CheckCircle
+                                                }[aiAssessment.status];
+
+                                                return (
+                                                    <div>
+                                                        <span className={`${statusColors[aiAssessment.status]} flex items-center gap-2`}>
+                                                            <StatusIcon className="w-5 h-5" />
+                                                            {statusLabels[aiAssessment.status]} ({aiAssessment.riskLevel}/10)
+                                                        </span>
+                                                        <p className="text-xs text-slate-400 mt-1 font-normal">{aiAssessment.reason}</p>
+                                                    </div>
+                                                );
+                                            }
+
+                                            // Fallback to rule-based
+                                            return selectedStudent.isRisk ? (
+                                                <span className="text-red-400 flex items-center gap-2">
+                                                    <AlertTriangle className="w-5 h-5" /> Риск
+                                                </span>
+                                            ) : (
+                                                <span className="text-emerald-400 flex items-center gap-2">
+                                                    <CheckCircle className="w-5 h-5" /> Норма
+                                                </span>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
@@ -651,9 +794,21 @@ ${studentsContext}
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                                     {selectedStudent.rawCheckins.slice().reverse().slice(0, 5).map((c: any) => (
                                         <div key={c.id} className="bg-white/5 rounded-lg p-3 text-sm border border-white/5">
-                                            <div className="flex justify-between items-center mb-1">
+                                            <div className="flex justify-between items-center mb-2">
                                                 <span className="text-slate-500 text-xs">{new Date(c.created_at).toLocaleDateString('ru-RU')}</span>
-                                                <span className={`text-xs font-bold ${c.mood_score < 3 ? 'text-red-400' : 'text-emerald-400'}`}>Mood: {c.mood_score}</span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`text-xs font-bold ${c.mood_score < 3 ? 'text-red-400' : 'text-emerald-400'}`}>
+                                                        Настроение: {c.mood_score}/5
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-4 mb-2 text-xs">
+                                                <span className="text-blue-400">
+                                                    Сон: {c.sleep_hours || '?'}ч
+                                                </span>
+                                                <span className="text-yellow-400">
+                                                    Энергия: {c.energy_level || '?'}/10
+                                                </span>
                                             </div>
                                             <p className="text-slate-300">
                                                 {isAnonymous ? "Текст скрыт настройками приватности" : (c.comment || "Без заметки")}
@@ -913,7 +1068,17 @@ ${studentsContext}
                                 <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 min-h-[500px]">
                                     <div className="flex justify-between items-center mb-6">
                                         <h3 className="font-bold text-lg">Успеваемость и Состояние</h3>
-
+                                        <button
+                                            onClick={runAIRiskAssessment}
+                                            disabled={assessingRisk || students.length === 0}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${assessingRisk
+                                                ? 'bg-purple-500/20 text-purple-300 cursor-wait'
+                                                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-lg shadow-purple-500/20'
+                                                }`}
+                                        >
+                                            <BrainCircuit className={`w-4 h-4 ${assessingRisk ? 'animate-spin' : ''}`} />
+                                            {assessingRisk ? `Анализ ${assessingStudentId ? '...' : ''}` : 'AI Анализ риска'}
+                                        </button>
                                     </div>
 
                                     <div className="overflow-x-auto">
@@ -957,13 +1122,63 @@ ${studentsContext}
                                                             </div>
                                                         </td>
                                                         <td className="py-4">
-                                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${s.isRisk
-                                                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                                                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                                                }`}>
-                                                                {s.isRisk ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                                                                {s.isRisk ? 'Риск' : 'Норма'}
-                                                            </span>
+                                                            {(() => {
+                                                                const aiAssessment = aiRiskAssessments[s.id];
+                                                                const isAssessing = assessingStudentId === s.id;
+
+                                                                if (isAssessing) {
+                                                                    return (
+                                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-purple-500/10 text-purple-400 border-purple-500/20 animate-pulse">
+                                                                            <BrainCircuit className="w-3 h-3 animate-spin" />
+                                                                            Анализ...
+                                                                        </span>
+                                                                    );
+                                                                }
+
+                                                                if (aiAssessment) {
+                                                                    const statusColors = {
+                                                                        critical: 'bg-red-500/20 text-red-400 border-red-500/30',
+                                                                        warning: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+                                                                        attention: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+                                                                        normal: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                                    };
+                                                                    const statusLabels = {
+                                                                        critical: 'Критично',
+                                                                        warning: 'Риск',
+                                                                        attention: 'Внимание',
+                                                                        normal: 'Норма'
+                                                                    };
+
+                                                                    return (
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <span
+                                                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[aiAssessment.status]}`}
+                                                                                title={aiAssessment.reason}
+                                                                            >
+                                                                                {aiAssessment.status === 'critical' && <AlertCircle className="w-3 h-3" />}
+                                                                                {aiAssessment.status === 'warning' && <AlertTriangle className="w-3 h-3" />}
+                                                                                {aiAssessment.status === 'attention' && <Activity className="w-3 h-3" />}
+                                                                                {aiAssessment.status === 'normal' && <CheckCircle className="w-3 h-3" />}
+                                                                                {statusLabels[aiAssessment.status]} ({aiAssessment.riskLevel}/10)
+                                                                            </span>
+                                                                            <span className="text-[10px] text-slate-500 max-w-[150px] truncate" title={aiAssessment.reason}>
+                                                                                {aiAssessment.reason}
+                                                                            </span>
+                                                                        </div>
+                                                                    );
+                                                                }
+
+                                                                // Fallback to rule-based
+                                                                return (
+                                                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${s.isRisk
+                                                                        ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                                                        : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                                                        }`}>
+                                                                        {s.isRisk ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                                                                        {s.isRisk ? 'Риск' : 'Норма'}
+                                                                    </span>
+                                                                );
+                                                            })()}
                                                         </td>
                                                         <td className="py-4 text-right text-slate-500 pr-2">
                                                             {s.lastCheckin ? new Date(s.lastCheckin.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
@@ -1006,7 +1221,7 @@ ${studentsContext}
                                                                         }, 3000);
                                                                     }
                                                                 }}
-                                                                className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors relative z-50 pointer-events-auto"
+                                                                className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
                                                                 title="Исключить из класса"
                                                             >
                                                                 <Trash2 className="w-4 h-4 pointer-events-none" />
@@ -1058,7 +1273,7 @@ ${studentsContext}
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
                                                 <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} />
-                                                <YAxis stroke="#666" axisLine={false} tickLine={false} domain={[0, 5]} hide />
+                                                <YAxis stroke="#666" axisLine={false} tickLine={false} domain={[1, 5]} hide />
                                                 <RechartsTooltip
                                                     contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}
                                                     itemStyle={{ color: '#fff' }}
