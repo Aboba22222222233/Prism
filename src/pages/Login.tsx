@@ -38,13 +38,29 @@ const Login = () => {
     }
   };
 
-  const verifyTeacherCode = (e: React.FormEvent) => {
+  const verifyTeacherCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (secretCode === 'Zerde2025') {
-      setTeacherVerified(true);
-      setError(null);
-    } else {
-      setError('Неверный код доступа учителя');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('admin_config')
+        .select('value')
+        .eq('key', 'teacher_access_code')
+        .single();
+
+      if (error || !data) {
+        setError('Ошибка проверки кода');
+      } else if (data.value === secretCode) {
+        setTeacherVerified(true);
+        setError(null);
+      } else {
+        setError('Неверный код доступа учителя');
+      }
+    } catch (err) {
+      setError('Ошибка проверки кода');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -266,20 +282,22 @@ const Login = () => {
                 </p>
               </div>
 
-              <div className="mb-6">
-                <button
-                  onClick={handleGoogleLogin}
-                  className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-3 shadow-lg"
-                >
-                  <div className="w-5 h-5 flex items-center justify-center"><Chrome className="w-4 h-4" /></div>
-                  Войти через Google
-                </button>
-                <div className="mt-6 flex items-center gap-4 text-slate-500 text-xs uppercase font-bold tracking-widest">
-                  <div className="h-px bg-white/10 flex-1"></div>
-                  ИЛИ
-                  <div className="h-px bg-white/10 flex-1"></div>
+              {!isTeacher && (
+                <div className="mb-6">
+                  <button
+                    onClick={handleGoogleLogin}
+                    className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-3 shadow-lg"
+                  >
+                    <div className="w-5 h-5 flex items-center justify-center"><Chrome className="w-4 h-4" /></div>
+                    Войти через Google
+                  </button>
+                  <div className="mt-6 flex items-center gap-4 text-slate-500 text-xs uppercase font-bold tracking-widest">
+                    <div className="h-px bg-white/10 flex-1"></div>
+                    ИЛИ
+                    <div className="h-px bg-white/10 flex-1"></div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <form onSubmit={mode === 'login' ? handleLogin : handleRegister} className="space-y-6">
                 <div className="space-y-2">
