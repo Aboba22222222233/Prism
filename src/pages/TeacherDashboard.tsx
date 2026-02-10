@@ -115,7 +115,15 @@ const TeacherDashboard = () => {
                 .eq('id', user.id)
                 .single();
 
-            if (!profile || profile.role !== 'teacher') {
+            let role = profile?.role;
+
+            if (!role) {
+                // Fallback to metadata if RLS blocks profile read
+                const { data: { user: authUser } } = await supabase.auth.getUser();
+                role = authUser?.user_metadata?.role;
+            }
+
+            if (role !== 'teacher') {
                 setAccessDenied(true);
                 setLoading(false);
                 return;
