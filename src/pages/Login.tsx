@@ -108,15 +108,33 @@ const Login = () => {
   };
 
   const checkRoleAndRedirect = async (userId: string) => {
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single();
 
-    if (profile?.role === 'teacher') {
+    console.log('Профиль из БД:', profile, 'Ошибка:', profileError?.message);
+
+    // Определяем роль: сначала из profiles, потом из user_metadata
+    let role = profile?.role;
+    if (!role) {
+      const { data: { user } } = await supabase.auth.getUser();
+      role = user?.user_metadata?.role;
+      console.log('Роль из user_metadata:', role);
+      // alert(`DEBUG: Role from metadata: ${role}`); 
+    }
+
+    console.log('Итоговая роль:', role);
+    // ВРЕМЕННАЯ ОТЛАДКА: Показываем алерт с ролью
+    // alert(`DEBUG: Detected Role: ${role}\nProfile: ${JSON.stringify(profile)}\nError: ${profileError?.message}`);
+
+    if (role === 'teacher') {
       navigate('/dashboard');
     } else {
+      // Если мы явно пытались войти как учитель, но нас кидает на student — предупредим
+      // Но здесь у нас нет isTeacher из состояния компонента (оно снаружи).
+      // Просто делаем навигацию.
       navigate('/student-dashboard');
     }
   };
@@ -157,21 +175,50 @@ const Login = () => {
 
     if (signUpError) throw signUpError;
 
-    // 2. Create Profile Record
+    // 2. Create/Update Profile Record
     if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: data.user.id,
-          email: email,
-          role: role,
-          class_id: role === 'student' ? '9A' : null // Only set dummy class for students
-        });
+      // Wait for Supabase trigger to create profile
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (profileError) {
-        console.error("Profile creation warning (likely RLS):", profileError);
-        // Do NOT throw error here if user was created.
-        // Just proceed to tell them to check email.
+      // Try UPDATE first (if trigger created profile)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          role: role,
+          class_id: role === 'student' ? '9A' : null
+        })
+        .eq('id', data.user.id);
+
+      if (updateError) {
+        console.warn("Update failed, trying upsert:", updateError.message);
+
+        // Fallback to UPSERT
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            email: email,
+            role: role,
+            class_id: role === 'student' ? '9A' : null
+          });
+
+        if (profileError) {
+          console.error("Profile creation warning (likely RLS):", profileError);
+        }
+      }
+
+      // Verification: check if role is correct
+      const { data: finalProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (finalProfile?.role !== role) {
+        // Fallback: update metadata if DB update failed
+        await supabase.auth.updateUser({
+          data: { role }
+        });
       }
     }
 
