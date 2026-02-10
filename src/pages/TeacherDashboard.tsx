@@ -89,6 +89,8 @@ const TeacherDashboard = () => {
     const [assessingRisk, setAssessingRisk] = useState(false);
     const [assessingStudentId, setAssessingStudentId] = useState<string | null>(null);
 
+    const [debugInfo, setDebugInfo] = useState<any>(null);
+
     useEffect(() => {
         checkAccessAndFetch();
     }, []);
@@ -116,14 +118,24 @@ const TeacherDashboard = () => {
                 .single();
 
             let role = profile?.role;
+            let metaRole = undefined;
 
             if (!role) {
                 // Fallback to metadata if RLS blocks profile read
                 const { data: { user: authUser } } = await supabase.auth.getUser();
-                role = authUser?.user_metadata?.role;
+                metaRole = authUser?.user_metadata?.role;
+                role = metaRole;
             }
 
             if (role !== 'teacher') {
+                setDebugInfo({
+                    msg: "Role mismatch",
+                    dbRole: profile?.role,
+                    metaRole: metaRole,
+                    finalRole: role,
+                    uid: user.id,
+                    metadata: user.user_metadata
+                });
                 setAccessDenied(true);
                 setLoading(false);
                 return;
@@ -638,7 +650,24 @@ ${studentsContext}
 
     // --- RENDER ---
     if (loading && !selectedClass) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Загрузка...</div>;
-    if (accessDenied) return <div className="text-white bg-black h-screen flex items-center justify-center">Доступ запрещен</div>;
+    if (accessDenied) return (
+        <div className="text-white bg-black h-screen flex flex-col items-center justify-center p-8 text-center">
+            <h1 className="text-2xl font-bold text-red-500 mb-4">Доступ запрещен</h1>
+            <p className="text-slate-400 mb-4">Система не распознала вас как учителя.</p>
+            <div className="bg-gray-900 p-4 rounded-xl border border-white/10 text-left w-full max-w-lg overflow-auto">
+                <p className="text-xs text-slate-500 font-bold mb-2 uppercase">Техническая информация (Скинь скриншот):</p>
+                <pre className="text-xs font-mono text-green-400 whitespace-pre-wrap">
+                    {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+            </div>
+            <button
+                onClick={() => { supabase.auth.signOut(); window.location.href = '/login'; }}
+                className="mt-8 px-6 py-3 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors"
+            >
+                Выйти и попробовать снова
+            </button>
+        </div>
+    );
 
     // NO CLASSES VIEW
     if (classes.length === 0 && !loading) {
