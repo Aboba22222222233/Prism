@@ -1,0 +1,529 @@
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ScrollView,
+    StyleSheet,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Image,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
+import { supabase } from '../src/lib/supabase';
+import { useTheme } from '../src/context/ThemeContext';
+import { ScreenWrapper } from '../src/components/ui/ScreenWrapper';
+import { Button } from '../src/components/ui/Button';
+import { Input } from '../src/components/ui/Input';
+import { Card } from '../src/components/ui/Card';
+import { Lock, Mail, ChevronRight, AlertCircle } from 'lucide-react-native';
+
+export default function LoginScreen() {
+    const { colors, mode } = useTheme();
+    const router = useRouter();
+
+    const [isTeacher, setIsTeacher] = useState(false);
+    const [teacherVerified, setTeacherVerified] = useState(false);
+    const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+    const [verificationSent, setVerificationSent] = useState(false);
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [secretCode, setSecretCode] = useState('');
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleRoleChange = (role: boolean) => {
+        setIsTeacher(role);
+        setError(null);
+        setVerificationSent(false);
+        setTeacherVerified(false);
+        setSecretCode('');
+    };
+
+    const verifyTeacherCode = async () => {
+        setLoading(true);
+        try {
+            const { data, error: fetchError } = await supabase
+                .from('admin_config')
+                .select('value')
+                .eq('key', 'teacher_access_code')
+                .single();
+
+            if (fetchError || !data) {
+                setError('Ошибка проверки кода');
+            } else if (data.value === secretCode) {
+                setTeacherVerified(true);
+                setError(null);
+            } else {
+                setError('Неверный код доступа учителя');
+            }
+        } catch {
+            setError('Ошибка проверки кода');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleLogin = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const { data, error: signInError } = await supabase.auth.signInWithPassword({
+                email: email.trim(),
+                password,
+            });
+            if (signInError) throw signInError;
+
+            if (data.user) {
+                console.log('Вход выполнен, user id:', data.user.id);
+                console.log('User metadata:', data.user.user_metadata);
+
+                // Пробуем получить роль из profiles
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+
+                console.log('Профиль из БД:', profileData, 'Ошибка:', profileError?.message);
+
+                // Определяем роль: сначала из profiles, потом из user_metadata
+                let role = profileData?.role;
+                if (!role) {
+                    role = data.user.user_metadata?.role;
+                    console.log('Роль из user_metadata:', role);
+                }
+
+                console.log('Итоговая роль:', role);
+
+                if (role === 'teacher') {
+                    router.replace('/(teacher)/classes');
+                } else {
+                    router.replace('/(student)/classes');
+                }
+            }
+        } catch (err: any) {
+            setError(err.message || 'Ошибка входа');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRegister = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            if (!email || !password) throw new Error('Заполните все поля');
+            if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов');
+
+            const role = isTeacher ? 'teacher' : 'student';
+            console.log('Регистрация с ролью:', role);
+
+            const { data, error: signUpError } = await supabase.auth.signUp({
+                email: email.trim(),
+                password,
+                options: {
+                    data: {
+                        full_name: email.split('@')[0],
+                        role,
+                    },
+                },
+            });
+
+            if (signUpError) throw signUpError;
+
+            if (data.user) {
+                // Ждём чтобы Supabase триггер успел создать профиль
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Пробуем UPDATE (если триггер уже создал профиль)
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({ role, full_name: email.split('@')[0] })
+                    .eq('id', data.user.id);
+
+                if (updateError) {
+                    console.log('Update не сработал, пробуем upsert:', updateError.message);
+                    // Если update не сработал, пробуем upsert
+                    const { error: upsertError } = await supabase
+                        .from('profiles')
+                        .upsert({
+                            id: data.user.id,
+                            email: email.trim(),
+                            role,
+                            full_name: email.split('@')[0],
+                        }, { onConflict: 'id' });
+
+                    if (upsertError) {
+                        console.error('Upsert тоже не сработал:', upsertError.message);
+                    }
+                }
+
+                // Проверяем финальный результат
+                const { data: finalProfile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+
+                console.log('Финальный профиль из БД:', finalProfile);
+
+                // Если роль всё ещё не teacher — обновляем user_metadata напрямую
+                if (finalProfile?.role !== role) {
+                    console.log('Роль не совпадает! Пробуем updateUser...');
+                    await supabase.auth.updateUser({
+                        data: { role }
+                    });
+                }
+            }
+
+            if (data.user && !data.session) {
+                setVerificationSent(true);
+            } else {
+                // Навигация напрямую по роли
+                router.replace(role === 'teacher' ? '/(teacher)/classes' : '/(student)/classes');
+            }
+        } catch (err: any) {
+            setError(err.message || 'Ошибка регистрации');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        try {
+            setLoading(true);
+            const redirectUrl = Linking.createURL('/');
+
+            const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: redirectUrl,
+                    skipBrowserRedirect: true,
+                },
+            });
+
+            if (oauthError) throw oauthError;
+            if (!data?.url) throw new Error('Не удалось получить URL авторизации');
+
+            const result = await WebBrowser.openAuthSessionAsync(
+                data.url,
+                redirectUrl,
+            );
+
+            if (result.type === 'success' && result.url) {
+                const url = new URL(result.url);
+                const params = new URLSearchParams(url.hash.substring(1));
+                const accessToken = params.get('access_token');
+                const refreshToken = params.get('refresh_token');
+
+                if (accessToken && refreshToken) {
+                    const { error: sessionError } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                    });
+                    if (sessionError) throw sessionError;
+                    router.replace('/');
+                }
+            }
+        } catch (err: any) {
+            setError(err.message || 'Ошибка входа через Google');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- ЭКРАН ПОДТВЕРЖДЕНИЯ EMAIL ---
+    if (verificationSent) {
+        return (
+            <ScreenWrapper>
+                <View style={styles.centered}>
+                    <Card style={{ alignItems: 'center' }}>
+                        <View style={[styles.iconCircle, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
+                            <Mail size={28} color="rgb(34,197,94)" />
+                        </View>
+                        <Text style={[styles.title, { color: colors.text }]}>Подтвердите Email</Text>
+                        <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
+                            Ссылка для подтверждения отправлена на {email}. Проверьте почту.
+                        </Text>
+                        <Button
+                            title="Вернуться ко входу"
+                            onPress={() => { setVerificationSent(false); setAuthMode('login'); }}
+                            style={{ marginTop: 24, width: '100%' }}
+                        />
+                    </Card>
+                </View>
+            </ScreenWrapper>
+        );
+    }
+
+    // --- ЭКРАН КОДА УЧИТЕЛЯ ---
+    if (isTeacher && !teacherVerified) {
+        return (
+            <ScreenWrapper>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={styles.centered}
+                >
+                    <Card style={{ alignItems: 'center', width: '100%' }}>
+                        <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.15)' }]}>
+                            <Lock size={24} color="rgb(245,158,11)" />
+                        </View>
+                        <Text style={[styles.title, { color: colors.text }]}>Доступ ограничен</Text>
+                        <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
+                            Введите корпоративный код доступа для входа в учительскую панель.
+                        </Text>
+
+                        <Input
+                            value={secretCode}
+                            onChangeText={setSecretCode}
+                            placeholder="КОД"
+                            secureTextEntry
+                            autoFocus
+                            style={{ textAlign: 'center', letterSpacing: 6, fontSize: 18, marginTop: 20, width: '100%' }}
+                        />
+
+                        {error && (
+                            <View style={styles.errorRow}>
+                                <AlertCircle size={14} color="rgb(239,68,68)" />
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        )}
+
+                        <Button
+                            title="Подтвердить"
+                            variant="accent"
+                            onPress={verifyTeacherCode}
+                            loading={loading}
+                            style={{ marginTop: 16, width: '100%' }}
+                        />
+
+                        <TouchableOpacity onPress={() => handleRoleChange(false)} style={{ marginTop: 16 }}>
+                            <Text style={{ color: colors.subtext, fontSize: 14 }}>Войти как ученик</Text>
+                        </TouchableOpacity>
+                    </Card>
+                </KeyboardAvoidingView>
+            </ScreenWrapper>
+        );
+    }
+
+    // --- ГЛАВНЫЙ ЭКРАН ЛОГИНА ---
+    return (
+        <ScreenWrapper>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ flex: 1 }}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Лого */}
+                    <View style={styles.logoSection}>
+                        <Image
+                            source={require('../assets/logo.png')}
+                            style={styles.logoImage}
+                            resizeMode="contain"
+                        />
+                        <Text style={[styles.appName, { color: colors.text }]}>Prism</Text>
+                    </View>
+
+                    {/* Переключатель ролей */}
+                    <View style={[styles.roleToggle, { backgroundColor: colors.surface }]}>
+                        <TouchableOpacity
+                            onPress={() => handleRoleChange(true)}
+                            style={[
+                                styles.roleButton,
+                                isTeacher && { backgroundColor: colors.text },
+                            ]}
+                        >
+                            <Text style={[
+                                styles.roleText,
+                                { color: isTeacher ? colors.background : colors.subtext },
+                            ]}>
+                                Учитель
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => handleRoleChange(false)}
+                            style={[
+                                styles.roleButton,
+                                !isTeacher && { backgroundColor: colors.text },
+                            ]}
+                        >
+                            <Text style={[
+                                styles.roleText,
+                                { color: !isTeacher ? colors.background : colors.subtext },
+                            ]}>
+                                Ученик
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Форма */}
+                    <Card>
+                        <Text style={[styles.title, { color: colors.text }]}>
+                            {authMode === 'login' ? 'С возвращением!' : 'Создать аккаунт'}
+                        </Text>
+                        <Text style={[styles.subtitle, { color: colors.subtext }]}>
+                            {isTeacher ? 'Вход в учительскую панель' : 'Вход в личный кабинет ученика'}
+                        </Text>
+
+                        {/* Google кнопка (только для учеников) */}
+                        {!isTeacher && (
+                            <View style={{ marginTop: 20 }}>
+                                <Button
+                                    title="Войти через Google"
+                                    variant="secondary"
+                                    onPress={handleGoogleLogin}
+                                />
+                                <View style={styles.divider}>
+                                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                                    <Text style={[styles.dividerText, { color: colors.subtext }]}>ИЛИ</Text>
+                                    <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                                </View>
+                            </View>
+                        )}
+
+                        <View style={{ gap: 14, marginTop: isTeacher ? 20 : 0 }}>
+                            <Input
+                                label="Email"
+                                value={email}
+                                onChangeText={setEmail}
+                                placeholder={isTeacher ? 'teacher@school.kz' : 'student@school.kz'}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                            />
+                            <Input
+                                label="Пароль"
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="••••••••"
+                                secureTextEntry
+                            />
+                        </View>
+
+                        {error && (
+                            <View style={styles.errorRow}>
+                                <AlertCircle size={14} color="rgb(239,68,68)" />
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        )}
+
+                        <Button
+                            title={loading ? 'Загрузка...' : (authMode === 'login' ? 'Войти' : 'Создать аккаунт')}
+                            onPress={authMode === 'login' ? handleLogin : handleRegister}
+                            loading={loading}
+                            style={{ marginTop: 20 }}
+                            icon={<ChevronRight size={16} color={colors.background} />}
+                        />
+
+                        <TouchableOpacity
+                            onPress={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                            style={{ marginTop: 16, alignItems: 'center' }}
+                        >
+                            <Text style={{ color: colors.subtext, fontSize: 14 }}>
+                                {authMode === 'login' ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+                            </Text>
+                        </TouchableOpacity>
+                    </Card>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </ScreenWrapper>
+    );
+}
+
+const styles = StyleSheet.create({
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 40,
+    },
+    logoSection: {
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    logoImage: {
+        width: 80,
+        height: 80,
+        borderRadius: 20,
+        marginBottom: 12,
+    },
+    appName: {
+        fontSize: 28,
+        fontWeight: '700',
+    },
+    roleToggle: {
+        flexDirection: 'row',
+        borderRadius: 12,
+        padding: 4,
+        marginBottom: 24,
+    },
+    roleButton: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    roleText: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: '700',
+    },
+    subtitle: {
+        fontSize: 14,
+        marginTop: 4,
+    },
+    divider: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    dividerLine: {
+        flex: 1,
+        height: 1,
+    },
+    dividerText: {
+        marginHorizontal: 12,
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 2,
+    },
+    iconCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+    },
+    errorRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 12,
+        padding: 10,
+        borderRadius: 10,
+        backgroundColor: 'rgba(239,68,68,0.08)',
+    },
+    errorText: {
+        color: 'rgb(239,68,68)',
+        fontSize: 13,
+        flex: 1,
+    },
+});
