@@ -416,6 +416,22 @@ const TeacherDashboard = () => {
                 setStats(prev => ({ ...prev, riskCount: aiRiskCount }));
             }
 
+            // Load latest class insight
+            const { data: latestInsight } = await supabase
+                .from('class_insights')
+                .select('content')
+                .eq('class_id', classId)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (latestInsight) {
+                setInsightText(latestInsight.content);
+            } else {
+                setInsightText("");
+            }
+
+
         } catch (error) {
             console.error(error);
         } finally {
@@ -458,6 +474,17 @@ ${studentsContext}
             const insight = await getGeminiInsight(prompt);
             setInsightText(insight);
             setShowInsight(true);
+
+            // Save to DB
+            try {
+                await supabase.from('class_insights').insert({
+                    class_id: selectedClass.id,
+                    content: insight,
+                    summary: insight.substring(0, 100) + '...'
+                });
+            } catch (err) {
+                console.error("Failed to save insight", err);
+            }
 
         } catch (err) {
             console.error(err);

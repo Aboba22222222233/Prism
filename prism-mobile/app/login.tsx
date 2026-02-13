@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
+import { makeRedirectUri } from 'expo-auth-session';
 import { supabase } from '../src/lib/supabase';
 import { useTheme } from '../src/context/ThemeContext';
 import { ScreenWrapper } from '../src/components/ui/ScreenWrapper';
@@ -198,12 +198,14 @@ export default function LoginScreen() {
     const handleGoogleLogin = async () => {
         try {
             setLoading(true);
-            const redirectUrl = Linking.createURL('/');
+            // Этап 1: Supabase перенаправляет на наш сайт (HTTPS — Supabase принимает)
+            // Этап 2: Сайт перенаправляет в приложение через deep link
+            const siteCallbackUrl = 'https://prism-psi-seven.vercel.app/auth/mobile-callback';
 
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: redirectUrl,
+                    redirectTo: siteCallbackUrl,
                     skipBrowserRedirect: true,
                 },
             });
@@ -211,13 +213,19 @@ export default function LoginScreen() {
             if (oauthError) throw oauthError;
             if (!data?.url) throw new Error('Не удалось получить URL авторизации');
 
+            // Открываем браузер и ждём возврата через prism-mobile:// схему
             const result = await WebBrowser.openAuthSessionAsync(
                 data.url,
-                redirectUrl,
+                'prism-mobile://',
             );
 
-            if (result.type === 'success' && result.url) {
-                const url = new URL(result.url);
+            console.log('Auth result type:', result.type);
+
+            if (result.type === 'success' && (result as any).url) {
+                const resultUrl = (result as any).url;
+                console.log('Auth result URL:', resultUrl);
+
+                const url = new URL(resultUrl);
                 const params = new URLSearchParams(url.hash.substring(1));
                 const accessToken = params.get('access_token');
                 const refreshToken = params.get('refresh_token');

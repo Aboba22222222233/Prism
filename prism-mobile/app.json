@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "scheme": "prism",
+    "scheme": "prism-mobile",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",

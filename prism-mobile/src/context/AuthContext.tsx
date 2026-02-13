@@ -37,7 +37,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         // Получаем текущую сессию
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(({ data: { session }, error }) => {
+            if (error) {
+                console.log('Session Error:', error.message);
+                // Если ошибка с токеном — сбрасываем состояние
+                setSession(null);
+                setUser(null);
+                setLoading(false);
+                return;
+            }
+
             setSession(session);
             setUser(session?.user ?? null);
             if (session?.user) {

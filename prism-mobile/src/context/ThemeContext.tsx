@@ -24,12 +24,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const loadTheme = async () => {
-        try {
-            const saved = await AsyncStorage.getItem(THEME_KEY);
-            if (saved === 'light' || saved === 'dark') {
-                setMode(saved);
-            }
-        } catch { }
+        setMode('dark'); // Force dark mode
     };
 
     const toggleTheme = async () => {

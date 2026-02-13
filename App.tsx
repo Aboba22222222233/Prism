@@ -10,6 +10,7 @@ import Blog from './src/pages/Blog';
 
 import StudentCheckIn from './src/pages/StudentCheckIn';
 import StudentDashboard from './src/pages/StudentDashboard';
+import MobileAuthCallback from './src/pages/MobileAuthCallback';
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/parental-consent" element={<ParentalConsent />} />
         <Route path="/changelog" element={<Changelog />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/auth/mobile-callback" element={<MobileAuthCallback />} />
       </Routes>
     </Router>
   );
