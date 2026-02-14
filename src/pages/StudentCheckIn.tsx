@@ -5,8 +5,10 @@ import { supabase } from '../lib/supabase';
 import ColorBends from '../../ColorBends';
 
 const emotionsList = [
-    'Спокойствие', 'Радость', 'Тревога', 'Усталость',
-    'Злость', 'Вдохновение', 'Грусть', 'Скука'
+    '😌 Спокойствие', '😊 Радость', '😰 Тревога', '😴 Усталость',
+    '😠 Злость', '✨ Вдохновение', '😢 Грусть', '😑 Скука',
+    '🥰 Благодарность', '😤 Раздражение', '😔 Разочарование', '🤩 Восторг',
+    '😟 Беспокойство', '💪 Уверенность', '🫣 Стеснение', '😶 Безразличие',
 ];
 
 const categorizedFactors = {
@@ -67,14 +69,11 @@ const StudentCheckIn = () => {
                 return;
             }
 
-            // Calculate pseudo stress score based on mood (inverse logic for demo)
-            const stressScore = Math.max(1, Math.min(10, (6 - mood) * 2));
 
             const { error } = await supabase.from('checkins').insert({
                 user_id: user.id,
                 class_id: classId,
                 mood_score: mood,
-                stress_score: stressScore,
                 emotions: selectedEmotions,
                 factors: selectedFactors,
                 comment: comment,

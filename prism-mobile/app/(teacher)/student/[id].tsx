@@ -138,7 +138,6 @@ export default function StudentDetailScreen() {
                 checkins: checkins.slice(0, 10).map(c => ({
                     date: new Date(c.created_at).toLocaleDateString(),
                     mood: c.mood_score,
-                    stress: c.stress_score,
                     sleep: c.sleep_hours,
                     energy: c.energy_level,
                     factors: c.factors || [],

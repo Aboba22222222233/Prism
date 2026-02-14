@@ -223,23 +223,32 @@ export default function LoginScreen() {
 
             if (result.type === 'success' && (result as any).url) {
                 const resultUrl = (result as any).url;
-                console.log('Auth result URL:', resultUrl);
 
                 const url = new URL(resultUrl);
                 const params = new URLSearchParams(url.hash.substring(1));
                 const accessToken = params.get('access_token');
                 const refreshToken = params.get('refresh_token');
 
+                console.log('Access token found:', !!accessToken);
+                console.log('Refresh token found:', !!refreshToken);
+                console.log('Refresh token value:', refreshToken);
+
                 if (accessToken && refreshToken) {
-                    const { error: sessionError } = await supabase.auth.setSession({
-                        access_token: accessToken,
+                    console.log('Refreshing session...');
+                    const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession({
                         refresh_token: refreshToken,
                     });
+                    console.log('Session refresh:', sessionError ? sessionError.message : 'OK');
+                    console.log('User:', sessionData?.user?.email);
                     if (sessionError) throw sessionError;
                     router.replace('/');
+                } else {
+                    console.log('Missing tokens, cannot set session');
+                    setError('Не удалось получить токены авторизации');
                 }
             }
         } catch (err: any) {
+            console.log('Google auth error:', err.message);
             setError(err.message || 'Ошибка входа через Google');
         } finally {
             setLoading(false);

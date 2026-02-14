@@ -46,7 +46,7 @@ const TeacherDashboard = () => {
     const [classes, setClasses] = useState<any[]>([]);
     const [selectedClass, setSelectedClass] = useState<any>(null);
     const [students, setStudents] = useState<any[]>([]);
-    const [stressData, setStressData] = useState<any[]>([]);
+    const [moodChartData, setMoodChartData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [accessDenied, setAccessDenied] = useState(false);
 
@@ -326,11 +326,11 @@ const TeacherDashboard = () => {
                     : '-';
 
                 // Risk Logic: 
-                // 1. Critical: Low Mood (<=2) OR High Stress (>=8) in latest checkin
+                // 1. Critical: Low Mood (<=2) in latest checkin
                 // 2. Trend: Mood dropped consecutive last 3 entries
                 const recentMoods = studentCheckins.slice(-3).map((c: any) => c.mood_score);
                 const isTrendDrop = recentMoods.length === 3 && recentMoods[0] > recentMoods[1] && recentMoods[1] > recentMoods[2];
-                const isCriticalLast = lastCheckin && (lastCheckin.mood_score <= 2 || lastCheckin.stress_score >= 8);
+                const isCriticalLast = lastCheckin && (lastCheckin.mood_score <= 2);
 
                 const isRisk = isCriticalLast || isTrendDrop;
 
@@ -388,9 +388,9 @@ const TeacherDashboard = () => {
                     name: g.name,
                     mood: parseFloat((g.sum / g.count).toFixed(1))
                 }));
-                setStressData(chart);
+                setMoodChartData(chart);
             } else {
-                setStressData([]);
+                setMoodChartData([]);
             }
 
             // Load saved AI Risk Assessments
@@ -451,7 +451,7 @@ const TeacherDashboard = () => {
             // Prepare students context (last 3 checkins per student)
             const studentsContext = students.slice(0, 10).map((s, i) => {
                 const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
-                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10${c.factors?.length ? ', Факторы: ' + c.factors.join(', ') : ''}`
+                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5${c.factors?.length ? ', Факторы: ' + c.factors.join(', ') : ''}`
                 ).join('\n') || '  Нет записей';
                 return `${s.anonName} ${s.isRisk ? '⚠️ РИСК' : ''}:\n${recentCheckins}`;
             }).join('\n\n');
@@ -509,7 +509,6 @@ ${studentsContext}
                 const checkinsData = (student.rawCheckins || []).slice(-7).map((c: any) => ({
                     date: new Date(c.created_at).toLocaleDateString('ru-RU'),
                     mood: c.mood_score,
-                    stress: c.stress_score,
                     sleep: c.sleep_hours || 7,
                     energy: c.energy_level || 3,
                     factors: c.factors || [],
@@ -1300,9 +1299,9 @@ ${studentsContext}
                                     <h3 className="font-bold text-lg mb-4">Динамика настроения</h3>
                                     <div className="h-48 text-xs">
                                         <ResponsiveContainer width="100%" height="100%">
-                                            <AreaChart data={stressData}>
+                                            <AreaChart data={moodChartData}>
                                                 <defs>
-                                                    <linearGradient id="colorStressA" x1="0" y1="0" x2="0" y2="1">
+                                                    <linearGradient id="colorMoodA" x1="0" y1="0" x2="0" y2="1">
                                                         <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
                                                         <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                                     </linearGradient>
@@ -1314,7 +1313,7 @@ ${studentsContext}
                                                     contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}
                                                     itemStyle={{ color: '#fff' }}
                                                 />
-                                                <Area type="monotone" dataKey="mood" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorStressA)" />
+                                                <Area type="monotone" dataKey="mood" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorMoodA)" />
                                             </AreaChart>
                                         </ResponsiveContainer>
                                     </div>

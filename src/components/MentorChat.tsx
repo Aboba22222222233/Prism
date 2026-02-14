@@ -9,7 +9,8 @@ interface MentorChatProps {
 }
 
 const MODELS = [
-    { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
+    { id: "qwen/qwen3-235b-a22b-thinking-2507", name: "Qwen 2.5 (Smart)" },
+    { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
@@ -45,7 +46,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
         try {
             // Prepare context prompt with recent checkins
             const checkinsContext = recentCheckins.slice(0, 5).map((c, i) =>
-                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10, Сон ${c.sleep_hours || '?'}ч, Энергия ${c.energy_level || '?'}/10${c.comment ? `, Заметка: "${c.comment}"` : ''}${c.factors?.length ? `, Факторы: ${c.factors.join(', ')}` : ''}`
+                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Сон ${c.sleep_hours || '?'}ч, Энергия ${c.energy_level || '?'}/10${c.comment ? `, Заметка: "${c.comment}"` : ''}${c.factors?.length ? `, Факторы: ${c.factors.join(', ')}` : ''}`
             ).join('\n') || 'Нет записей';
 
             const contextSystemMsg = {

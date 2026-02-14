@@ -169,7 +169,6 @@ export default function ClassDetailScreen() {
                         checkins: studentCheckins.map(c => ({
                             date: new Date(c.created_at).toLocaleDateString(),
                             mood: c.mood_score,
-                            stress: c.stress_score,
                             sleep: c.sleep_hours,
                             energy: c.energy_level,
                             factors: c.factors || [],
@@ -215,7 +214,6 @@ export default function ClassDetailScreen() {
                     checkins: sCheckins.map(c => ({
                         date: c.created_at,
                         mood: c.mood_score,
-                        stress: c.stress_score,
                         comment: c.comment
                     }))
                 };

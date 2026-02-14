@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
-import { Home, BookOpen, Settings } from 'lucide-react-native';
+import { Home, BookOpen, Settings, MessageSquare, Heart } from 'lucide-react-native';
 
 export default function StudentLayout() {
     const { colors } = useTheme();
@@ -12,11 +12,12 @@ export default function StudentLayout() {
                 headerShown: false,
                 tabBarStyle: {
                     backgroundColor: colors.surface,
-                    borderTopColor: colors.border,
-                    borderTopWidth: 1,
-                    paddingTop: 6,
-                    paddingBottom: 2,
-                    height: 52,
+                    borderTopWidth: 0,
+                    height: 85,
+                    paddingBottom: 25,
+                    paddingTop: 10,
+                    elevation: 0,
+                    shadowOpacity: 0,
                 },
                 tabBarActiveTintColor: colors.accent,
                 tabBarInactiveTintColor: colors.subtext,
@@ -39,6 +40,20 @@ export default function StudentLayout() {
                     title: 'Дашборд',
                     href: null,
                     tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="checkin"
+                options={{
+                    title: 'Чекин',
+                    href: null,
+                }}
+            />
+            <Tabs.Screen
+                name="resources"
+                options={{
+                    title: 'Ресурсы',
+                    tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
                 }}
             />
             <Tabs.Screen

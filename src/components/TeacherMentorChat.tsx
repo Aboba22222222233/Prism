@@ -15,7 +15,8 @@ interface TeacherMentorChatProps {
 }
 
 const MODELS = [
-    { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B" },
+    { id: "qwen/qwen3-235b-a22b-thinking-2507", name: "Qwen 2.5 (Smart)" },
+    { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B" },
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
@@ -52,7 +53,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
             // Prepare students context (last 3 checkins per student)
             const studentsContext = studentsData.slice(0, 10).map((s, i) => {
                 const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
-                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Стресс ${c.stress_score}/10${c.comment ? `, "${c.comment}"` : ''}`
+                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`
                 ).join('\n') || '  Нет записей';
                 return `${i + 1}. ${s.anonName} ${s.isRisk ? '⚠️ РИСК' : '✓'}:\n${recentCheckins}`;
             }).join('\n\n') || 'Нет данных об учениках';
