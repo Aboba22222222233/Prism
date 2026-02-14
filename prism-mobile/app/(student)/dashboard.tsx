@@ -126,12 +126,13 @@ export default function StudentDashboardScreen() {
         const cacheKey = `ai_analysis_${profile.id}_${latestCheckin.id}`;
 
         try {
-            const cached = await AsyncStorage.getItem(cacheKey);
-            if (cached) {
-                console.log("Found cached AI analysis");
-                setAiAnalysis(cached);
-                return;
-            }
+            // CACHING DISABLED
+            // const cached = await AsyncStorage.getItem(cacheKey);
+            // if (cached) {
+            //     console.log("Found cached AI analysis");
+            //     setAiAnalysis(cached);
+            //     return;
+            // }
 
             setAiLoading(true);
             const recent = checkins.slice(0, 5);

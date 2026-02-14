@@ -25,7 +25,7 @@ export async function getChatResponse(messages: any[], model?: string) {
         const { data, error } = await supabase.functions.invoke('chat', {
             body: {
                 messages: messages,
-                model: model || "qwen/qwen3-235b-a22b-thinking-2507" // Default chatbot model
+                model: model || "openai/gpt-oss-120b:free"
             }
         });
 

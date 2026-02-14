@@ -11,10 +11,18 @@ export async function getGeminiInsight(prompt: string, model: string = "openai/g
     });
 
     if (error) throw error;
+
+    // Check for "soft" errors returned as 200 OK
+    if (data && data.error) {
+      console.error("AI Service Error:", data.error, data.details);
+      // Return the error message directly to the user
+      return `Ошибка AI: ${data.details || data.error}`;
+    }
+
     return data.choices?.[0]?.message?.content || "Нет ответа от AI";
   } catch (error) {
     console.error("AI Insight Error:", error);
-    return "Извините, сервис временно недоступен.";
+    return "Не удалось связаться с AI. Проверьте соединение.";
   }
 }
 

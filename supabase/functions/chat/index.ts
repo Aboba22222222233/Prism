@@ -18,8 +18,18 @@ serve(async (req) => {
     try {
         const { messages, model, temperature } = await req.json()
 
-        // Retrieve the secret API key from Supabase secrets
-        const OPENROUTER_API_KEY = Deno.env.get('OPENROUTER_API_KEY')
+        // HARDCODED KEY FOR RELIABILITY
+        const OPENROUTER_API_KEY = "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";
+
+        // DEBUG LOGGING (Masked)
+        console.log("Checking API Key...");
+        if (OPENROUTER_API_KEY) {
+            console.log("API Key found: " + OPENROUTER_API_KEY.substring(0, 5) + "..." + OPENROUTER_API_KEY.substring(OPENROUTER_API_KEY.length - 4));
+        } else {
+            console.error("API Key IS MISSING in Deno.env");
+            console.log("Available Env Vars:", JSON.stringify(Deno.env.toObject(), null, 2));
+        }
+
         if (!OPENROUTER_API_KEY) {
             throw new Error('Missing OPENROUTER_API_KEY')
         }
@@ -40,8 +50,9 @@ serve(async (req) => {
         })
 
         if (!response.ok) {
-            const error = await response.text()
-            return new Response(JSON.stringify({ error }), {
+            const errorText = await response.text()
+            console.error("OpenRouter Error:", errorText);
+            return new Response(JSON.stringify({ error: "OpenRouter Error", details: errorText }), {
                 status: response.status,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
