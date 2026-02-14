@@ -239,7 +239,7 @@ const StudentDashboard = () => {
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
             console.log("Using cached AI analysis");
-            setAiAnalysis(cached);
+            setAiAdvice(cached);
             return;
         }
 
@@ -253,7 +253,7 @@ const StudentDashboard = () => {
 Данные: ${checkinsText}`;
 
             const result = await getGeminiInsight(prompt, "meta-llama/llama-3.3-70b-instruct:free");
-            setAiAnalysis(result);
+            setAiAdvice(result);
 
             // Save to cache and clear old keys for this user to save space
             // We only keep the latest one
@@ -266,7 +266,7 @@ const StudentDashboard = () => {
 
         } catch (err) {
             console.error(err);
-            setAiAnalysis("Не удалось проанализировать данные. Попробуйте позже.");
+            setAiAdvice("Не удалось проанализировать данные. Попробуйте позже.");
         } finally {
             setLoadingAI(false);
         }
