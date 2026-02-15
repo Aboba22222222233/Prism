@@ -113,10 +113,14 @@ ${checkinsText}
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+
+      const rawRisk = Number(parsed.riskLevel);
+      const safeRisk = isNaN(rawRisk) ? 0 : Math.min(10, Math.max(0, rawRisk));
+
       return {
-        isRisk: parsed.riskLevel >= 5,
-        riskLevel: Math.min(10, Math.max(0, parsed.riskLevel)),
-        status: parsed.status || (parsed.riskLevel >= 8 ? 'critical' : parsed.riskLevel >= 5 ? 'warning' : parsed.riskLevel >= 3 ? 'attention' : 'normal'),
+        isRisk: safeRisk >= 5,
+        riskLevel: safeRisk,
+        status: parsed.status || (safeRisk >= 8 ? 'critical' : safeRisk >= 5 ? 'warning' : safeRisk >= 3 ? 'attention' : 'normal'),
         reason: parsed.reason || 'Анализ завершён'
       };
     }
