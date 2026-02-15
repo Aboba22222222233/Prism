@@ -107,7 +107,7 @@ ${checkinsText}
 
   try {
     // Teacher Analysis uses OpenAI/GPT-OSS model
-    const response = await getGeminiInsight(prompt, "openai/gpt-oss-120b:free");
+    const response = await getGeminiInsight(prompt, "openai/gpt-oss-120b");
 
     // Parse JSON response
     const jsonMatch = response.match(/\{[\s\S]*\}/);
