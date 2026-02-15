@@ -250,7 +250,9 @@ const StudentDashboard = () => {
             const checkinsText = recent.map(c =>
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');
-            const prompt = `Ты школьный психолог. Кратко (макс 3 предл) оцени состояние ученика и дай 1 совет.
+            const prompt = `Ты школьный психолог. Твоя задача — поддержать ученика.
+Обращайся к ученику на "ТЫ". Не используй слово "ученик" или третье лицо.
+Кратко (макс 3 предл) оцени его состояние и дай 1 совет.
 Данные: ${checkinsText}`;
 
             const result = await getGeminiInsight(prompt, "openai/gpt-oss-120b");
