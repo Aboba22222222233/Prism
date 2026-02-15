@@ -15,9 +15,8 @@ interface TeacherMentorChatProps {
 }
 
 const MODELS = [
-    { id: "qwen/qwen3-235b-a22b-thinking-2507", name: "Qwen 2.5 (Smart)" },
-    { id: "openai/gpt-oss-120b:free", name: "GPT-OSS 120B" },
-    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
+    { id: "openai/gpt-oss-120b", name: "GPT-OSS 120B (Groq)" },
+    { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
 ];
 
 export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, classStats, events = [], studentsData = [] }) => {

@@ -236,12 +236,13 @@ const StudentDashboard = () => {
         const latestCheckin = checkinsData[0];
         const cacheKey = `ai_analysis_${userProfile.id}_${latestCheckin.id}`;
 
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            console.log("Using cached AI analysis");
-            setAiAdvice(cached);
-            return;
-        }
+        // CACHING DISABLED BY USER REQUEST
+        // const cached = localStorage.getItem(cacheKey);
+        // if (cached) {
+        //     console.log("Using cached AI analysis");
+        //     setAiAdvice(cached);
+        //     return;
+        // }
 
         setLoadingAI(true);
         try {
@@ -252,17 +253,18 @@ const StudentDashboard = () => {
             const prompt = `Ты школьный психолог. Кратко (макс 3 предл) оцени состояние ученика и дай 1 совет.
 Данные: ${checkinsText}`;
 
-            const result = await getGeminiInsight(prompt, "meta-llama/llama-3.3-70b-instruct:free");
+            const result = await getGeminiInsight(prompt, "openai/gpt-oss-120b");
             setAiAdvice(result);
 
+            // CACHING DISABLED
             // Save to cache and clear old keys for this user to save space
             // We only keep the latest one
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith(`ai_analysis_${userProfile.id}_`) && key !== cacheKey) {
-                    localStorage.removeItem(key);
-                }
-            });
-            localStorage.setItem(cacheKey, result);
+            // Object.keys(localStorage).forEach(key => {
+            //     if (key.startsWith(`ai_analysis_${userProfile.id}_`) && key !== cacheKey) {
+            //         localStorage.removeItem(key);
+            //     }
+            // });
+            // localStorage.setItem(cacheKey, result);
 
         } catch (err) {
             console.error(err);
