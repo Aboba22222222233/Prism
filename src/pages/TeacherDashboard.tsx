@@ -864,8 +864,8 @@ ${studentsContext}
 
             {/* SIDEBAR (Class Selector) */}
             <aside className="w-64 border-r border-white/10 p-6 flex flex-col bg-[#050505]">
-                <div className="flex items-center gap-2 font-bold text-xl mb-8">
-                    <Activity className="w-6 h-6 text-purple-500" />
+                <div className="flex items-center gap-3 font-bold text-xl mb-8">
+                    <img src="/logo.png" alt="Prism Logo" className="w-8 h-8 object-contain" />
                     <span>Prism <span className="text-slate-500 text-sm">Teacher</span></span>
                 </div>
 
