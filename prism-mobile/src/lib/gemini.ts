@@ -3,17 +3,35 @@
 
 import { supabase } from './supabase';
 
+// HARDCODED DEMO KEY
+const OPENROUTER_API_KEY = "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";
+
 export async function getGeminiInsight(prompt: string, model: string = "openai/gpt-oss-120b:free") {
     try {
-        const { data, error } = await supabase.functions.invoke('chat', {
-            body: {
+        console.log("Mobile calling OpenRouter directly...");
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://prism.app",
+                "X-Title": "Prism",
+            },
+            body: JSON.stringify({
+                model: model,
                 messages: [{ role: "user", content: prompt }],
-                model: model
-            }
+            })
         });
 
-        if (error) throw error;
+        if (!response.ok) {
+            const err = await response.text();
+            console.error("OpenRouter Error:", err);
+            return `Ошибка AI: ${err}`;
+        }
+
+        const data = await response.json();
         return data.choices?.[0]?.message?.content || "AI молчит...";
+
     } catch (error) {
         console.error("AI Insight Error:", error);
         return "Сервис временно недоступен";
