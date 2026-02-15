@@ -89,7 +89,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
 
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: typeof response === 'string' ? response : response || 'Нет ответа',
+                content: typeof response === 'string' ? response : response?.content || 'Нет ответа',
             }]);
         } catch (error) {
             setMessages(prev => [...prev, {
