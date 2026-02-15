@@ -18,42 +18,40 @@ serve(async (req) => {
     try {
         const { messages, model, temperature } = await req.json()
 
-        // HARDCODED KEY FOR RELIABILITY
-        const OPENROUTER_API_KEY = "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";
+        // HARDCODED KEY FOR RELIABILITY (GROQ)
+        const GROQ_API_KEY = "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";
 
         // DEBUG LOGGING (Masked)
         console.log("Checking API Key...");
-        if (OPENROUTER_API_KEY) {
-            console.log("API Key found: " + OPENROUTER_API_KEY.substring(0, 5) + "..." + OPENROUTER_API_KEY.substring(OPENROUTER_API_KEY.length - 4));
-        } else {
-            console.error("API Key IS MISSING in Deno.env");
-            console.log("Available Env Vars:", JSON.stringify(Deno.env.toObject(), null, 2));
+        if (GROQ_API_KEY) {
+            console.log("API Key found: " + GROQ_API_KEY.substring(0, 5) + "...");
         }
 
-        if (!OPENROUTER_API_KEY) {
-            throw new Error('Missing OPENROUTER_API_KEY')
-        }
-
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        // Use Groq API URL
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://prism.app", // Optional
-                "X-Title": "Prism", // Optional
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: model || "openai/gpt-oss-120b:free",
+                model: "openai/gpt-oss-120b", // User-specified model
                 messages: messages,
                 temperature: temperature || 0.7,
             })
         })
 
         if (!response.ok) {
-            const errorText = await response.text()
-            console.error("OpenRouter Error:", errorText);
-            return new Response(JSON.stringify({ error: "OpenRouter Error", details: errorText }), {
-                status: response.status,
+            const errorText = await response.text();
+            console.error("Groq API Error:", response.status, errorText);
+
+            // Return 200 so the client can read the error message
+            return new Response(JSON.stringify({
+                error: "Provider Error",
+                details: errorText,
+                status: response.status
+            }), {
+                status: 200,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
