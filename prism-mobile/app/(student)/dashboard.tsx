@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity,
-    TextInput, Alert, Modal, Dimensions,
+    TextInput, Alert, Modal, Dimensions, RefreshControl,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -42,6 +42,13 @@ export default function StudentDashboardScreen() {
         sleepAvg: '0',
         energyAvg: '0',
     });
+    const [refreshing, setRefreshing] = useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        await fetchData();
+        setRefreshing(false);
+    }, [classId, user]);
 
     useEffect(() => {
         if (classId && user) fetchData();
@@ -303,7 +310,13 @@ export default function StudentDashboardScreen() {
 
     return (
         <ScreenWrapper>
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.scroll}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} colors={[colors.accent]} />
+                }
+            >
                 {/* Header */}
                 <View style={styles.headerRow}>
                     <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>

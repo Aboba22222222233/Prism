@@ -3,29 +3,27 @@
 
 import { supabase } from './supabase';
 
-// HARDCODED DEMO KEY
-const OPENROUTER_API_KEY = "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";
+// HARDCODED DEMO KEY (GROQ)
+const GROQ_API_KEY = "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";
 
-export async function getGeminiInsight(prompt: string, model: string = "openai/gpt-oss-120b:free") {
+export async function getGeminiInsight(prompt: string, model: string = "openai/gpt-oss-120b") {
     try {
-        console.log("Mobile calling OpenRouter directly...");
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        console.log("Mobile calling Groq directly...");
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://prism.app",
-                "X-Title": "Prism",
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: model,
+                model: model, // Should be openai/gpt-oss-120b
                 messages: [{ role: "user", content: prompt }],
             })
         });
 
         if (!response.ok) {
             const err = await response.text();
-            console.error("OpenRouter Error:", err);
+            console.error("Groq Error:", err);
             return `Ошибка AI: ${err}`;
         }
 
@@ -40,21 +38,30 @@ export async function getGeminiInsight(prompt: string, model: string = "openai/g
 
 export async function getChatResponse(messages: any[], model?: string) {
     try {
-        const { data, error } = await supabase.functions.invoke('chat', {
-            body: {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${GROQ_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: model || "openai/gpt-oss-120b",
                 messages: messages,
-                model: model || "openai/gpt-oss-120b:free"
-            }
+            })
         });
 
-        if (error) throw error;
+        if (!response.ok) {
+            const err = await response.text();
+            throw new Error(`Groq Error: ${err}`);
+        }
 
+        const data = await response.json();
         const message = data.choices?.[0]?.message;
         if (!message) throw new Error("Empty response");
 
         return {
             content: message.content,
-            reasoning: message.reasoning_details || null
+            reasoning: null
         };
     } catch (error) {
         console.error("Chat Error:", error);

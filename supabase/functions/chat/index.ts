@@ -18,13 +18,13 @@ serve(async (req) => {
     try {
         const { messages, model, temperature } = await req.json()
 
-        // HARDCODED KEY FOR RELIABILITY (GROQ) - Base64 Obfuscated
-        const GROQ_API_KEY = atob("Z3NrX0s5MWwxd1NkY0RzVDVWZ0YzTDF2V0dkeWIzRllibkkzUXNWVjhPQjBtdUQ1RU9Kc2ZpSUY=");
+        // HARDCODED KEY FOR RELIABILITY (GROQ)
+        const GROQ_API_KEY = "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";
 
         // DEBUG LOGGING (Masked)
         console.log("Checking API Key...");
         if (GROQ_API_KEY) {
-            console.log("API Key found: " + GROQ_API_KEY.substring(0, 5) + "...");
+            console.log("API Key found: " + GROQ_API_KEY.substring(0, 5) + "..." + GROQ_API_KEY.substring(GROQ_API_KEY.length - 4));
         }
 
         // Use Groq API URL
