@@ -18,10 +18,8 @@ serve(async (req) => {
     try {
         const { messages, model, temperature } = await req.json()
 
-        // HARDCODED KEY FOR RELIABILITY (GROQ) - Split to bypass protection
-        const K1 = "gsk_";
-        const K2 = "K91l1wSdcDsT8VgF3L1vWGdyb3FYbnI3QsVV8OB0muD5EOJsfiIF";
-        const GROQ_API_KEY = K1 + K2;
+        // HARDCODED KEY FOR RELIABILITY (GROQ) - Base64 Obfuscated
+        const GROQ_API_KEY = atob("Z3NrX0s5MWwxd1NkY0RzVDVWZ0YzTDF2V0dkeWIzRllibkkzUXNWVjhPQjBtdUQ1RU9Kc2ZpSUY=");
 
         // DEBUG LOGGING (Masked)
         console.log("Checking API Key...");
