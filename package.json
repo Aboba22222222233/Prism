@@ -1,0 +1,43 @@
+{
+  "name": "prism",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource/geist-sans": "^5.2.5",
+    "@google/generative-ai": "^0.24.1",
+    "@openrouter/sdk": "^0.3.10",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/supabase-js": "^2.89.0",
+    "@types/three": "^0.182.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dompurify": "^3.3.1",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
+    "framer-motion": "^12.33.0",
+    "lucide-react": "^0.562.0",
+    "ogl": "1.0.11",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.11.0",
+    "recharts": "^3.6.0",
+    "tailwind-merge": "^3.4.0",
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "supabase": "^2.76.8",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
