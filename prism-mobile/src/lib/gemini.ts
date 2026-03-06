@@ -34,30 +34,14 @@ export async function getGeminiInsight(prompt: string, model: string = "openai/g
 
 export async function getChatResponse(messages: any[], model?: string) {
     try {
-        console.log("DEBUG: Sending direct fetch request...");
-
-        // DIRECT FETCH BYPASS (No Auth Header)
-        // Since verify_jwt is FALSE on server, we can skip the token
-        const response = await fetch('https://bdytsdycnaaierdzwhak.supabase.co/functions/v1/chat-ai', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkeXRzZHljbmFhaWVyZHp3aGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NTQyNDgsImV4cCI6MjA4MjQzMDI0OH0.3Dj_Nfm96GiPXwYwmpxuw0u_vWibNRZbwgRqGEgM4YQ',
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkeXRzZHljbmFhaWVyZHp3aGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NTQyNDgsImV4cCI6MjA4MjQzMDI0OH0.3Dj_Nfm96GiPXwYwmpxuw0u_vWibNRZbwgRqGEgM4YQ',
-            },
-            body: JSON.stringify({
+        const { data, error } = await supabase.functions.invoke('chat-ai', {
+            body: {
                 messages: messages,
                 model: model || "openai/gpt-oss-120b",
-            })
+            }
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server Error (${response.status}): ${errorText}`);
-        }
-
-        const data = await response.json();
-
+        if (error) throw new Error(`Edge Function Error: ${error.message}`);
         if (data.error) throw new Error(data.error);
 
         const message = data.choices?.[0]?.message;

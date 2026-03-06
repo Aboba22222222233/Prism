@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, Alert, TextInput, ScrollView,
-    TouchableOpacity, Image, ActivityIndicator,
+    TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -10,7 +10,7 @@ import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { supabase } from '../../src/lib/supabase';
 import { useRouter } from 'expo-router';
-import { User, LogOut, Camera, Mail, FileText, Edit3 } from 'lucide-react-native';
+import { User, LogOut, Mail } from 'lucide-react-native';
 
 export default function StudentSettingsScreen() {
     const { colors, mode, toggleTheme } = useTheme();
@@ -19,14 +19,14 @@ export default function StudentSettingsScreen() {
 
     const [editName, setEditName] = useState(profile?.full_name || '');
     const [editBio, setEditBio] = useState(profile?.bio || '');
-    const [editAvatar, setEditAvatar] = useState(profile?.avatar_url || '');
+
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         if (profile) {
             setEditName(profile.full_name || '');
             setEditBio(profile.bio || '');
-            setEditAvatar(profile.avatar_url || '');
+
         }
     }, [profile]);
 
@@ -50,7 +50,7 @@ export default function StudentSettingsScreen() {
                 .update({
                     full_name: editName,
                     bio: editBio,
-                    avatar_url: editAvatar || null,
+
                 })
                 .eq('id', profile!.id);
 
@@ -73,34 +73,18 @@ export default function StudentSettingsScreen() {
                 <Card style={{ marginBottom: 16 }}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>Профиль</Text>
 
-                    {/* Аватар */}
+                    {/* Профиль иконка */}
                     <View style={styles.avatarSection}>
                         <View style={[styles.avatarCircle, { backgroundColor: colors.accent + '20' }]}>
-                            {editAvatar ? (
-                                <Image source={{ uri: editAvatar }} style={styles.avatarImage} />
-                            ) : (
-                                <User size={32} color={colors.accent} />
-                            )}
+                            <User size={32} color={colors.accent} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.fieldLabel, { color: colors.subtext }]}>Аватар</Text>
+                            <Text style={[styles.fieldLabel, { color: colors.subtext }]}>Профиль</Text>
                             <Text style={[styles.fieldHint, { color: colors.subtext }]}>
-                                Вставьте ссылку на изображение
+                                {profile?.email}
                             </Text>
                         </View>
                     </View>
-
-                    <TextInput
-                        value={editAvatar}
-                        onChangeText={setEditAvatar}
-                        placeholder="https://..."
-                        placeholderTextColor={colors.subtext + '80'}
-                        style={[styles.input, {
-                            color: colors.text,
-                            backgroundColor: colors.inputBg,
-                            borderColor: colors.border,
-                        }]}
-                    />
 
                     {/* Имя */}
                     <Text style={[styles.fieldLabel, { color: colors.subtext, marginTop: 20 }]}>Имя</Text>

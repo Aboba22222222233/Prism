@@ -80,26 +80,14 @@ export default function LoginScreen() {
             if (signInError) throw signInError;
 
             if (data.user) {
-                console.log('Вход выполнен, user id:', data.user.id);
-                console.log('User metadata:', data.user.user_metadata);
-
-                // Пробуем получить роль из profiles
-                const { data: profileData, error: profileError } = await supabase
+                // Single source of truth: always read role from profiles table
+                const { data: profileData } = await supabase
                     .from('profiles')
                     .select('role')
                     .eq('id', data.user.id)
                     .single();
 
-                console.log('Профиль из БД:', profileData, 'Ошибка:', profileError?.message);
-
-                // Определяем роль: сначала из profiles, потом из user_metadata
-                let role = profileData?.role;
-                if (!role) {
-                    role = data.user.user_metadata?.role;
-                    console.log('Роль из user_metadata:', role);
-                }
-
-                console.log('Итоговая роль:', role);
+                const role = profileData?.role || 'student';
 
                 if (role === 'teacher') {
                     router.replace('/(teacher)/classes');
@@ -187,26 +175,17 @@ export default function LoginScreen() {
                 const accessToken = params.get('access_token');
                 const refreshToken = params.get('refresh_token');
 
-                console.log('Access token found:', !!accessToken);
-                console.log('Refresh token found:', !!refreshToken);
-                console.log('Refresh token value:', refreshToken);
-
                 if (accessToken && refreshToken) {
-                    console.log('Refreshing session...');
                     const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession({
                         refresh_token: refreshToken,
                     });
-                    console.log('Session refresh:', sessionError ? sessionError.message : 'OK');
-                    console.log('User:', sessionData?.user?.email);
                     if (sessionError) throw sessionError;
                     router.replace('/');
                 } else {
-                    console.log('Missing tokens, cannot set session');
                     setError('Не удалось получить токены авторизации');
                 }
             }
         } catch (err: any) {
-            console.log('Google auth error:', err.message);
             setError(err.message || 'Ошибка входа через Google');
         } finally {
             setLoading(false);

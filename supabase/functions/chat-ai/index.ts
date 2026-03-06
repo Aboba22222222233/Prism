@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -11,10 +12,25 @@ serve(async (req) => {
     }
 
     try {
-        // Lightweight auth: reject requests without a valid Bearer token format
+        // Real JWT validation: verify token with Supabase Auth
         const authHeader = req.headers.get('Authorization')
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return new Response(JSON.stringify({ error: 'Unauthorized: Missing or invalid token' }), {
+            return new Response(JSON.stringify({ error: 'Unauthorized: Missing token' }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 401,
+            })
+        }
+
+        const token = authHeader.replace('Bearer ', '')
+        const supabaseClient = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+            { global: { headers: { Authorization: authHeader } } }
+        )
+
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
+        if (authError || !user) {
+            return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 status: 401,
             })
@@ -29,7 +45,7 @@ serve(async (req) => {
                 error: "CONFIG_ERROR: API Key is missing on server."
             }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 200
+                status: 500
             })
         }
 
@@ -54,7 +70,7 @@ serve(async (req) => {
                 details: errorText
             }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 200
+                status: 502
             })
         }
 
@@ -69,7 +85,7 @@ serve(async (req) => {
             error: `Edge Function Exec Error: ${error.message}`
         }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200
+            status: 500
         })
     }
 })

@@ -41,8 +41,7 @@ const StudentDashboard = () => {
     // Settings Mode State
     const [editName, setEditName] = useState('');
     const [editBio, setEditBio] = useState('');
-    const [editAvatar, setEditAvatar] = useState('');
-    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
     const [savingProfile, setSavingProfile] = useState(false);
 
     // Join Class State
@@ -73,7 +72,7 @@ const StudentDashboard = () => {
         if (userProfile) {
             setEditName(userProfile.full_name || '');
             setEditBio(userProfile.bio || '');
-            setEditAvatar(userProfile.avatar_url || '');
+
         }
     }, [userProfile]);
 
@@ -397,40 +396,17 @@ const StudentDashboard = () => {
     const updateProfile = async () => {
         setSavingProfile(true);
         try {
-            let avatarUrl = editAvatar;
-
-            // Upload Avatar if file selected
-            if (avatarFile) {
-                const fileExt = avatarFile.name.split('.').pop();
-                const fileName = `${userProfile.id}-${Math.random()}.${fileExt}`;
-                const filePath = `${fileName}`;
-
-                const { error: uploadError } = await supabase.storage
-                    .from('avatars')
-                    .upload(filePath, avatarFile);
-
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from('avatars')
-                    .getPublicUrl(filePath);
-
-                avatarUrl = publicUrl;
-            }
-
             const { error } = await supabase
                 .from('profiles')
                 .update({
                     full_name: editName,
                     bio: editBio,
-                    avatar_url: avatarUrl
                 })
                 .eq('id', userProfile.id);
 
             if (error) throw error;
 
-            setUserProfile({ ...userProfile, full_name: editName, bio: editBio, avatar_url: avatarUrl });
-            setAvatarFile(null); // Reset file input
+            setUserProfile({ ...userProfile, full_name: editName, bio: editBio });
             alert('Профиль обновлен!');
         } catch (error: any) {
             console.error(error);
@@ -470,11 +446,7 @@ const StudentDashboard = () => {
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                                 className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-sm font-bold hover:bg-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-indigo-500 overflow-hidden"
                             >
-                                {userProfile?.avatar_url ? (
-                                    <img src={userProfile.avatar_url} className="w-full h-full object-cover" alt="Profile" />
-                                ) : (
-                                    userProfile?.full_name?.[0] || 'U'
-                                )}
+                                {userProfile?.full_name?.[0] || 'U'}
                             </button>
 
                             {showProfileMenu && (
@@ -664,11 +636,7 @@ const StudentDashboard = () => {
                             {activeTab === 'home' && <p className="text-slate-400 mt-2">Готов отслеживать свой прогресс сегодня?</p>}
                         </div>
                         <div className="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden">
-                            {userProfile?.avatar_url ? (
-                                <img src={userProfile.avatar_url} className="w-full h-full object-cover" alt="Avatar" />
-                            ) : (
-                                <User className="w-full h-full p-2 text-slate-400" />
-                            )}
+                            <User className="w-full h-full p-2 text-slate-400" />
                         </div>
                     </div>
 
@@ -884,40 +852,7 @@ const StudentDashboard = () => {
                                     placeholder="Ваше имя"
                                 />
                             </div>
-                            <div className="mb-6">
-                                <label className="block text-slate-400 text-sm mb-2">Аватар</label>
-                                <div className="flex items-start gap-4">
-                                    <div className="w-20 h-20 rounded-full bg-white/10 overflow-hidden flex-shrink-0 border border-white/20">
-                                        {avatarFile ? (
-                                            <img src={URL.createObjectURL(avatarFile)} className="w-full h-full object-cover" alt="Preview" />
-                                        ) : editAvatar ? (
-                                            <img src={editAvatar} className="w-full h-full object-cover" alt="Current" />
-                                        ) : (
-                                            <User className="w-full h-full p-4 text-slate-500" />
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                if (e.target.files && e.target.files[0]) {
-                                                    setAvatarFile(e.target.files[0]);
-                                                }
-                                            }}
-                                            className="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer mb-2"
-                                        />
-                                        <p className="text-xs text-slate-500 mb-2">Или вставьте ссылку:</p>
-                                        <input
-                                            type="text"
-                                            value={editAvatar}
-                                            onChange={(e) => setEditAvatar(e.target.value)}
-                                            className="w-full bg-black/50 border border-white/10 rounded-xl p-2 text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
-                                            placeholder="https://..."
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div className="mb-6">
                                 <label className="block text-slate-400 text-sm mb-2">О себе</label>

@@ -7,7 +7,6 @@ interface UserProfile {
     email: string;
     full_name: string | null;
     role: 'teacher' | 'student';
-    avatar_url: string | null;
     bio: string | null;
 }
 
@@ -78,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, email, full_name, role, avatar_url, bio')
+                .select('id, email, full_name, role, bio')
                 .eq('id', userId)
                 .maybeSingle();
 

@@ -114,13 +114,8 @@ const TeacherDashboard = () => {
                 .eq('id', user.id)
                 .single();
 
-            let role = profile?.role;
-
-            if (!role) {
-                // Fallback to metadata if RLS blocks profile read
-                const { data: { user: authUser } } = await supabase.auth.getUser();
-                role = authUser?.user_metadata?.role;
-            }
+            // Single source of truth: always use profiles.role
+            const role = profile?.role || 'student';
 
             if (role !== 'teacher') {
                 setAccessDenied(true);
@@ -282,7 +277,7 @@ const TeacherDashboard = () => {
             // 1. Fetch Students (Enrollments)
             const { data: enrollments } = await supabase
                 .from('class_enrollments')
-                .select('user_id, created_at, profiles!inner(id, full_name, email, avatar_url)')
+                .select('user_id, created_at, profiles!inner(id, full_name, email)')
                 .eq('class_id', classId);
 
             // 2. Fetch Checkins
@@ -344,7 +339,6 @@ const TeacherDashboard = () => {
                     realName: e.profiles.full_name || e.profiles.email.split('@')[0],
                     anonName: `Ученик ${index + 1}`,
                     email: e.profiles.email,
-                    avatar: e.profiles.avatar_url,
                     avgMood,
                     lastCheckin: lastCheckin, // Pass raw object or null
                     isRisk,

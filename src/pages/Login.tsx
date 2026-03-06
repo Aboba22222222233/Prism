@@ -108,26 +108,14 @@ const Login = () => {
   };
 
   const checkRoleAndRedirect = async (userId: string) => {
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
       .single();
 
-    console.log('Профиль из БД:', profile, 'Ошибка:', profileError?.message);
-
-    // Определяем роль: сначала из profiles, потом из user_metadata
-    let role = profile?.role;
-    if (!role) {
-      const { data: { user } } = await supabase.auth.getUser();
-      role = user?.user_metadata?.role;
-      console.log('Роль из user_metadata:', role);
-      // alert(`DEBUG: Role from metadata: ${role}`); 
-    }
-
-    console.log('Итоговая роль:', role);
-    // ВРЕМЕННАЯ ОТЛАДКА: Показываем алерт с ролью
-    // alert(`DEBUG: Detected Role: ${role}\nProfile: ${JSON.stringify(profile)}\nError: ${profileError?.message}`);
+    // Single source of truth: always use profiles.role
+    const role = profile?.role || 'student';
 
     if (role === 'teacher') {
       navigate('/dashboard');
