@@ -569,6 +569,30 @@ const StudentDashboard = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Logout Confirmation Modal (courses view) */}
+                {showLogoutModal && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                        <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <h2 className="text-xl font-bold mb-2">Выйти из аккаунта?</h2>
+                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                                >
+                                    Отмена
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
+                                >
+                                    Выйти
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
