@@ -28,6 +28,7 @@ const StudentDashboard = () => {
     const [activeTab, setActiveTab] = useState('home'); // 'home', 'diary', 'stats', 'settings'
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showLeaveClassModal, setShowLeaveClassModal] = useState(false);
     const [showResources, setShowResources] = useState(false);
     const [tasks, setTasks] = useState<any[]>([]);
     const [viewingTask, setViewingTask] = useState<any>(null);
@@ -611,12 +612,75 @@ const StudentDashboard = () => {
                 </nav>
 
                 <div className="p-4 border-t border-white/5">
-                    <button onClick={handleLogout} className="flex items-center gap-3 p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all w-full text-left">
+                    <button onClick={() => setShowLeaveClassModal(true)} className="flex items-center gap-3 p-3 text-slate-400 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all w-full text-left">
                         <LogOut className="w-5 h-5" />
-                        <span className="hidden lg:block font-medium">Выйти</span>
+                        <span className="hidden lg:block font-medium">Покинуть курс</span>
                     </button>
                 </div>
             </aside>
+
+            {/* Leave Class Confirmation Modal */}
+            {showLeaveClassModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h2 className="text-xl font-bold mb-2">Покинуть курс?</h2>
+                        <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите покинуть курс <strong className="text-white">{selectedClass?.name}</strong>? Ваши записи останутся, но вы потеряете доступ.</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowLeaveClassModal(false)}
+                                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        const { error } = await supabase
+                                            .from('class_enrollments')
+                                            .delete()
+                                            .eq('user_id', userProfile.id)
+                                            .eq('class_id', selectedClass.id);
+                                        if (error) throw error;
+                                        setClasses(prev => prev.filter(c => c.id !== selectedClass.id));
+                                        setShowLeaveClassModal(false);
+                                        setCurrentView('courses');
+                                        setSelectedClass(null);
+                                    } catch (err: any) {
+                                        alert(`Ошибка: ${err.message}`);
+                                    }
+                                }}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
+                            >
+                                Покинуть
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h2 className="text-xl font-bold mb-2">Выйти из аккаунта?</h2>
+                        <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowLogoutModal(false)}
+                                className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+                            >
+                                Отмена
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
+                            >
+                                Выйти
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="flex-1 h-screen overflow-y-auto z-10 p-6 lg:p-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
