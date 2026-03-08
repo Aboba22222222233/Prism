@@ -15,8 +15,9 @@ Notifications.setNotificationHandler({
 
 export const useNotifications = () => {
     useEffect(() => {
-        registerForPushNotificationsAsync();
-        scheduleDailyReminder();
+        registerForPushNotificationsAsync().then(() => {
+            scheduleAllReminders();
+        });
     }, []);
 
     async function registerForPushNotificationsAsync() {
@@ -36,30 +37,87 @@ export const useNotifications = () => {
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
             }
-            if (finalStatus !== 'granted') {
-                // console.log('Failed to get push token for push notification!');
-                return;
-            }
-        } else {
-            // console.log('Must use physical device for Push Notifications');
+            if (finalStatus !== 'granted') return;
         }
     }
 
-    async function scheduleDailyReminder() {
-        // Prevent scheduling if already scheduled
+    async function scheduleAllReminders() {
         const scheduled = await Notifications.getAllScheduledNotificationsAsync();
         if (scheduled.length > 0) return;
 
-        // Schedule a daily reminder at 19:00 (7 PM)
+        // Утреннее настроение — 8:30
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Доброе утро! ☀️",
+                body: "Как ты себя чувствуешь сегодня? Пройди утренний чек-ин за 10 секунд.",
+                sound: true,
+            },
+            trigger: {
+                type: 'daily',
+                hour: 8,
+                minute: 30,
+                channelId: 'default',
+            } as any,
+        });
+
+        // Вечернее напоминание — 19:00
         await Notifications.scheduleNotificationAsync({
             content: {
                 title: "Клаудик скучает... ☁️",
-                body: "Как прошел твой день? Запиши свои мысли в дневник, это займет всего 10 секунд!",
+                body: "Как прошёл твой день? Запиши свои мысли — это займёт всего 10 секунд!",
                 sound: true,
             },
             trigger: {
                 type: 'daily',
                 hour: 19,
+                minute: 0,
+                channelId: 'default',
+            } as any,
+        });
+
+        // Мотивация — среда 12:00
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Уже середина недели! 💪",
+                body: "Ты молодец, что следишь за своим состоянием. Продолжай в том же духе!",
+                sound: true,
+            },
+            trigger: {
+                type: 'weekly',
+                weekday: 4, // среда
+                hour: 12,
+                minute: 0,
+                channelId: 'default',
+            } as any,
+        });
+
+        // Дыхательное упражнение — пятница 15:00
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Время расслабиться 🧘",
+                body: "Попробуй дыхательное упражнение в разделе Ресурсы — снимает стресс за 1 минуту.",
+                sound: true,
+            },
+            trigger: {
+                type: 'weekly',
+                weekday: 6, // пятница
+                hour: 15,
+                minute: 0,
+                channelId: 'default',
+            } as any,
+        });
+
+        // Серия чек-инов — воскресенье 10:00
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: "Новая неделя — новый старт! 🚀",
+                body: "Начни неделю с чек-ина и сохрани свою серию!",
+                sound: true,
+            },
+            trigger: {
+                type: 'weekly',
+                weekday: 1, // воскресенье
+                hour: 10,
                 minute: 0,
                 channelId: 'default',
             } as any,

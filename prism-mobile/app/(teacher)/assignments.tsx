@@ -33,7 +33,7 @@ export default function AssignmentsScreen() {
                 .order('created_at', { ascending: false });
 
             // Filter for teacher's tasks (though RLS should handle this, good to be safe)
-            // Actually, RLS policy "Teachers can manage tasks for their classes" ensures this.
+            // Actually, RLS policy "Psychologists can manage tasks for their classes" ensures this.
             // But we need to ensure we join correctly.
 
             setTasks(data || []);

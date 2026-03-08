@@ -8,7 +8,7 @@ import { ScreenWrapper } from '../../../src/components/ui/ScreenWrapper';
 import { Card } from '../../../src/components/ui/Card';
 import { ArrowLeft, Moon, Zap, CheckCircle, AlertTriangle, Play, RefreshCw, Sparkles } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { assessStudentRisk } from '../../../src/lib/gemini';
+import { assessStudentRisk } from '../../../src/lib/ai';
 
 const { width } = Dimensions.get('window');
 
@@ -77,6 +77,12 @@ export default function StudentDetailScreen() {
     }, [id]);
 
     const fetchData = async () => {
+        setLoading(true);
+        setStudent(null);
+        setCheckins([]);
+        setStats({ avgMood: 0, total: 0 });
+        setRisk(null);
+
         try {
             // Profile
             const { data: profile } = await supabase
@@ -131,41 +137,51 @@ export default function StudentDetailScreen() {
         if (assessing) return;
         if (checkins.length === 0) return Alert.alert('Нет данных', 'У ученика нет записей для анализа.');
 
-        setAssessing(true);
-        try {
-            const analysisData = {
-                name: student?.full_name || 'Ученик',
-                checkins: checkins.slice(0, 10).map(c => ({
-                    date: new Date(c.created_at).toLocaleDateString(),
-                    mood: c.mood_score,
-                    sleep: c.sleep_hours,
-                    energy: c.energy_level,
-                    factors: c.factors || [],
-                    comment: c.comment || ''
-                }))
-            };
+        Alert.alert(
+            'Подтвердите действие',
+            'Запустить ИИ-анализ состояния ученика? Это обновит текущий статус риска.',
+            [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Запустить',
+                    onPress: async () => {
+                        setAssessing(true);
+                        try {
+                            const analysisData = {
+                                name: student?.full_name || 'Ученик',
+                                checkins: checkins.slice(0, 20).map(c => ({
+                                    date: new Date(c.created_at).toLocaleDateString(),
+                                    mood: c.mood_score,
+                                    sleep: c.sleep_hours,
+                                    energy: c.energy_level,
+                                    factors: c.factors || [],
+                                    comment: c.comment || ''
+                                }))
+                            };
 
-            const result = await assessStudentRisk(analysisData);
+                            const result = await assessStudentRisk(analysisData);
+                            setRisk(result);
 
-            setRisk(result);
-
-            // Save to DB
-            if (classId) {
-                await supabase.from('ai_risk_assessments').upsert({
-                    student_id: id,
-                    class_id: classId,
-                    risk_level: result.riskLevel,
-                    status: result.status,
-                    reason: result.reason,
-                    assessed_at: new Date().toISOString()
-                }, { onConflict: 'student_id,class_id' });
-            }
-
-        } catch (e) {
-            Alert.alert('Ошибка', 'Не удалось провести анализ');
-        } finally {
-            setAssessing(false);
-        }
+                            // Save to DB
+                            if (classId) {
+                                await supabase.from('ai_risk_assessments').upsert({
+                                    student_id: id,
+                                    class_id: classId,
+                                    risk_level: result.riskLevel,
+                                    status: result.status,
+                                    reason: result.reason,
+                                    assessed_at: new Date().toISOString()
+                                }, { onConflict: 'student_id,class_id' });
+                            }
+                        } catch (e) {
+                            Alert.alert('Ошибка', 'Не удалось провести анализ');
+                        } finally {
+                            setAssessing(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     if (loading) {
@@ -214,7 +230,7 @@ export default function StudentDetailScreen() {
                     <Card style={{
                         padding: 16,
                         borderWidth: 1,
-                        borderColor: risk?.status === 'normal' ? 'rgba(34,197,94,0.3)' : risk?.status === 'critical' ? 'rgba(239,68,68,0.3)' : 'rgba(255,165,0,0.3)'
+                        borderColor: risk?.status === 'normal' ? 'rgba(34,197,94,0.3)' : risk?.status === 'critical' ? 'rgba(239,68,68,0.3)' : risk?.status === 'warning' ? '#F97316' : 'rgba(255,165,0,0.3)'
                     }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <View style={{ flex: 1 }}>
@@ -224,10 +240,10 @@ export default function StudentDetailScreen() {
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                             {risk.status === 'normal'
                                                 ? <CheckCircle size={20} color="rgb(34,197,94)" />
-                                                : <AlertTriangle size={20} color={risk.status === 'critical' ? "rgb(239,68,68)" : "orange"} />
+                                                : <AlertTriangle size={20} color={risk.status === 'critical' ? "rgb(239,68,68)" : risk.status === 'warning' ? "#F97316" : "#EAB308"} />
                                             }
-                                            <Text style={{ fontSize: 18, fontWeight: '700', color: risk.status === 'normal' ? "rgb(34,197,94)" : (risk.status === 'critical' ? "rgb(239,68,68)" : "orange") }}>
-                                                {risk.status === 'normal' ? 'Норма' : risk.status === 'critical' ? 'Критический' : 'Внимание'} ({risk.riskLevel}/10)
+                                            <Text style={{ fontSize: 18, fontWeight: '700', color: risk.status === 'normal' ? "rgb(34,197,94)" : (risk.status === 'critical' ? "rgb(239,68,68)" : risk.status === 'warning' ? "#F97316" : "#EAB308") }}>
+                                                {risk.status === 'normal' ? 'Норма' : risk.status === 'critical' ? 'Крит.' : risk.status === 'warning' ? 'Риск' : 'Внимание'} ({risk.riskLevel}/10)
                                             </Text>
                                         </View>
                                         <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 4 }}>

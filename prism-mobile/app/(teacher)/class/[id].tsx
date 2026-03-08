@@ -9,7 +9,7 @@ import { useTheme } from '../../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../../src/components/ui/ScreenWrapper';
 import { Card } from '../../../src/components/ui/Card';
 import { ArrowLeft, Users, AlertTriangle, CheckCircle, Trash2, Sparkles, ChevronDown, ChevronUp, FileText, Plus, Clock, X, Eye, MessageSquare, Send, RefreshCw } from 'lucide-react-native';
-import { assessStudentRisk, getGeminiInsight, getChatResponse } from '../../../src/lib/gemini';
+import { assessStudentRisk, getGeminiInsight, getChatResponse } from '../../../src/lib/ai';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -89,12 +89,14 @@ export default function ClassDetailScreen() {
                     : '-';
 
                 const riskLevel = riskEntry ? riskEntry.risk_level : 0;
-                let statusColor = 'rgb(34,197,94)'; // Green
+                const riskStatus = riskEntry ? riskEntry.status : 'normal';
+
+                let statusColor = 'rgb(34,197,94)'; // Green (normal)
                 let statusText = 'Норма';
 
-                if (riskLevel >= 8) { statusColor = 'rgb(239,68,68)'; statusText = 'Крит.'; }
-                else if (riskLevel >= 5) { statusColor = '#F97316'; statusText = 'Риск'; }
-                else if (riskLevel >= 3) { statusColor = '#EAB308'; statusText = 'Внимание'; }
+                if (riskStatus === 'critical') { statusColor = 'rgb(239,68,68)'; statusText = 'Крит.'; }
+                else if (riskStatus === 'warning') { statusColor = '#F97316'; statusText = 'Риск'; }
+                else if (riskStatus === 'attention') { statusColor = '#EAB308'; statusText = 'Внимание'; }
 
                 return {
                     id: e.profiles.id,
@@ -112,7 +114,7 @@ export default function ClassDetailScreen() {
             setStudents(processedStudents);
 
             const total = processedStudents.length;
-            const riskCount = processedStudents.filter(s => s.riskLevel >= 3).length; // Count attention as risk in stats
+            const riskCount = processedStudents.filter(s => s.riskLevel >= 7).length; // Count only Warning (7-8) and Critical (9-10) in stats
             const totalMood = checkins?.reduce((s, c) => s + c.mood_score, 0) || 0;
             const avgMood = checkins?.length ? +(totalMood / checkins.length).toFixed(1) : 0;
             setStats({ avgMood, riskCount, total });
@@ -154,48 +156,60 @@ export default function ClassDetailScreen() {
 
     const runMassAnalysis = async () => {
         if (analyzing) return;
-        setAnalyzing(true);
-        setAnalysisProgress(`Начало...`);
 
-        try {
-            let processed = 0;
-            for (const student of students) {
-                setAnalysisProgress(`${processed + 1}/${students.length}`);
-                const studentCheckins = allCheckins.filter(c => c.user_id === student.id).slice(-10);
+        Alert.alert(
+            'Массовый анализ',
+            'Запустить ИИ-анализ всех учеников в этой группе? Это может занять некоторое время и обновит статусы рисков у всех.',
+            [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Начать',
+                    onPress: async () => {
+                        setAnalyzing(true);
+                        setAnalysisProgress(`Начало...`);
+                        try {
+                            let processed = 0;
+                            for (const student of students) {
+                                setAnalysisProgress(`${processed + 1}/${students.length}`);
+                                const studentCheckins = allCheckins.filter(c => c.user_id === student.id).slice(-20);
 
-                if (studentCheckins.length > 0) {
-                    const assessment = await assessStudentRisk({
-                        name: student.realName,
-                        checkins: studentCheckins.map(c => ({
-                            date: new Date(c.created_at).toLocaleDateString(),
-                            mood: c.mood_score,
-                            sleep: c.sleep_hours,
-                            energy: c.energy_level,
-                            factors: c.factors || [],
-                            comment: c.comment || ''
-                        }))
-                    });
+                                if (studentCheckins.length > 0) {
+                                    const assessment = await assessStudentRisk({
+                                        name: student.realName,
+                                        checkins: studentCheckins.map(c => ({
+                                            date: new Date(c.created_at).toLocaleDateString(),
+                                            mood: c.mood_score,
+                                            sleep: c.sleep_hours,
+                                            energy: c.energy_level,
+                                            factors: c.factors || [],
+                                            comment: c.comment || ''
+                                        }))
+                                    });
 
-                    await supabase.from('ai_risk_assessments').upsert({
-                        student_id: student.id,
-                        class_id: id,
-                        risk_level: assessment.riskLevel,
-                        status: assessment.status,
-                        reason: assessment.reason,
-                        assessed_at: new Date().toISOString()
-                    }, { onConflict: 'student_id,class_id' });
+                                    await supabase.from('ai_risk_assessments').upsert({
+                                        student_id: student.id,
+                                        class_id: id,
+                                        risk_level: assessment.riskLevel,
+                                        status: assessment.status,
+                                        reason: assessment.reason,
+                                        assessed_at: new Date().toISOString()
+                                    }, { onConflict: 'student_id,class_id' });
+                                }
+                                processed++;
+                                await new Promise(r => setTimeout(r, 500));
+                            }
+                            Alert.alert('Готово', 'Анализ всех учеников завершен.');
+                            fetchClassData();
+                        } catch (e) {
+                            Alert.alert('Ошибка');
+                        } finally {
+                            setAnalyzing(false);
+                            setAnalysisProgress('');
+                        }
+                    }
                 }
-                processed++;
-                await new Promise(r => setTimeout(r, 500));
-            }
-            Alert.alert('Готово', 'Анализ учеников завершен.');
-            fetchClassData();
-        } catch (e) {
-            Alert.alert('Ошибка');
-        } finally {
-            setAnalyzing(false);
-            setAnalysisProgress('');
-        }
+            ]
+        );
     };
 
     const openInsight = () => {
@@ -205,46 +219,58 @@ export default function ClassDetailScreen() {
 
     const generateInsight = async () => {
         if (insightLoading) return;
-        setInsightLoading(true);
-        try {
-            const dataForAI = students.map(s => {
-                const sCheckins = allCheckins.filter(c => c.user_id === s.id).slice(-5);
-                return {
-                    name: s.realName,
-                    checkins: sCheckins.map(c => ({
-                        date: c.created_at,
-                        mood: c.mood_score,
-                        comment: c.comment
-                    }))
-                };
-            });
 
-            // Convert data to string for prompt
-            const prompt = `Проанализируй состояние класса. Данные: ${JSON.stringify(dataForAI)}. Дай ОЧЕНЬ КРАТКОЕ резюме в простом тексте. 
+        Alert.alert(
+            'Анализ состояния группы',
+            'Сформировать ИИ-отчет по состоянию всей группы? Это проанализирует последние чекины всех учеников.',
+            [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Сформировать',
+                    onPress: async () => {
+                        setInsightLoading(true);
+                        try {
+                            const dataForAI = students.map(s => {
+                                const sCheckins = allCheckins.filter(c => c.user_id === s.id).slice(-20);
+                                return {
+                                    name: s.realName,
+                                    checkins: sCheckins.map(c => ({
+                                        date: c.created_at,
+                                        mood: c.mood_score,
+                                        comment: c.comment
+                                    }))
+                                };
+                            });
+
+                            const prompt = `Проанализируй состояние класса. Данные: ${JSON.stringify(dataForAI)}. Дай ОЧЕНЬ КРАТКОЕ резюме в простом тексте. 
 ВАЖНО: НЕ используй Markdown, звездочки (**), таблицы, решетки (#) или любое форматирование. Пиши только простой текст (буквы, цифры, точки).
 Выдели только ключевые тренды и проблемы. Максимум 3-4 предложения.`;
 
-            const response = await getChatResponse([{ role: 'user', content: prompt }]);
-            const insightTextContent = typeof response === 'string' ? response : (response.content || JSON.stringify(response));
+                            const response = await getChatResponse([{ role: 'user', content: prompt }]);
+                            const insightTextContent = typeof response === 'string' ? response : (response.content || JSON.stringify(response));
 
-            setInsightText(insightTextContent);
+                            setInsightText(insightTextContent);
 
-            // Save to DB for Web Sync
-            const { error } = await supabase.from('class_insights').insert({
-                class_id: id,
-                content: insightTextContent,
-                summary: typeof insightTextContent === 'string' ? insightTextContent.substring(0, 100) + '...' : 'Insight'
-            });
+                            // Save to DB for Web Sync
+                            const { error } = await supabase.from('class_insights').insert({
+                                class_id: id,
+                                content: insightTextContent,
+                                summary: typeof insightTextContent === 'string' ? insightTextContent.substring(0, 100) + '...' : 'Insight'
+                            });
 
-            if (error) {
-                console.log('Insight save error (create table class_insights if missing):', error);
-            }
+                            if (error) {
+                                console.log('Insight save error (create table class_insights if missing):', error);
+                            }
 
-        } catch (e) {
-            setInsightText('Не удалось получить анализ. Проверьте соединение.');
-        } finally {
-            setInsightLoading(false);
-        }
+                        } catch (e) {
+                            setInsightText('Не удалось получить анализ. Проверьте соединение.');
+                        } finally {
+                            setInsightLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const sendMessage = async () => {
@@ -262,16 +288,17 @@ export default function ClassDetailScreen() {
 
         try {
             const studentsContext = students.slice(0, 10).map((s, i) => {
-                const sCheckins = allCheckins.filter(c => c.user_id === s.id).slice(-3);
+                const sCheckins = allCheckins.filter(c => c.user_id === s.id).slice(-20);
                 const checkinsInfo = sCheckins.map(c => `Настр: ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`).join('; ') || 'Нет записей';
                 return `${i + 1}. ${s.anonName} (Ср: ${s.avgMood}, Статус: ${s.statusText}): ${checkinsInfo}`;
             }).join('\n');
 
-            const context = `Ты — педагогический ассистент для УЧИТЕЛЯ (не ученика). Ты общаешься с учителем, который управляет классом "${classInfo?.name}".
-СТРОГИЕ ПРАВИЛА:
-- Обращайся к собеседнику на "Вы" как к коллеге-учителю
-- НЕ путай учителя с учеником
-- Помогай анализировать класс, давай педагогические советы
+            const context = `Ты — профессиональный ассистент для ШКОЛЬНОГО ПСИХОЛОГА (не ученика). Ты общаешься с психологом, который курирует группу/класс "${classInfo?.name}".
+Твои задачи:
+- Помогать в интерпретации психологических рисков
+- Обращаться к собеседнику на "Вы" как к коллеге-специалисту
+- НЕ путай психолога с учеником
+- Давать рекомендации по поддержке ментального здоровья на основе данных
 - Отвечай кратко, 2-4 предложения
 - Пиши простым текстом без Markdown
 
@@ -468,7 +495,7 @@ ${studentsContext || 'Нет данных'}`;
                                             <Text style={[styles.studentName, { color: colors.text }]}>{isAnonymous ? item.anonName : item.realName}</Text>
                                             <Text style={{ fontSize: 12, color: colors.subtext }}>Ср: {item.avgMood} • <Text style={{ color: item.statusColor }}>{item.statusText}</Text></Text>
                                         </View>
-                                        {item.riskLevel >= 3 ? <AlertTriangle size={18} color={item.statusColor} /> : <CheckCircle size={18} color={item.statusColor} />}
+                                        {item.riskLevel >= 5 ? <AlertTriangle size={18} color={item.statusColor} /> : <CheckCircle size={18} color={item.statusColor} />}
                                         <TouchableOpacity onPress={() => removeStudent(item.id)} style={{ marginLeft: 8 }}><Trash2 size={16} color={colors.subtext} /></TouchableOpacity>
                                     </View>
                                 </Card>

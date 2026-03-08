@@ -1,14 +1,14 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SecureStoreAdapter = {
     getItem: (key: string) => {
-        return SecureStore.getItemAsync(key);
+        return AsyncStorage.getItem(key);
     },
     setItem: (key: string, value: string) => {
-        return SecureStore.setItemAsync(key, value);
+        return AsyncStorage.setItem(key, value);
     },
     removeItem: (key: string) => {
-        return SecureStore.deleteItemAsync(key);
+        return AsyncStorage.removeItem(key);
     },
 };
 

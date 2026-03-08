@@ -1,21 +1,11 @@
 import React, { useEffect } from 'react';
 
-/**
- * Страница-посредник для OAuth.
- * Supabase перенаправляет сюда после Google-авторизации.
- * Эта страница берёт токены из URL и перенаправляет обратно в приложение.
- */
 const MobileAuthCallback: React.FC = () => {
     useEffect(() => {
         const hash = window.location.hash;
 
         if (hash) {
-            // Перенаправляем в мобильное приложение с токенами
-            // Expo Go использует exp:// схему
-            // Standalone приложение использует prism-mobile:// схему
             const deepLink = `prism-mobile://google-auth${hash}`;
-
-            console.log('Redirecting to app:', deepLink);
             window.location.href = deepLink;
         }
     }, []);

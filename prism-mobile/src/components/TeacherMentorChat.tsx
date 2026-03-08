@@ -4,11 +4,11 @@ import {
     View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { Bot, X, Send } from 'lucide-react-native';
-import { getChatResponse } from '../lib/gemini';
+import { getChatResponse } from '../lib/ai';
 import { useTheme } from '../context/ThemeContext';
 
-interface TeacherMentorChatProps {
-    teacherName?: string;
+interface PsychologistMentorChatProps {
+    psychologistName?: string;
     visible: boolean;
     onClose: () => void;
 }
@@ -19,7 +19,7 @@ const MODELS = [
     { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B" },
 ];
 
-export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, visible, onClose }) => {
+export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ psychologistName, visible, onClose }) => {
     const { colors } = useTheme();
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
     const [messages, setMessages] = useState<any[]>([
         {
             role: 'assistant',
-            content: `Здравствуйте, коллега! Я ваш педагогический ассистент. Готов помочь с анализом класса, идеями для уроков или составлением плана. Чем могу быть полезен?`
+            content: `Здравствуйте, коллега! Я ваш ассистент-психолог. Готов помочь с анализом эмоционального состояния учеников, интерпретацией рисков или планированием консультаций. Чем могу быть полезен?`
         }
     ]);
     const flatListRef = useRef<FlatList>(null);
@@ -49,8 +49,9 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
         try {
             const contextSystemMsg = {
                 role: 'system',
-                content: `Ты - опытный педагогический ассистент для учителя.
-                Твой коллега: ${teacherName || 'Учитель'}.
+                content: `Ты - опытный ассистент для школьного психолога. 
+                Твой коллега: ${psychologistName || 'Психолог'}. 
+                Твоя цель: помогать психологу интерпретировать данные о ментальном состоянии учеников и давать рекомендации по поддержке.
                 Отвечай кратко, по делу и на русском языке.
                 Не используй markdown таблицы, пиши простым текстом.`
             };
@@ -87,7 +88,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                                 <Bot size={20} color={colors.accent} />
                             </View>
                             <View>
-                                <Text style={[styles.title, { color: colors.text }]}>Пед. Ассистент</Text>
+                                <Text style={[styles.title, { color: colors.text }]}>Ассистент Психолога</Text>
                                 <Text style={[styles.subtitle, { color: colors.subtext }]}>{MODELS.find(m => m.id === selectedModel)?.name}</Text>
                             </View>
                         </View>

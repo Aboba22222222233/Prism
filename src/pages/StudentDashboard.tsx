@@ -10,7 +10,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { MentorChat } from '../components/MentorChat';
-import { getGeminiInsight } from '../lib/gemini';
+import { getGeminiInsight } from '../lib/ai';
 import ResourceHub from './ResourceHub';
 
 const StudentDashboard = () => {
@@ -246,7 +246,7 @@ const StudentDashboard = () => {
 
         setLoadingAI(true);
         try {
-            const recent = checkinsData.slice(0, 5);
+            const recent = checkinsData.slice(0, 20);
             const checkinsText = recent.map(c =>
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');

@@ -48,19 +48,17 @@ export default function LoginScreen() {
     const verifyTeacherCode = async () => {
         setLoading(true);
         try {
-            // SECURITY FIX: User RPC instead of direct table select
             const { data, error: rpcError } = await supabase.rpc('verify_teacher_code', {
                 input_code: secretCode
             });
 
             if (rpcError) {
-                console.error("RPC Error:", rpcError); // Log detailed error for debugging
                 setError('Ошибка проверки кода: ' + rpcError.message);
             } else if (data === true) {
                 setTeacherVerified(true);
                 setError(null);
             } else {
-                setError('Неверный код доступа учителя');
+                setError('Неверный код доступа психолога');
             }
         } catch {
             setError('Ошибка проверки кода');
@@ -80,12 +78,13 @@ export default function LoginScreen() {
             if (signInError) throw signInError;
 
             if (data.user) {
-                // Single source of truth: always read role from profiles table
-                const { data: profileData } = await supabase
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
                     .select('role')
                     .eq('id', data.user.id)
-                    .single();
+                    .maybeSingle();
+
+                if (profileError) throw profileError;
 
                 const role = profileData?.role || 'student';
 
@@ -109,7 +108,7 @@ export default function LoginScreen() {
             if (!email || !password) throw new Error('Заполните все поля');
             if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов');
 
-            console.log('Регистрация нового пользователя...');
+
 
             const { data, error: signUpError } = await supabase.auth.signUp({
                 email: email.trim(),
@@ -117,7 +116,7 @@ export default function LoginScreen() {
                 options: {
                     data: {
                         full_name: email.split('@')[0],
-                        role: 'student', // Start as student strictly
+                        role: isTeacher ? 'teacher' : 'student',
                     },
                 },
             });
@@ -128,8 +127,7 @@ export default function LoginScreen() {
                 setVerificationSent(true);
             } else {
                 if (isTeacher) {
-                    // Just stay on screen so the user can enter the access code
-                    // Removed undefined setRoleVerified
+                    // Stay on screen for access code entry
                 } else {
                     router.replace('/(student)/classes');
                 }
@@ -144,8 +142,6 @@ export default function LoginScreen() {
     const handleGoogleLogin = async () => {
         try {
             setLoading(true);
-            // Этап 1: Supabase перенаправляет на наш сайт (HTTPS — Supabase принимает)
-            // Этап 2: Сайт перенаправляет в приложение через deep link
             const siteCallbackUrl = 'https://prism-psi-seven.vercel.app/auth/mobile-callback';
 
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -159,13 +155,12 @@ export default function LoginScreen() {
             if (oauthError) throw oauthError;
             if (!data?.url) throw new Error('Не удалось получить URL авторизации');
 
-            // Открываем браузер и ждём возврата через prism-mobile:// схему
             const result = await WebBrowser.openAuthSessionAsync(
                 data.url,
                 'prism-mobile://',
             );
 
-            console.log('Auth result type:', result.type);
+
 
             if (result.type === 'success' && (result as any).url) {
                 const resultUrl = (result as any).url;
@@ -216,7 +211,7 @@ export default function LoginScreen() {
         );
     }
 
-    // --- ЭКРАН КОДА УЧИТЕЛЯ ---
+    // --- ЭКРАН КОДА ПСИХОЛОГА ---
     if (isTeacher && !teacherVerified) {
         return (
             <ScreenWrapper>
@@ -230,7 +225,7 @@ export default function LoginScreen() {
                         </View>
                         <Text style={[styles.title, { color: colors.text }]}>Доступ ограничен</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
-                            Введите корпоративный код доступа для входа в учительскую панель.
+                            Введите корпоративный код доступа для входа в панель психолога.
                         </Text>
 
                         <Input
@@ -301,7 +296,7 @@ export default function LoginScreen() {
                                 styles.roleText,
                                 { color: isTeacher ? colors.background : colors.subtext },
                             ]}>
-                                Учитель
+                                Психолог
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -326,7 +321,7 @@ export default function LoginScreen() {
                             {authMode === 'login' ? 'С возвращением!' : 'Создать аккаунт'}
                         </Text>
                         <Text style={[styles.subtitle, { color: colors.subtext }]}>
-                            {isTeacher ? 'Вход в учительскую панель' : 'Вход в личный кабинет ученика'}
+                            {isTeacher ? 'Вход в панель психолога' : 'Вход в личный кабинет ученика'}
                         </Text>
 
                         {/* Google кнопка (только для учеников) */}
@@ -350,7 +345,7 @@ export default function LoginScreen() {
                                 label="Email"
                                 value={email}
                                 onChangeText={setEmail}
-                                placeholder={isTeacher ? 'teacher@school.kz' : 'student@school.kz'}
+                                placeholder={isTeacher ? 'psychologist@school.kz' : 'student@school.kz'}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
                             />

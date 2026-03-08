@@ -4,7 +4,7 @@ import {
     FlatList, KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import { getChatResponse } from '../lib/gemini';
+import { getChatResponse } from '../lib/ai';
 import { Send, User, Bot, X } from 'lucide-react-native';
 
 interface Message {

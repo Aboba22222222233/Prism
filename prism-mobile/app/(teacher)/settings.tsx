@@ -38,7 +38,7 @@ export default function TeacherSettingsScreen() {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.profileName, { color: colors.text }]}>
-                                {profile?.full_name || 'Учитель'}
+                                {(!profile?.full_name || profile.full_name === 'Учитель') ? 'Психолог' : profile.full_name}
                             </Text>
                             <Text style={[styles.profileEmail, { color: colors.subtext }]}>
                                 {profile?.email}

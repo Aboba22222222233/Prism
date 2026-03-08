@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageSquare, ChevronDown, User, Bot, Brain, Sparkles, AlertCircle } from 'lucide-react';
-import { getChatResponse } from '../lib/gemini';
+import { getChatResponse } from '../lib/ai';
 
 interface TeacherMentorChatProps {
     teacherName: string;

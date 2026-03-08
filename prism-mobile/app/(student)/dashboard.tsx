@@ -10,7 +10,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
-import { getGeminiInsight } from '../../src/lib/gemini';
+import { getGeminiInsight } from '../../src/lib/ai';
 import { StudentMentorChat } from '../../src/components/StudentMentorChat';
 import {
     ArrowLeft, Flame, TrendingUp, BookOpen, Moon, Zap,
@@ -522,7 +522,7 @@ export default function StudentDashboardScreen() {
                     <>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Задания</Text>
                         {tasks.length === 0 ? (
-                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Учитель пока не добавил заданий.</Text>
+                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Психолог пока не добавил заданий.</Text>
                         ) : (
                             tasks.map(task => (
                                 <Card key={task.id} style={{ marginBottom: 14 }}>

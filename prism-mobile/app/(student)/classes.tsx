@@ -193,7 +193,7 @@ export default function StudentClassesScreen() {
                     <Card style={styles.modalCard}>
                         <Text style={[styles.modalTitle, { color: colors.text }]}>Присоединиться к курсу</Text>
                         <Text style={[styles.modalDesc, { color: colors.subtext }]}>
-                            Попросите код курса у учителя.
+                            Попросите код курса у психолога.
                         </Text>
                         <Input
                             placeholder="Код курса"

@@ -104,7 +104,7 @@ export default function TeacherClassesScreen() {
                 <View>
                     <Text style={[styles.greeting, { color: colors.subtext }]}>Привет,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {profile?.full_name || 'Учитель'} 👋
+                        {(!profile?.full_name || profile.full_name === 'Учитель') ? 'Психолог' : profile.full_name} 👋
                     </Text>
                 </View>
                 <TouchableOpacity

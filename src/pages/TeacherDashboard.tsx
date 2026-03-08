@@ -8,7 +8,7 @@ import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell
 } from 'recharts';
 import { supabase } from '../lib/supabase';
-import { getGeminiInsight, assessStudentRisk } from '../lib/gemini';
+import { getGeminiInsight, assessStudentRisk } from '../lib/ai';
 import { useNavigate } from 'react-router-dom';
 
 const KpiCard = ({ title, value, status }: any) => {
@@ -441,9 +441,8 @@ const TeacherDashboard = () => {
             const lowMoodCount = students.filter(s => s.avgMood !== '-' && Number(s.avgMood) <= 2).length;
             const highMoodCount = students.filter(s => s.avgMood !== '-' && Number(s.avgMood) >= 4).length;
 
-            // Prepare students context (last 3 checkins per student)
             const studentsContext = students.slice(0, 10).map((s, i) => {
-                const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
+                const recentCheckins = (s.rawCheckins || []).slice(-20).map((c: any) =>
                     `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5${c.factors?.length ? ', Факторы: ' + c.factors.join(', ') : ''}`
                 ).join('\n') || '  Нет записей';
                 return `${s.anonName} ${s.isRisk ? '⚠️ РИСК' : ''}:\n${recentCheckins}`;
@@ -499,7 +498,7 @@ ${studentsContext}
 
             try {
                 // Prepare checkins data
-                const checkinsData = (student.rawCheckins || []).slice(-7).map((c: any) => ({
+                const checkinsData = (student.rawCheckins || []).slice(-20).map((c: any) => ({
                     date: new Date(c.created_at).toLocaleDateString('ru-RU'),
                     mood: c.mood_score,
                     sleep: c.sleep_hours || 7,

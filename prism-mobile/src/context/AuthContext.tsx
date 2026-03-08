@@ -35,11 +35,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Получаем текущую сессию
         supabase.auth.getSession().then(({ data: { session }, error }) => {
             if (error) {
-                console.log('Session Error:', error.message);
-                // Если ошибка с токеном — сбрасываем состояние
                 setSession(null);
                 setUser(null);
                 setLoading(false);
@@ -55,13 +52,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
-        // Слушаем изменения авторизации
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (_event, session) => {
                 setSession(session);
                 setUser(session?.user ?? null);
                 if (session?.user) {
-                    // НЕ блокируем — запускаем в фоне
                     fetchProfile(session.user.id);
                 } else {
                     setProfile(null);
@@ -82,11 +77,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .maybeSingle();
 
             if (data && !error) {
-                console.log('Профиль загружен:', data.role);
                 setProfile(data as UserProfile);
             } else if (retryCount < 2) {
-                // Профиль ещё не создан триггером — ждём и пробуем снова
-                console.log('Профиль не найден, повтор через 1.5с...');
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 return fetchProfile(userId, retryCount + 1);
             }
