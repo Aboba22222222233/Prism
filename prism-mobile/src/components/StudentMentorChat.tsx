@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, StyleSheet, TextInput, TouchableOpacity,
-    FlatList, KeyboardAvoidingView, Platform, ActivityIndicator,
+    FlatList, KeyboardAvoidingView, Platform, ActivityIndicator, Modal
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getChatResponse } from '../lib/ai';
 import { Send, User, Bot, X } from 'lucide-react-native';
@@ -143,92 +144,99 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
     };
 
     return (
-        <KeyboardAvoidingView
-            style={[styles.container, { backgroundColor: colors.background }]}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={100}
-        >
-            {/* Header */}
-            <View style={[styles.header, { borderBottomColor: colors.border }]}>
-                <View style={[styles.headerAvatar, { backgroundColor: colors.accent + '20' }]}>
-                    <Bot size={22} color={colors.accent} />
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Клаудик</Text>
-                    <Text style={[styles.headerSub, { color: colors.subtext }]}>твой ментор</Text>
-                </View>
-                {onClose && (
-                    <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                        <X size={22} color={colors.subtext} />
-                    </TouchableOpacity>
-                )}
-            </View>
-
-            {/* Messages */}
-            <FlatList
-                ref={flatListRef}
-                data={messages}
-                keyExtractor={(_, idx) => String(idx)}
-                renderItem={renderMessage}
-                contentContainerStyle={styles.messagesList}
-                showsVerticalScrollIndicator={false}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-            />
-
-            {/* Typing Indicator */}
-            {loading && (
-                <View style={[styles.typingRow]}>
-                    <View style={[styles.avatar, { backgroundColor: colors.accent + '20', borderColor: colors.border }]}>
-                        <Bot size={16} color={colors.accent} />
-                    </View>
-                    <View style={[styles.typingBubble, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                        <View style={styles.dotsRow}>
-                            <View style={[styles.typingDot, { backgroundColor: colors.subtext }]} />
-                            <View style={[styles.typingDot, { backgroundColor: colors.subtext, opacity: 0.7 }]} />
-                            <View style={[styles.typingDot, { backgroundColor: colors.subtext, opacity: 0.4 }]} />
+        <Modal visible={true} animationType="slide" transparent={true} onRequestClose={onClose}>
+            <View style={styles.overlay}>
+                <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.background }]} edges={['top']}>
+                    <KeyboardAvoidingView
+                        style={[styles.container]}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    >
+                        {/* Header */}
+                        <View style={[styles.header, { borderBottomColor: colors.border }]}>
+                            <View style={[styles.headerAvatar, { backgroundColor: colors.accent + '20' }]}>
+                                <Bot size={22} color={colors.accent} />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={[styles.headerTitle, { color: colors.text }]}>Клаудик</Text>
+                                <Text style={[styles.headerSub, { color: colors.subtext }]}>твой AI-ментор</Text>
+                            </View>
+                            {onClose && (
+                                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                                    <X size={22} color={colors.subtext} />
+                                </TouchableOpacity>
+                            )}
                         </View>
-                    </View>
-                </View>
-            )}
 
-            {/* Input */}
-            <View style={[styles.inputContainer, { borderTopColor: colors.border }]}>
-                <TextInput
-                    value={input}
-                    onChangeText={setInput}
-                    placeholder="Спроси Клаудика..."
-                    placeholderTextColor={colors.subtext}
-                    onSubmitEditing={handleSend}
-                    returnKeyType="send"
-                    style={[styles.input, {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.text,
-                    }]}
-                />
-                <TouchableOpacity
-                    onPress={handleSend}
-                    disabled={!input.trim() || loading}
-                    style={[
-                        styles.sendBtn,
-                        {
-                            backgroundColor: input.trim() ? colors.accent : colors.surface,
-                            opacity: input.trim() && !loading ? 1 : 0.5,
-                        }
-                    ]}
-                >
-                    <Send size={18} color={input.trim() ? '#fff' : colors.subtext} />
-                </TouchableOpacity>
+                        {/* Messages */}
+                        <FlatList
+                            ref={flatListRef}
+                            data={messages}
+                            keyExtractor={(_, idx) => String(idx)}
+                            renderItem={renderMessage}
+                            contentContainerStyle={styles.messagesList}
+                            showsVerticalScrollIndicator={false}
+                            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                        />
+
+                        {/* Typing Indicator */}
+                        {loading && (
+                            <View style={[styles.typingRow]}>
+                                <View style={[styles.avatar, { backgroundColor: colors.accent + '20', borderColor: colors.border }]}>
+                                    <Bot size={16} color={colors.accent} />
+                                </View>
+                                <View style={[styles.typingBubble, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                                    <View style={styles.dotsRow}>
+                                        <View style={[styles.typingDot, { backgroundColor: colors.subtext }]} />
+                                        <View style={[styles.typingDot, { backgroundColor: colors.subtext, opacity: 0.7 }]} />
+                                        <View style={[styles.typingDot, { backgroundColor: colors.subtext, opacity: 0.4 }]} />
+                                    </View>
+                                </View>
+                            </View>
+                        )}
+
+                        {/* Input */}
+                        <View style={[styles.inputContainer, { borderTopColor: colors.border }]}>
+                            <TextInput
+                                value={input}
+                                onChangeText={setInput}
+                                placeholder="Спроси Клаудика..."
+                                placeholderTextColor={colors.subtext}
+                                onSubmitEditing={handleSend}
+                                returnKeyType="send"
+                                style={[styles.input, {
+                                    backgroundColor: colors.surface,
+                                    borderColor: colors.border,
+                                    color: colors.text,
+                                }]}
+                            />
+                            <TouchableOpacity
+                                onPress={handleSend}
+                                disabled={!input.trim() || loading}
+                                style={[
+                                    styles.sendBtn,
+                                    {
+                                        backgroundColor: input.trim() ? colors.accent : colors.surface,
+                                        opacity: input.trim() && !loading ? 1 : 0.5,
+                                    }
+                                ]}
+                            >
+                                <Send size={18} color={input.trim() ? '#fff' : colors.subtext} />
+                            </TouchableOpacity>
+                        </View>
+
+                        <Text style={[styles.disclaimer, { color: colors.subtext }]}>
+                            AI может совершать ошибки. Проверяйте важную информацию.
+                        </Text>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
             </View>
-
-            <Text style={[styles.disclaimer, { color: colors.subtext }]}>
-                AI может совершать ошибки. Проверяйте важную информацию.
-            </Text>
-        </KeyboardAvoidingView>
+        </Modal>
     );
 };
 
 const styles = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
+    modalContainer: { height: '90%', borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' },
     container: { flex: 1 },
     header: {
         flexDirection: 'row', alignItems: 'center', gap: 12,

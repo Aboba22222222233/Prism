@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
@@ -13,16 +13,24 @@ export default function TeacherSettingsScreen() {
     const { profile, signOut } = useAuth();
     const router = useRouter();
 
-    const handleLogout = () => {
-        Alert.alert('Выход', 'Вы уверены?', [
-            { text: 'Отмена', style: 'cancel' },
-            {
-                text: 'Выйти', style: 'destructive', onPress: async () => {
-                    await signOut();
-                    router.replace('/login');
+    const handleLogout = async () => {
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Вы уверены, что хотите выйти?');
+            if (confirmed) {
+                await signOut();
+                router.replace('/login');
+            }
+        } else {
+            Alert.alert('Выход', 'Вы уверены?', [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Выйти', style: 'destructive', onPress: async () => {
+                        await signOut();
+                        router.replace('/login');
+                    },
                 },
-            },
-        ]);
+            ]);
+        }
     };
 
     return (

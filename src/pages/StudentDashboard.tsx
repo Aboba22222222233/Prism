@@ -311,14 +311,18 @@ const StudentDashboard = () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Not logged in");
 
-            // 1. Find class
-            const { data: foundClass, error: findError } = await supabase
+            const { data: joinedClassId, error: joinRpcError } = await supabase
+                .rpc('join_class_by_code', { input_code: classCode.trim().toUpperCase() });
+
+            if (joinRpcError || !joinedClassId) throw new Error("Класс с таким кодом не найден");
+
+            const { data: foundClass, error: classError } = await supabase
                 .from('classes')
                 .select('*')
-                .eq('code', classCode.trim().toUpperCase())
+                .eq('id', joinedClassId)
                 .single();
 
-            if (findError || !foundClass) throw new Error("Класс с таким кодом не найден");
+            if (classError || !foundClass) throw new Error("Не удалось получить данные класса");
 
             // 2. Check overlap
             const existing = classes.find(c => c.id === foundClass.id);
@@ -327,16 +331,6 @@ const StudentDashboard = () => {
                 setShowJoinModal(false);
                 return;
             }
-
-            // 3. Create Enrollment
-            const { error: enrollError } = await supabase
-                .from('class_enrollments')
-                .insert({
-                    user_id: user.id,
-                    class_id: foundClass.id
-                });
-
-            if (enrollError) throw enrollError;
 
             alert(`Вы успешно присоединились к классу "${foundClass.name}"!`);
 

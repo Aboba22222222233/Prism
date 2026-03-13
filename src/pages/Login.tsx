@@ -158,7 +158,7 @@ const Login = () => {
       options: {
         data: {
           full_name: email.split('@')[0],
-          role: isTeacher && teacherVerified ? 'teacher' : 'student' // Grant teacher role if verified
+          role: 'student'
         }
       }
     });

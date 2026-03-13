@@ -61,25 +61,26 @@ export default function StudentClassesScreen() {
         try {
             if (!user) throw new Error('Не авторизован');
 
-            const { data: foundClass, error: findError } = await supabase
-                .from('classes')
-                .select('*')
-                .eq('code', classCode.trim().toUpperCase())
-                .single();
+            const { data: joinedClassId, error: joinRpcError } = await supabase
+                .rpc('join_class_by_code', { input_code: classCode.trim().toUpperCase() });
 
-            if (findError || !foundClass) throw new Error('Класс с таким кодом не найден');
+            if (joinRpcError || !joinedClassId) {
+                throw new Error('Класс с таким кодом не найден');
+            }
 
-            if (classes.find(c => c.id === foundClass.id)) {
+            if (classes.find(c => c.id === joinedClassId)) {
                 Alert.alert('Внимание', 'Вы уже состоите в этом классе');
                 setShowJoin(false);
                 return;
             }
 
-            const { error: enrollError } = await supabase
-                .from('class_enrollments')
-                .insert({ user_id: user.id, class_id: foundClass.id });
+            const { data: foundClass, error: classError } = await supabase
+                .from('classes')
+                .select('*')
+                .eq('id', joinedClassId)
+                .single();
 
-            if (enrollError) throw enrollError;
+            if (classError || !foundClass) throw new Error('Не удалось получить данные класса');
 
             Alert.alert('Готово', `Вы присоединились к классу "${foundClass.name}"!`);
             setClasses(prev => [...prev, foundClass]);

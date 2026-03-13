@@ -116,7 +116,7 @@ export default function LoginScreen() {
                 options: {
                     data: {
                         full_name: email.split('@')[0],
-                        role: isTeacher ? 'teacher' : 'student',
+                        role: 'student',
                     },
                 },
             });

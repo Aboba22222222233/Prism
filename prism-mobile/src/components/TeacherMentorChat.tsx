@@ -1,8 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bot, X, Send } from 'lucide-react-native';
 import { getChatResponse } from '../lib/ai';
 import { useTheme } from '../context/ThemeContext';
@@ -80,59 +80,62 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
     return (
         <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
             <View style={styles.overlay}>
-                <View style={[styles.container, { backgroundColor: colors.background }]}>
-                    {/* Header */}
-                    <View style={[styles.header, { borderBottomColor: colors.surface }]}>
-                        <View style={styles.headerTitle}>
-                            <View style={[styles.avatar, { borderColor: colors.accent }]}>
-                                <Bot size={20} color={colors.accent} />
-                            </View>
-                            <View>
-                                <Text style={[styles.title, { color: colors.text }]}>Ассистент Психолога</Text>
-                                <Text style={[styles.subtitle, { color: colors.subtext }]}>{MODELS.find(m => m.id === selectedModel)?.name}</Text>
-                            </View>
-                        </View>
-                        <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                            <X size={24} color={colors.text} />
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Messages */}
-                    <FlatList
-                        ref={flatListRef}
-                        data={messages}
-                        keyExtractor={(_, i) => i.toString()}
-                        contentContainerStyle={styles.messagesList}
-                        renderItem={({ item }) => (
-                            <View style={[
-                                styles.messageRow,
-                                item.role === 'user' ? styles.userRow : styles.botRow
-                            ]}>
-                                {item.role !== 'user' && (
-                                    <View style={[styles.msgAvatar, { backgroundColor: colors.surface }]}>
-                                        <Bot size={16} color={colors.accent} />
-                                    </View>
-                                )}
-                                <View style={[
-                                    styles.bubble,
-                                    item.role === 'user'
-                                        ? { backgroundColor: colors.accent }
-                                        : { backgroundColor: colors.surface },
-                                    item.isError && { backgroundColor: 'rgba(239,68,68,0.2)', borderWidth: 1, borderColor: 'red' }
-                                ]}>
-                                    <Text style={[
-                                        styles.msgText,
-                                        item.role === 'user' ? { color: '#fff' } : { color: colors.text }
-                                    ]}>
-                                        {item.content}
-                                    </Text>
+                <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+                    <KeyboardAvoidingView
+                        style={{ flex: 1 }}
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    >
+                        {/* Header */}
+                        <View style={[styles.header, { borderBottomColor: colors.surface }]}>
+                            <View style={styles.headerTitle}>
+                                <View style={[styles.avatar, { borderColor: colors.accent }]}>
+                                    <Bot size={20} color={colors.accent} />
+                                </View>
+                                <View>
+                                    <Text style={[styles.title, { color: colors.text }]}>Ассистент Психолога</Text>
+                                    <Text style={[styles.subtitle, { color: colors.subtext }]}>{MODELS.find(m => m.id === selectedModel)?.name}</Text>
                                 </View>
                             </View>
-                        )}
-                    />
+                            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                                <X size={24} color={colors.text} />
+                            </TouchableOpacity>
+                        </View>
 
-                    {/* Input */}
-                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                        {/* Messages */}
+                        <FlatList
+                            ref={flatListRef}
+                            data={messages}
+                            keyExtractor={(_, i) => i.toString()}
+                            contentContainerStyle={styles.messagesList}
+                            renderItem={({ item }) => (
+                                <View style={[
+                                    styles.messageRow,
+                                    item.role === 'user' ? styles.userRow : styles.botRow
+                                ]}>
+                                    {item.role !== 'user' && (
+                                        <View style={[styles.msgAvatar, { backgroundColor: colors.surface }]}>
+                                            <Bot size={16} color={colors.accent} />
+                                        </View>
+                                    )}
+                                    <View style={[
+                                        styles.bubble,
+                                        item.role === 'user'
+                                            ? { backgroundColor: colors.accent }
+                                            : { backgroundColor: colors.surface },
+                                        item.isError && { backgroundColor: 'rgba(239,68,68,0.2)', borderWidth: 1, borderColor: 'red' }
+                                    ]}>
+                                        <Text style={[
+                                            styles.msgText,
+                                            item.role === 'user' ? { color: '#fff' } : { color: colors.text }
+                                        ]}>
+                                            {item.content}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )}
+                        />
+
+                        {/* Input */}
                         <View style={[styles.inputArea, { borderTopColor: colors.surface, backgroundColor: colors.background }]}>
                             <TextInput
                                 style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
@@ -151,7 +154,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                             </TouchableOpacity>
                         </View>
                     </KeyboardAvoidingView>
-                </View>
+                </SafeAreaView>
             </View>
         </Modal>
     );

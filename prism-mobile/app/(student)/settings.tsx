@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, Alert, TextInput, ScrollView,
-    TouchableOpacity, ActivityIndicator,
+    TouchableOpacity, ActivityIndicator, Platform
 } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
@@ -30,16 +30,24 @@ export default function StudentSettingsScreen() {
         }
     }, [profile]);
 
-    const handleLogout = () => {
-        Alert.alert('Выход', 'Вы уверены?', [
-            { text: 'Отмена', style: 'cancel' },
-            {
-                text: 'Выйти', style: 'destructive', onPress: async () => {
-                    await signOut();
-                    router.replace('/login');
+    const handleLogout = async () => {
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('Вы уверены, что хотите выйти?');
+            if (confirmed) {
+                await signOut();
+                router.replace('/login');
+            }
+        } else {
+            Alert.alert('Выход', 'Вы уверены?', [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                    text: 'Выйти', style: 'destructive', onPress: async () => {
+                        await signOut();
+                        router.replace('/login');
+                    },
                 },
-            },
-        ]);
+            ]);
+        }
     };
 
     const saveProfile = async () => {
