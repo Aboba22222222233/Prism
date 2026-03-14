@@ -846,23 +846,70 @@ ${studentsContext}
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden font-sans">
                 <div className="bg-white/5 border border-white/10 p-10 rounded-3xl max-w-md w-full text-center relative z-10 backdrop-blur-xl shadow-2xl">
-                    <h1 className="text-3xl font-bold mb-3">Создание класса</h1>
+                    <h1 className="text-3xl font-bold mb-3">Начало работы</h1>
                     <p className="text-slate-400 mb-8 leading-relaxed">
-                        Создайте свой первый класс, чтобы начать работу.
+                        Создайте свой первый класс или войдите в уже существующий по коду.
                     </p>
-                    <form onSubmit={createClass} className="space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Название (например, 9Б)"
-                            className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-purple-500"
-                            value={newClassName}
-                            onChange={(e) => setNewClassName(e.target.value)}
-                            required
-                        />
-                        <button type="submit" disabled={creatingClass} className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors">
-                            {creatingClass ? "Создание..." : "Создать класс"}
+                    <div className="grid grid-cols-2 gap-3 mb-5">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowCreateClassForm(true);
+                                setShowJoinClassForm(false);
+                            }}
+                            className={`py-3 rounded-xl border text-sm font-bold transition-colors ${showCreateClassForm ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                        >
+                            Новый класс
                         </button>
-                    </form>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setShowJoinClassForm(true);
+                                setShowCreateClassForm(false);
+                            }}
+                            className={`py-3 rounded-xl border text-sm font-bold transition-colors ${showJoinClassForm ? 'bg-emerald-400 text-black border-emerald-300' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
+                        >
+                            Войти по коду
+                        </button>
+                    </div>
+
+                    {showCreateClassForm && (
+                        <form onSubmit={createClass} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Название (например, 9Б)"
+                                className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-purple-500"
+                                value={newClassName}
+                                onChange={(e) => setNewClassName(e.target.value)}
+                                required
+                            />
+                            <button type="submit" disabled={creatingClass} className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors disabled:opacity-50">
+                                {creatingClass ? "Создание..." : "Создать класс"}
+                            </button>
+                        </form>
+                    )}
+
+                    {showJoinClassForm && (
+                        <form onSubmit={joinExistingClass} className="space-y-4">
+                            <input
+                                type="text"
+                                placeholder="Код класса"
+                                className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white uppercase focus:outline-none focus:border-emerald-400"
+                                value={joinClassCode}
+                                onChange={(e) => setJoinClassCode(e.target.value)}
+                                required
+                            />
+                            <button type="submit" disabled={joiningClass} className="w-full py-4 bg-emerald-400 text-black rounded-xl font-bold hover:bg-emerald-300 transition-colors disabled:opacity-50">
+                                {joiningClass ? "Подключение..." : "Войти в класс"}
+                            </button>
+                        </form>
+                    )}
+
+                    {!showCreateClassForm && !showJoinClassForm && (
+                        <div className="text-sm text-slate-500">
+                            Выберите действие, чтобы продолжить.
+                        </div>
+                    )}
                 </div>
             </div>
         );
