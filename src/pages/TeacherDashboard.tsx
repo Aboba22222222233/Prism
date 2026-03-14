@@ -44,6 +44,7 @@ const TeacherDashboard = () => {
     // Data State
     const [classes, setClasses] = useState<any[]>([]);
     const [selectedClass, setSelectedClass] = useState<any>(null);
+    const [classTeachers, setClassTeachers] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
     const [moodChartData, setMoodChartData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -52,11 +53,16 @@ const TeacherDashboard = () => {
     // UX State
     const [isAnonymous, setIsAnonymous] = useState(true); // Privacy by default
     const [newClassName, setNewClassName] = useState('');
+    const [showCreateClassForm, setShowCreateClassForm] = useState(false);
     const [creatingClass, setCreatingClass] = useState(false);
+    const [showJoinClassForm, setShowJoinClassForm] = useState(false);
+    const [joinClassCode, setJoinClassCode] = useState('');
+    const [joiningClass, setJoiningClass] = useState(false);
     const [activeTab, setActiveTab] = useState<'dashboard' | 'tasks' | 'calendar'>('dashboard');
     const [tasks, setTasks] = useState<any[]>([]);
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [creatingTask, setCreatingTask] = useState(false);
+    const [currentTeacherId, setCurrentTeacherId] = useState<string | null>(null);
 
     // Calendar State
     const [events, setEvents] = useState<any[]>([]);
@@ -99,6 +105,40 @@ const TeacherDashboard = () => {
         }
     }, [selectedClass]);
 
+    const fetchAccessibleClasses = async (preferredClassId?: string) => {
+        const { data: classList, error } = await supabase
+            .from('classes')
+            .select('*')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        const nextClasses = classList || [];
+        setClasses(nextClasses);
+        if (nextClasses.length === 0) {
+            setSelectedClass(null);
+            setStudents([]);
+            setClassTeachers([]);
+            setTasks([]);
+            setEvents([]);
+            setMoodChartData([]);
+            setStats({
+                avgMood: 0,
+                riskCount: 0,
+                activeCount: 0,
+                totalStudents: 0
+            });
+            return nextClasses;
+        }
+
+        setSelectedClass(prev => {
+            const targetId = preferredClassId || prev?.id;
+            return nextClasses.find(c => c.id === targetId) || nextClasses[0];
+        });
+
+        return nextClasses;
+    };
+
     const checkAccessAndFetch = async () => {
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -107,6 +147,8 @@ const TeacherDashboard = () => {
                 window.location.href = '/login';
                 return;
             }
+
+            setCurrentTeacherId(user.id);
 
             const { data: profile } = await supabase
                 .from('profiles')
@@ -123,19 +165,8 @@ const TeacherDashboard = () => {
                 return;
             }
 
-            // Fetch ALL classes
-            const { data: classList, error } = await supabase
-                .from('classes')
-                .select('*')
-                .eq('teacher_id', user.id)
-                .order('created_at', { ascending: true });
-
-            if (error) throw error;
-
-            setClasses(classList || []);
-            if (classList && classList.length > 0) {
-                setSelectedClass(classList[0]); // Select first class by default
-            } else {
+            const classList = await fetchAccessibleClasses();
+            if (!classList.length) {
                 setLoading(false);
             }
 
@@ -199,6 +230,7 @@ const TeacherDashboard = () => {
 
     const createClass = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!newClassName.trim()) return;
         setCreatingClass(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -222,17 +254,38 @@ const TeacherDashboard = () => {
 
             if (error) throw error;
 
-            // 2. Update State
-            const newClassKey = { ...data, studentCount: 0 };
-            setClasses([...classes, newClassKey]);
-            setSelectedClass(newClassKey); // Automatically select the new class
             setNewClassName('');
+            setShowCreateClassForm(false);
+            await fetchAccessibleClasses(data.id);
 
         } catch (error) {
             console.error('Error creating class:', error);
             alert('Ошибка при создании класса');
         } finally {
             setCreatingClass(false);
+        }
+    };
+
+    const joinExistingClass = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!joinClassCode.trim()) return;
+
+        setJoiningClass(true);
+        try {
+            const { data: classId, error } = await supabase.rpc('join_teacher_class_by_code', {
+                input_code: joinClassCode.trim().toUpperCase(),
+            });
+
+            if (error) throw error;
+
+            setJoinClassCode('');
+            setShowJoinClassForm(false);
+            await fetchAccessibleClasses(classId);
+        } catch (error: any) {
+            console.error('Error joining class:', error);
+            alert(error?.message || 'Ошибка при подключении к классу');
+        } finally {
+            setJoiningClass(false);
         }
     };
 
@@ -273,6 +326,12 @@ const TeacherDashboard = () => {
         try {
             setLoading(true);
             setShowInsight(false); // Reset AI insight for new class
+            const ownerId = selectedClass?.teacher_id;
+
+            const { data: teacherMemberships } = await supabase
+                .from('class_teacher_memberships')
+                .select('teacher_id, profiles!inner(id, full_name, email)')
+                .eq('class_id', classId);
 
             // 1. Fetch Students (Enrollments)
             const { data: enrollments } = await supabase
@@ -349,11 +408,17 @@ const TeacherDashboard = () => {
             });
 
             setStudents(processedStudents);
+            setClassTeachers((teacherMemberships || []).map((teacher: any) => ({
+                id: teacher.profiles.id,
+                fullName: teacher.profiles.full_name || teacher.profiles.email.split('@')[0],
+                email: teacher.profiles.email,
+                isOwner: ownerId === teacher.profiles.id,
+            })));
 
             // Calculate Stats
             const totalStudents = processedStudents.length;
             const riskCount = processedStudents.filter(s => s.isRisk).length;
-            const activeCount = processedStudents.filter(s => s.lastCheckin !== 'Нет записей').length;
+            const activeCount = processedStudents.filter(s => Boolean(s.lastCheckin)).length;
 
             const totalMoodSum = checkins?.reduce((sum, c) => sum + c.mood_score, 0) || 0;
             const globalAvgMood = checkins?.length ? (totalMoodSum / checkins.length).toFixed(1) : "0.0";
@@ -562,6 +627,9 @@ ${studentsContext}
 
     const removeStudent = async (studentId: string, studentName: string) => {
         // NOTE: Confirmation handled by button UI now
+        if (!selectedClass || selectedClass.teacher_id !== currentTeacherId) {
+            return { success: false, error: new Error('Только создатель класса может удалять учеников') };
+        }
 
         try {
             // 1. Try to Clear legacy class_id in profile (Non-blocking)
@@ -593,6 +661,45 @@ ${studentsContext}
         } catch (error) {
             console.error('Error removing student:', error);
             return { success: false, error };
+        }
+    };
+
+    const removeTeacherAccess = async (teacherId: string) => {
+        if (!selectedClass || selectedClass.teacher_id !== currentTeacherId) {
+            return { success: false, error: new Error('Только создатель класса может управлять психологами') };
+        }
+
+        try {
+            const { error } = await supabase
+                .from('class_teacher_memberships')
+                .delete()
+                .eq('class_id', selectedClass.id)
+                .eq('teacher_id', teacherId);
+
+            if (error) throw error;
+
+            setClassTeachers(prev => prev.filter(teacher => teacher.id !== teacherId));
+            return { success: true };
+        } catch (error) {
+            console.error('Error removing teacher access:', error);
+            return { success: false, error };
+        }
+    };
+
+    const leaveSelectedClass = async () => {
+        if (!selectedClass || selectedClass.teacher_id === currentTeacherId) return;
+
+        try {
+            const { error } = await supabase.rpc('leave_teacher_class', {
+                target_class_id: selectedClass.id,
+            });
+
+            if (error) throw error;
+
+            await fetchAccessibleClasses();
+        } catch (error: any) {
+            console.error('Error leaving class:', error);
+            alert(error?.message || 'Не удалось выйти из класса');
         }
     };
 
@@ -937,15 +1044,60 @@ ${studentsContext}
                 </div>
 
                 <div className="mb-6">
-                    <button
-                        onClick={() => setCreatingClass(!creatingClass)}
-                        className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
-                    >
-                        <Plus className="w-4 h-4" /> Новый класс
-                    </button>
-                    {creatingClass && (
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            onClick={() => {
+                                setShowCreateClassForm(prev => !prev);
+                                setShowJoinClassForm(false);
+                            }}
+                            className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
+                        >
+                            <Plus className="w-4 h-4" /> Новый
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowJoinClassForm(prev => !prev);
+                                setShowCreateClassForm(false);
+                            }}
+                            className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
+                        >
+                            <Users className="w-4 h-4" /> Войти
+                        </button>
+                    </div>
+                    {showCreateClassForm && (
                         <form onSubmit={createClass} className="mt-3 space-y-2 animate-in slide-in-from-top-2">
-                            <input className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm" placeholder="Название..." autoFocus value={newClassName} onChange={e => setNewClassName(e.target.value)} />
+                            <input
+                                className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm"
+                                placeholder="Название..."
+                                autoFocus
+                                value={newClassName}
+                                onChange={e => setNewClassName(e.target.value)}
+                            />
+                            <button
+                                type="submit"
+                                disabled={creatingClass}
+                                className="w-full py-2 rounded-lg bg-white text-black text-sm font-bold disabled:opacity-50"
+                            >
+                                {creatingClass ? 'Создание...' : 'Создать класс'}
+                            </button>
+                        </form>
+                    )}
+                    {showJoinClassForm && (
+                        <form onSubmit={joinExistingClass} className="mt-3 space-y-2 animate-in slide-in-from-top-2">
+                            <input
+                                className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm uppercase"
+                                placeholder="Код класса..."
+                                autoFocus
+                                value={joinClassCode}
+                                onChange={e => setJoinClassCode(e.target.value)}
+                            />
+                            <button
+                                type="submit"
+                                disabled={joiningClass}
+                                className="w-full py-2 rounded-lg bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+                            >
+                                {joiningClass ? 'Подключение...' : 'Войти в класс'}
+                            </button>
                         </form>
                     )}
                 </div>
@@ -988,50 +1140,49 @@ ${studentsContext}
 
                     <div className="flex items-center gap-4">
                         {/* DELETE BUTTON INTEGRATED */}
-                        <button
-                            onClick={async (e) => {
-                                e.stopPropagation();
-                                const btn = e.currentTarget;
+                        {selectedClass?.teacher_id === currentTeacherId && (
+                            <button
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const btn = e.currentTarget;
 
-                                if (btn.dataset.confirming === "true") {
-                                    // EXECUTE DELETE
-                                    btn.innerHTML = "Удаление...";
-                                    btn.disabled = true;
+                                    if (btn.dataset.confirming === "true") {
+                                        btn.innerHTML = "Удаление...";
+                                        btn.disabled = true;
 
-                                    try {
-                                        const { error: cErr } = await supabase.from('checkins').delete().eq('class_id', selectedClass.id);
-                                        if (cErr) console.error(cErr);
-                                        const { error: clErr } = await supabase.from('classes').delete().eq('id', selectedClass.id);
-                                        if (clErr) throw clErr;
+                                        try {
+                                            const { error: cErr } = await supabase.from('checkins').delete().eq('class_id', selectedClass.id);
+                                            if (cErr) console.error(cErr);
+                                            const { error: clErr } = await supabase.from('classes').delete().eq('id', selectedClass.id);
+                                            if (clErr) throw clErr;
 
-                                        window.location.reload();
-                                    } catch (err) {
-                                        alert("Ошибка: " + JSON.stringify(err));
-                                        btn.disabled = false;
-                                        btn.innerText = "Ошибка";
-                                    }
-                                } else {
-                                    // ARM
-                                    btn.dataset.confirming = "true";
-                                    const originalContent = btn.innerHTML;
-                                    btn.innerHTML = `<span class="font-bold text-xs uppercase">Подтвердить?</span>`;
-                                    btn.className = "flex items-center gap-2 px-4 py-2 rounded-full border transition-all bg-red-600 border-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]";
-
-                                    // Reset after 3 seconds
-                                    setTimeout(() => {
-                                        if (btn && !btn.disabled) {
-                                            btn.dataset.confirming = "false";
-                                            btn.innerHTML = originalContent;
-                                            btn.className = "p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400";
+                                            window.location.reload();
+                                        } catch (err) {
+                                            alert("Ошибка: " + JSON.stringify(err));
+                                            btn.disabled = false;
+                                            btn.innerText = "Ошибка";
                                         }
-                                    }, 3000);
-                                }
-                            }}
-                            className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400"
-                            title="Удалить класс"
-                        >
-                            <Trash2 className="w-5 h-5" />
-                        </button>
+                                    } else {
+                                        btn.dataset.confirming = "true";
+                                        const originalContent = btn.innerHTML;
+                                        btn.innerHTML = `<span class="font-bold text-xs uppercase">Подтвердить?</span>`;
+                                        btn.className = "flex items-center gap-2 px-4 py-2 rounded-full border transition-all bg-red-600 border-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]";
+
+                                        setTimeout(() => {
+                                            if (btn && !btn.disabled) {
+                                                btn.dataset.confirming = "false";
+                                                btn.innerHTML = originalContent;
+                                                btn.className = "p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400";
+                                            }
+                                        }, 3000);
+                                    }
+                                }}
+                                className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400"
+                                title="Удалить класс"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                        )}
 
                         <button
                             onClick={exportToCSV}
@@ -1057,6 +1208,16 @@ ${studentsContext}
                             <LogOut className="w-4 h-4" />
                             <span className="text-sm font-bold">Выйти</span>
                         </button>
+                        {selectedClass?.teacher_id !== currentTeacherId && (
+                            <button
+                                onClick={leaveSelectedClass}
+                                className="flex items-center gap-2 px-4 py-2 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 transition-colors"
+                                title="Выйти из класса"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span className="text-sm font-bold">Выйти из класса</span>
+                            </button>
+                        )}
                     </div>
                 </header>
 
@@ -1296,47 +1457,43 @@ ${studentsContext}
                                                         </td>
                                                         {/* DELETE BUTTON */}
                                                         <td className="py-4 text-right pr-2" onClick={(e) => e.stopPropagation()}>
-                                                            <button
-                                                                onClick={async (e) => {
-                                                                    e.stopPropagation();
-                                                                    const btn = e.currentTarget;
+                                                            {selectedClass?.teacher_id === currentTeacherId && (
+                                                                <button
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
+                                                                        const btn = e.currentTarget;
 
-                                                                    if (btn.dataset.confirming === "true") {
-                                                                        // ACTION: Delete
-                                                                        btn.dataset.processing = "true"; // Lock explicit reset
-                                                                        btn.innerHTML = "...";
+                                                                        if (btn.dataset.confirming === "true") {
+                                                                            btn.dataset.processing = "true";
+                                                                            btn.innerHTML = "...";
 
-                                                                        const result = await removeStudent(s.id, s.realName);
+                                                                            const result = await removeStudent(s.id, s.realName);
 
-                                                                        if (!result.success) {
-                                                                            btn.dataset.processing = "false";
-                                                                            btn.dataset.confirming = "false";
-                                                                            btn.innerHTML = "Ошибка";
-                                                                            console.error(result.error);
-                                                                            alert("Ошибка при удалении: " + (result.error.message || "Unknown error"));
-                                                                        }
-                                                                        // If success, react will unmount this button/row, so no need to reset.
-
-                                                                    } else {
-                                                                        // ACTION: Arm
-                                                                        btn.dataset.confirming = "true";
-                                                                        const originalData = btn.innerHTML; // icon
-                                                                        btn.innerHTML = `<span class="text-xs font-bold text-red-500">Удалить?</span>`;
-
-                                                                        setTimeout(() => {
-                                                                            if (btn && btn.dataset.processing !== "true") {
+                                                                            if (!result.success) {
+                                                                                btn.dataset.processing = "false";
                                                                                 btn.dataset.confirming = "false";
-                                                                                // Restore Icon
-                                                                                btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+                                                                                btn.innerHTML = "Ошибка";
+                                                                                console.error(result.error);
+                                                                                alert("Ошибка при удалении: " + (result.error.message || "Unknown error"));
                                                                             }
-                                                                        }, 3000);
-                                                                    }
-                                                                }}
-                                                                className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
-                                                                title="Исключить из класса"
-                                                            >
-                                                                <Trash2 className="w-4 h-4 pointer-events-none" />
-                                                            </button>
+                                                                        } else {
+                                                                            btn.dataset.confirming = "true";
+                                                                            btn.innerHTML = `<span class="text-xs font-bold text-red-500">Удалить?</span>`;
+
+                                                                            setTimeout(() => {
+                                                                                if (btn && btn.dataset.processing !== "true") {
+                                                                                    btn.dataset.confirming = "false";
+                                                                                    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`;
+                                                                                }
+                                                                            }, 3000);
+                                                                        }
+                                                                    }}
+                                                                    className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
+                                                                    title="Исключить из класса"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4 pointer-events-none" />
+                                                                </button>
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -1348,6 +1505,46 @@ ${studentsContext}
 
                             {/* RIGHT GAP: AI INSIGHTS? OR CHARTS */}
                             <div className="col-span-12 lg:col-span-4 space-y-6">
+                                <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2">
+                                            <Users className="w-5 h-5 text-cyan-400" />
+                                            <h3 className="font-bold text-lg">Психологи класса</h3>
+                                        </div>
+                                        <span className="text-xs text-slate-500">{classTeachers.length}</span>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {classTeachers.map((teacher) => (
+                                            <div key={teacher.id} className="flex items-center justify-between gap-3 bg-white/5 border border-white/5 rounded-xl px-3 py-3">
+                                                <div>
+                                                    <div className="font-medium text-white">{teacher.fullName}</div>
+                                                    <div className="text-xs text-slate-500">{teacher.email}</div>
+                                                    <div className="text-[11px] text-slate-400 mt-1">
+                                                        {teacher.id === selectedClass?.teacher_id ? 'Создатель класса' : 'Подключённый психолог'}
+                                                    </div>
+                                                </div>
+                                                {selectedClass?.teacher_id === currentTeacherId && teacher.id !== currentTeacherId && (
+                                                    <button
+                                                        onClick={async () => {
+                                                            const result = await removeTeacherAccess(teacher.id);
+                                                            if (!result.success) {
+                                                                alert("Ошибка: " + ((result.error as any)?.message || 'Не удалось удалить психолога'));
+                                                            }
+                                                        }}
+                                                        className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
+                                                        title="Удалить психолога"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {classTeachers.length === 0 && (
+                                            <div className="text-sm text-slate-500">В этом классе пока нет подключённых психологов.</div>
+                                        )}
+                                    </div>
+                                </div>
+
                                 {/* AI INSIGHT CARD */}
                                 <div className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 p-6 rounded-2xl relative overflow-hidden">
                                     <div className="flex justify-between items-start mb-4 relative z-10">

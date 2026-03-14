@@ -6,9 +6,10 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { supabase } from '../../../src/lib/supabase';
 import { useTheme } from '../../../src/context/ThemeContext';
+import { useAuth } from '../../../src/context/AuthContext';
 import { ScreenWrapper } from '../../../src/components/ui/ScreenWrapper';
 import { Card } from '../../../src/components/ui/Card';
-import { ArrowLeft, Users, AlertTriangle, CheckCircle, Trash2, Sparkles, ChevronDown, ChevronUp, FileText, Plus, Clock, X, Eye, MessageSquare, Send, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, Users, AlertTriangle, CheckCircle, Trash2, Sparkles, ChevronDown, ChevronUp, FileText, Plus, Clock, X, Eye, MessageSquare, Send, RefreshCw, LogOut } from 'lucide-react-native';
 import { assessStudentRisk, getGeminiInsight, getChatResponse } from '../../../src/lib/ai';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -19,8 +20,10 @@ export default function ClassDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { colors } = useTheme();
     const router = useRouter();
+    const { user } = useAuth();
 
     const [classInfo, setClassInfo] = useState<any>(null);
+    const [classTeachers, setClassTeachers] = useState<any[]>([]);
     const [students, setStudents] = useState<any[]>([]);
     const [allCheckins, setAllCheckins] = useState<any[]>([]);
     const [tasks, setTasks] = useState<any[]>([]);
@@ -50,6 +53,7 @@ export default function ClassDetailScreen() {
     const [newAssignment, setNewAssignment] = useState({ title: '', description: '' });
     const [viewTask, setViewTask] = useState<any>(null);
     const [viewTaskModalVisible, setViewTaskModalVisible] = useState(false);
+    const isOwner = classInfo?.teacher_id === user?.id;
 
     useEffect(() => {
         if (id) fetchClassData();
@@ -57,10 +61,26 @@ export default function ClassDetailScreen() {
 
     const fetchClassData = async () => {
         try {
-            if (!classInfo || classInfo.id !== id) {
-                const { data: cls } = await supabase.from('classes').select('*').eq('id', id).single();
+            let resolvedClass = classInfo;
+            if (!resolvedClass || resolvedClass.id !== id) {
+                const { data: cls, error: classError } = await supabase.from('classes').select('*').eq('id', id).single();
+                if (classError) throw classError;
+                resolvedClass = cls;
                 setClassInfo(cls);
             }
+            const ownerId = resolvedClass?.teacher_id;
+
+            const { data: teacherMemberships } = await supabase
+                .from('class_teacher_memberships')
+                .select('teacher_id, profiles!inner(id, full_name, email)')
+                .eq('class_id', id);
+
+            setClassTeachers((teacherMemberships || []).map((teacher: any) => ({
+                id: teacher.profiles.id,
+                fullName: teacher.profiles.full_name || teacher.profiles.email?.split('@')[0] || 'Психолог',
+                email: teacher.profiles.email,
+                isOwner: ownerId === teacher.profiles.id,
+            })));
 
             const { data: enrollments } = await supabase
                 .from('class_enrollments')
@@ -331,6 +351,11 @@ ${studentsContext || 'Нет данных'}`;
 
     // ... delete functions ...
     const removeStudent = async (studentId: string) => {
+        if (!isOwner) {
+            Alert.alert('Недоступно', 'Только создатель класса может удалять учеников.');
+            return;
+        }
+
         Alert.alert('Удалить?', 'Ученик будет удалён.', [
             { text: 'Отмена', style: 'cancel' },
             {
@@ -339,6 +364,66 @@ ${studentsContext || 'Нет данных'}`;
                     fetchClassData();
                 },
             },
+        ]);
+    };
+
+    const leaveCurrentClass = () => {
+        if (isOwner) {
+            Alert.alert('Недоступно', 'Создатель класса не может выйти из собственного класса.');
+            return;
+        }
+
+        Alert.alert('Выйти из класса?', 'Вы потеряете доступ к этому классу.', [
+            { text: 'Отмена', style: 'cancel' },
+            {
+                text: 'Выйти',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        const { error } = await supabase.rpc('leave_teacher_class', {
+                            target_class_id: id,
+                        });
+
+                        if (error) throw error;
+
+                        router.replace('/(teacher)/classes');
+                    } catch (error: any) {
+                        console.error(error);
+                        Alert.alert('Ошибка', error?.message || 'Не удалось выйти из класса.');
+                    }
+                }
+            }
+        ]);
+    };
+
+    const removeTeacherAccess = (teacherId: string, teacherName: string) => {
+        if (!isOwner) {
+            Alert.alert('Недоступно', 'Только создатель класса может управлять психологами.');
+            return;
+        }
+
+        Alert.alert('Удалить психолога?', `${teacherName} потеряет доступ к этому классу.`, [
+            { text: 'Отмена', style: 'cancel' },
+            {
+                text: 'Удалить',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        const { error } = await supabase
+                            .from('class_teacher_memberships')
+                            .delete()
+                            .eq('class_id', id)
+                            .eq('teacher_id', teacherId);
+
+                        if (error) throw error;
+
+                        fetchClassData();
+                    } catch (error: any) {
+                        console.error(error);
+                        Alert.alert('Ошибка', error?.message || 'Не удалось удалить психолога.');
+                    }
+                }
+            }
         ]);
     };
 
@@ -422,9 +507,19 @@ ${studentsContext || 'Нет данных'}`;
                     <Text style={[styles.className, { color: colors.text }]}>{classInfo?.name}</Text>
                     <Text style={[styles.code, { color: colors.subtext }]}>Код: {classInfo?.code}</Text>
                 </View>
-                <TouchableOpacity onPress={deleteClass}>
-                    <Trash2 size={24} color="rgba(239,68,68, 0.7)" />
-                </TouchableOpacity>
+                {isOwner ? (
+                    <TouchableOpacity onPress={deleteClass}>
+                        <Trash2 size={24} color="rgba(239,68,68, 0.7)" />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        onPress={leaveCurrentClass}
+                        style={[styles.headerAction, { backgroundColor: 'rgba(245,158,11,0.14)', borderColor: 'rgba(245,158,11,0.25)' }]}
+                    >
+                        <LogOut size={16} color="#F59E0B" />
+                        <Text style={[styles.headerActionText, { color: '#FCD34D' }]}>Выйти</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             <View style={styles.tabs}>
@@ -450,6 +545,42 @@ ${studentsContext || 'Нет данных'}`;
                         contentContainerStyle={{ padding: 20, gap: 10, paddingBottom: 120 }} // Extra padding
                         ListHeaderComponent={
                             <View style={{ marginBottom: 10 }}>
+                                <Card style={{ padding: 16, marginBottom: 12 }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: classTeachers.length ? 12 : 0 }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                            <Users size={18} color={colors.accent} />
+                                            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Психологи класса</Text>
+                                        </View>
+                                        <Text style={{ fontSize: 12, color: colors.subtext }}>{classTeachers.length}</Text>
+                                    </View>
+
+                                    <View style={{ gap: 10 }}>
+                                        {classTeachers.map((teacher) => (
+                                            <View key={teacher.id} style={styles.teacherRow}>
+                                                <View style={{ flex: 1 }}>
+                                                    <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{teacher.fullName}</Text>
+                                                    <Text style={{ fontSize: 12, color: colors.subtext, marginTop: 2 }}>{teacher.email}</Text>
+                                                    <Text style={styles.teacherRoleText}>
+                                                        {teacher.isOwner ? 'Создатель класса' : 'Подключённый психолог'}
+                                                    </Text>
+                                                </View>
+                                                {isOwner && !teacher.isOwner && (
+                                                    <TouchableOpacity
+                                                        onPress={() => removeTeacherAccess(teacher.id, teacher.fullName)}
+                                                        style={styles.inlineAction}
+                                                    >
+                                                        <Trash2 size={16} color="rgba(239,68,68,0.75)" />
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
+                                        ))}
+
+                                        {classTeachers.length === 0 && (
+                                            <Text style={{ fontSize: 13, color: colors.subtext }}>В этом классе пока нет психологов.</Text>
+                                        )}
+                                    </View>
+                                </Card>
+
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                                     <Text style={{ fontSize: 13, fontWeight: '700', color: colors.subtext }}>AI МОНИТОРИНГ</Text>
                                     <TouchableOpacity onPress={() => setIsAnonymous(!isAnonymous)}>
@@ -496,7 +627,11 @@ ${studentsContext || 'Нет данных'}`;
                                             <Text style={{ fontSize: 12, color: colors.subtext }}>Ср: {item.avgMood} • <Text style={{ color: item.statusColor }}>{item.statusText}</Text></Text>
                                         </View>
                                         {item.riskLevel >= 5 ? <AlertTriangle size={18} color={item.statusColor} /> : <CheckCircle size={18} color={item.statusColor} />}
-                                        <TouchableOpacity onPress={() => removeStudent(item.id)} style={{ marginLeft: 8 }}><Trash2 size={16} color={colors.subtext} /></TouchableOpacity>
+                                        {isOwner && (
+                                            <TouchableOpacity onPress={() => removeStudent(item.id)} style={{ marginLeft: 8 }}>
+                                                <Trash2 size={16} color={colors.subtext} />
+                                            </TouchableOpacity>
+                                        )}
                                     </View>
                                 </Card>
                             </TouchableOpacity>
@@ -641,12 +776,17 @@ const styles = StyleSheet.create({
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
     backBtn: { padding: 8 },
+    headerAction: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: 1 },
+    headerActionText: { fontSize: 13, fontWeight: '700' },
     className: { fontSize: 22, fontWeight: '700' },
     code: { fontSize: 13, marginTop: 2 },
     statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, marginBottom: 8 },
     statCard: { flex: 1, alignItems: 'center', paddingVertical: 14 },
     statValue: { fontSize: 24, fontWeight: '700' },
     statLabel: { fontSize: 11, fontWeight: '600', marginTop: 2, color: '#888', textAlign: 'center' }, // Removed uppercase
+    teacherRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 12, backgroundColor: 'rgba(255,255,255,0.03)' },
+    teacherRoleText: { fontSize: 11, color: '#94A3B8', marginTop: 4 },
+    inlineAction: { marginLeft: 8, padding: 8, borderRadius: 999, backgroundColor: 'rgba(239,68,68,0.08)' },
     studentRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     moodDot: { width: 10, height: 10, borderRadius: 5 },
     studentName: { fontSize: 15, fontWeight: '600' },

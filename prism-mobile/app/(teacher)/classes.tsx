@@ -15,15 +15,18 @@ import { Plus, Users, Copy, ChevronRight } from 'lucide-react-native';
 
 export default function TeacherClassesScreen() {
     const { colors } = useTheme();
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
     const router = useRouter();
 
     const [classes, setClasses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [showCreate, setShowCreate] = useState(false);
+    const [showJoin, setShowJoin] = useState(false);
     const [newClassName, setNewClassName] = useState('');
+    const [joinClassCode, setJoinClassCode] = useState('');
     const [creating, setCreating] = useState(false);
+    const [joining, setJoining] = useState(false);
 
     const fetchClasses = useCallback(async () => {
         try {
@@ -33,7 +36,6 @@ export default function TeacherClassesScreen() {
             const { data, error } = await supabase
                 .from('classes')
                 .select('*')
-                .eq('teacher_id', user.id)
                 .order('created_at', { ascending: true });
 
             if (error) throw error;
@@ -72,7 +74,7 @@ export default function TeacherClassesScreen() {
 
             if (error) throw error;
 
-            setClasses(prev => [...prev, data]);
+            await fetchClasses();
             setNewClassName('');
             setShowCreate(false);
             Alert.alert('Готово', `Класс "${data.name}" создан!\nКод: ${code}`);
@@ -80,6 +82,28 @@ export default function TeacherClassesScreen() {
             Alert.alert('Ошибка', err.message || 'Не удалось создать класс');
         } finally {
             setCreating(false);
+        }
+    };
+
+    const joinClass = async () => {
+        if (!joinClassCode.trim()) return;
+
+        setJoining(true);
+        try {
+            const { error } = await supabase.rpc('join_teacher_class_by_code', {
+                input_code: joinClassCode.trim().toUpperCase(),
+            });
+
+            if (error) throw error;
+
+            await fetchClasses();
+            setJoinClassCode('');
+            setShowJoin(false);
+            Alert.alert('Готово', 'Вы подключены к существующему классу.');
+        } catch (err: any) {
+            Alert.alert('Ошибка', err.message || 'Не удалось подключиться к классу');
+        } finally {
+            setJoining(false);
         }
     };
 
@@ -107,12 +131,26 @@ export default function TeacherClassesScreen() {
                         {(!profile?.full_name || profile.full_name === 'Учитель') ? 'Психолог' : profile.full_name} 👋
                     </Text>
                 </View>
-                <TouchableOpacity
-                    onPress={() => setShowCreate(!showCreate)}
-                    style={[styles.addBtn, { backgroundColor: colors.accent }]}
-                >
-                    <Plus size={20} color="#fff" />
-                </TouchableOpacity>
+                <View style={styles.headerActions}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setShowJoin(prev => !prev);
+                            setShowCreate(false);
+                        }}
+                        style={[styles.secondaryBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
+                    >
+                        <Users size={18} color={colors.text} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setShowCreate(prev => !prev);
+                            setShowJoin(false);
+                        }}
+                        style={[styles.addBtn, { backgroundColor: colors.accent }]}
+                    >
+                        <Plus size={20} color="#fff" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Форма создания класса */}
@@ -142,19 +180,60 @@ export default function TeacherClassesScreen() {
                 </Card>
             )}
 
+            {showJoin && (
+                <Card style={{ marginHorizontal: 20, marginBottom: 16 }}>
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>Войти в существующий класс</Text>
+                    <Input
+                        placeholder="Код класса"
+                        value={joinClassCode}
+                        onChangeText={setJoinClassCode}
+                        autoCapitalize="characters"
+                    />
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
+                        <Button
+                            title="Отмена"
+                            variant="secondary"
+                            onPress={() => setShowJoin(false)}
+                            style={{ flex: 1 }}
+                        />
+                        <Button
+                            title="Войти"
+                            variant="accent"
+                            onPress={joinClass}
+                            loading={joining}
+                            style={{ flex: 1 }}
+                        />
+                    </View>
+                </Card>
+            )}
+
             {/* Список классов */}
             {classes.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Text style={[styles.emptyTitle, { color: colors.text }]}>Нет классов</Text>
                     <Text style={[styles.emptySubtitle, { color: colors.subtext }]}>
-                        Создайте свой первый класс,{'\n'}чтобы начать работу.
+                        Создайте свой первый класс{'\n'}или войдите в существующий.
                     </Text>
-                    <Button
-                        title="Создать класс"
-                        variant="accent"
-                        onPress={() => setShowCreate(true)}
-                        style={{ marginTop: 24 }}
-                    />
+                    <View style={{ flexDirection: 'row', gap: 10, marginTop: 24 }}>
+                        <Button
+                            title="Создать класс"
+                            variant="accent"
+                            onPress={() => {
+                                setShowCreate(true);
+                                setShowJoin(false);
+                            }}
+                            style={{ flex: 1 }}
+                        />
+                        <Button
+                            title="Войти по коду"
+                            variant="secondary"
+                            onPress={() => {
+                                setShowJoin(true);
+                                setShowCreate(false);
+                            }}
+                            style={{ flex: 1 }}
+                        />
+                    </View>
                 </View>
             ) : (
                 <FlatList
@@ -182,6 +261,9 @@ export default function TeacherClassesScreen() {
                                             </Text>
                                             <Copy size={12} color={colors.subtext} />
                                         </TouchableOpacity>
+                                        <Text style={[styles.classMeta, { color: colors.subtext }]}>
+                                            {item.teacher_id === user?.id ? 'Создан вами' : 'Подключённый класс'}
+                                        </Text>
                                     </View>
                                     <ChevronRight size={20} color={colors.subtext} />
                                 </View>
@@ -204,17 +286,24 @@ const styles = StyleSheet.create({
         paddingTop: 16,
         paddingBottom: 12,
     },
+    headerActions: { flexDirection: 'row', gap: 10 },
     greeting: { fontSize: 14 },
     name: { fontSize: 26, fontWeight: '700' },
     addBtn: {
         width: 44, height: 44, borderRadius: 14,
         alignItems: 'center', justifyContent: 'center',
     },
+    secondaryBtn: {
+        width: 44, height: 44, borderRadius: 14,
+        alignItems: 'center', justifyContent: 'center',
+        borderWidth: 1,
+    },
     cardTitle: { fontSize: 18, fontWeight: '600', marginBottom: 14 },
     classRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     className: { fontSize: 18, fontWeight: '600' },
     codeRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
     codeText: { fontSize: 13 },
+    classMeta: { fontSize: 12, marginTop: 6 },
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
     emptyTitle: { fontSize: 24, fontWeight: '700', marginBottom: 8 },
     emptySubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
