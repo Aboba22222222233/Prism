@@ -114,7 +114,7 @@ export default function StudentDashboardScreen() {
         setStats({
             avgMood,
             totalEntries: total,
-            sleepAvg: total > 0 ? (sleepSum / total).toFixed(1) + ' ч' : '0',
+            sleepAvg: total > 0 ? (sleepSum / total).toFixed(1) + ' h' : '0',
             energyAvg: total > 0 ? (energySum / total).toFixed(1) + '/10' : '0',
         });
     };
@@ -144,10 +144,10 @@ export default function StudentDashboardScreen() {
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');
 
-            const prompt = `Ты школьный психолог. Твоя задача — поддержать ученика.
-Обращайся к ученику на "ТЫ". Не используй слово "ученик" или третье лицо.
-Кратко (макс 3 предл) оцени его состояние и дай 1 совет.
-Данные: ${checkinsText}`;
+            const prompt = `You are a school counselor supporting a student.
+Address the student directly as "you".
+In no more than 3 sentences, briefly assess their current state and give 1 practical suggestion.
+Data: ${checkinsText}`;
 
             const result = await getGeminiInsight(prompt, "openai/gpt-oss-120b");
             setAiAnalysis(result);
@@ -157,7 +157,7 @@ export default function StudentDashboardScreen() {
             // await AsyncStorage.setItem(cacheKey, result);
 
         } catch (err) {
-            setAiAnalysis('Не удалось загрузить анализ.');
+            setAiAnalysis('The analysis could not be loaded.');
             console.error(err);
         } finally {
             setAiLoading(false);
@@ -165,16 +165,16 @@ export default function StudentDashboardScreen() {
     };
 
     const deleteCheckin = async (id: string) => {
-        Alert.alert('Удалить запись?', 'Это действие нельзя отменить.', [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Delete entry?', 'This action cannot be undone.', [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Удалить', style: 'destructive', onPress: async () => {
+                text: 'Delete', style: 'destructive', onPress: async () => {
                     try {
                         const { error } = await supabase.from('checkins').delete().eq('id', id);
                         if (error) throw error;
                         setCheckins(prev => prev.filter(c => c.id !== id));
                     } catch (err) {
-                        Alert.alert('Ошибка', 'Не удалось удалить запись');
+                        Alert.alert('Error', 'Failed to delete the entry');
                     }
                 }
             }
@@ -184,7 +184,7 @@ export default function StudentDashboardScreen() {
     const submitTask = async (taskId: string) => {
         const response = taskResponse[taskId]?.trim();
         if (!response) {
-            Alert.alert('Внимание', 'Введите ответ');
+            Alert.alert('Notice', 'Enter a response');
             return;
         }
         setSubmitting(taskId);
@@ -209,10 +209,10 @@ export default function StudentDashboardScreen() {
                 });
             }
 
-            Alert.alert('Готово!', 'Ответ отправлен ✓');
+            Alert.alert('Done!', 'Response submitted ✓');
             fetchData();
         } catch (err) {
-            Alert.alert('Ошибка', 'Не удалось отправить');
+            Alert.alert('Error', 'Failed to submit the response');
         } finally {
             setSubmitting(null);
         }
@@ -297,10 +297,10 @@ export default function StudentDashboardScreen() {
     }
 
     const tabs: { key: DashTab; icon: any; label: string }[] = [
-        { key: 'home', icon: Home, label: 'Главная' },
-        { key: 'diary', icon: ClipboardList, label: 'Дневник' },
-        { key: 'tasks', icon: BookOpen, label: 'Задания' },
-        { key: 'stats', icon: BarChart3, label: 'Статистика' },
+        { key: 'home', icon: Home, label: 'Home' },
+        { key: 'diary', icon: ClipboardList, label: 'Journal' },
+        { key: 'tasks', icon: BookOpen, label: 'Assignments' },
+        { key: 'stats', icon: BarChart3, label: 'Stats' },
     ];
 
     return (
@@ -318,7 +318,7 @@ export default function StudentDashboardScreen() {
                         <ArrowLeft size={20} color={colors.text} />
                     </TouchableOpacity>
                     <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-                        {className || 'Класс'}
+                        {className || 'Class'}
                     </Text>
                     <TouchableOpacity onPress={() => setShowChat(true)} style={[styles.chatBtn, { backgroundColor: colors.accent + '20' }]}>
                         <MessageSquare size={20} color={colors.accent} />
@@ -357,10 +357,10 @@ export default function StudentDashboardScreen() {
                     <>
                         {/* Greeting */}
                         <Text style={[styles.hi, { color: colors.text }]}>
-                            Привет, {profile?.full_name?.split(' ')[0] || 'Ученик'} 👋
+                            Hello, {profile?.full_name?.split(' ')[0] || 'Student'} 👋
                         </Text>
                         <Text style={[styles.hiSub, { color: colors.subtext }]}>
-                            Готов отслеживать свой прогресс?
+                            Ready to track your progress?
                         </Text>
 
                         {/* New Checkin Button */}
@@ -369,7 +369,7 @@ export default function StudentDashboardScreen() {
                             style={[styles.newCheckinBtn, { backgroundColor: colors.accent }]}
                         >
                             <Plus size={22} color="#fff" />
-                            <Text style={styles.newCheckinText}>Новая запись</Text>
+                            <Text style={styles.newCheckinText}>New Entry</Text>
                         </TouchableOpacity>
 
                         {/* Streak */}
@@ -377,23 +377,23 @@ export default function StudentDashboardScreen() {
                             <Flame size={28} color={colors.accent} />
                             <View>
                                 <Text style={[styles.streakNum, { color: colors.text }]}>{streak}</Text>
-                                <Text style={[styles.streakLabel, { color: colors.subtext }]}>дней подряд</Text>
+                                <Text style={[styles.streakLabel, { color: colors.subtext }]}>days in a row</Text>
                             </View>
                         </Card>
 
                         {/* Stats Grid */}
                         <View style={styles.statsGrid}>
-                            <StatMini label="Среднее" value={String(stats.avgMood)} color={colors} icon={<TrendingUp size={16} color={colors.accent} />} />
-                            <StatMini label="Записей" value={String(stats.totalEntries)} color={colors} icon={<BookOpen size={16} color={colors.accent} />} />
-                            <StatMini label="Сон" value={stats.sleepAvg} color={colors} icon={<Moon size={16} color={colors.accent} />} />
-                            <StatMini label="Энергия" value={stats.energyAvg} color={colors} icon={<Zap size={16} color={colors.accent} />} />
+                            <StatMini label="Average" value={String(stats.avgMood)} color={colors} icon={<TrendingUp size={16} color={colors.accent} />} />
+                            <StatMini label="Entries" value={String(stats.totalEntries)} color={colors} icon={<BookOpen size={16} color={colors.accent} />} />
+                            <StatMini label="Sleep" value={stats.sleepAvg} color={colors} icon={<Moon size={16} color={colors.accent} />} />
+                            <StatMini label="Energy" value={stats.energyAvg} color={colors} icon={<Zap size={16} color={colors.accent} />} />
                         </View>
 
                         {/* AI Analysis Card */}
                         <Card style={styles.aiCard}>
                             <View style={styles.aiHeader}>
                                 <Sparkles size={20} color={colors.accent} />
-                                <Text style={[styles.aiTitle, { color: colors.text }]}>AI Анализ</Text>
+                                <Text style={[styles.aiTitle, { color: colors.text }]}>AI Analysis</Text>
                             </View>
                             {aiAnalysis ? (
                                 <Text style={[styles.aiText, { color: colors.subtext }]}>{aiAnalysis}</Text>
@@ -409,7 +409,7 @@ export default function StudentDashboardScreen() {
                                         <>
                                             <Brain size={18} color={colors.accent} />
                                             <Text style={[styles.aiBtnText, { color: colors.accent }]}>
-                                                {checkins.length === 0 ? 'Нет данных для анализа' : 'Запросить анализ'}
+                                                {checkins.length === 0 ? 'No data available for analysis' : 'Request analysis'}
                                             </Text>
                                         </>
                                     )}
@@ -418,9 +418,9 @@ export default function StudentDashboardScreen() {
                         </Card>
 
                         {/* Recent Entries (last 3) */}
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Последние записи</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Entries</Text>
                         {checkins.length === 0 ? (
-                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Пока нет записей. Начните с чекина!</Text>
+                            <Text style={[styles.emptyText, { color: colors.subtext }]}>No entries yet. Start with a check-in.</Text>
                         ) : (
                             checkins.slice(0, 3).map(entry => (
                                 <Card key={entry.id} style={{ marginBottom: 10 }}>
@@ -431,7 +431,7 @@ export default function StudentDashboardScreen() {
                                                 {new Date(entry.created_at).toLocaleDateString('ru-RU')}
                                             </Text>
                                             <Text style={[styles.entryComment, { color: colors.subtext }]} numberOfLines={1}>
-                                                {entry.comment || 'Без комментария'}
+                                                {entry.comment || 'No note'}
                                             </Text>
                                         </View>
                                         <Text style={[styles.entryMood, {
@@ -450,9 +450,9 @@ export default function StudentDashboardScreen() {
                 {activeTab === 'diary' && (
                     <>
                         <View style={styles.diaryHeader}>
-                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Дневник записей</Text>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Journal Entries</Text>
                             <Text style={[styles.diaryCount, { color: colors.subtext }]}>
-                                {checkins.length} {checkins.length === 1 ? 'запись' : 'записей'}
+                                {checkins.length} {checkins.length === 1 ? 'entry' : 'entries'}
                             </Text>
                         </View>
 
@@ -462,11 +462,11 @@ export default function StudentDashboardScreen() {
                             style={[styles.newCheckinBtn, { backgroundColor: colors.accent, marginBottom: 16 }]}
                         >
                             <Plus size={22} color="#fff" />
-                            <Text style={styles.newCheckinText}>Новая запись</Text>
+                            <Text style={styles.newCheckinText}>New Entry</Text>
                         </TouchableOpacity>
 
                         {checkins.length === 0 ? (
-                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Дневник пуст. Создайте первую запись!</Text>
+                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Your journal is empty. Create your first entry.</Text>
                         ) : (
                             checkins.map(entry => (
                                 <Card key={entry.id} style={{ marginBottom: 12 }}>
@@ -479,7 +479,7 @@ export default function StudentDashboardScreen() {
                                                 })}
                                             </Text>
                                             <Text style={[styles.entryComment, { color: colors.subtext }]}>
-                                                {entry.comment || 'Без комментария'}
+                                                {entry.comment || 'No note'}
                                             </Text>
                                             {entry.emotions?.length > 0 && (
                                                 <View style={styles.tagsRow}>
@@ -492,7 +492,7 @@ export default function StudentDashboardScreen() {
                                             )}
                                             <View style={styles.miniStats}>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
-                                                    😴 {entry.sleep_hours || '?'}ч
+                                                    😴 {entry.sleep_hours || '?'}h
                                                 </Text>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
                                                     ⚡ {entry.energy_level || '?'}/10
@@ -520,9 +520,9 @@ export default function StudentDashboardScreen() {
                 {/* ============ TASKS TAB ============ */}
                 {activeTab === 'tasks' && (
                     <>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Задания</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Assignments</Text>
                         {tasks.length === 0 ? (
-                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Психолог пока не добавил заданий.</Text>
+                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Your counselor has not added any assignments yet.</Text>
                         ) : (
                             tasks.map(task => (
                                 <Card key={task.id} style={{ marginBottom: 14 }}>
@@ -530,16 +530,16 @@ export default function StudentDashboardScreen() {
                                         <View style={{ flex: 1 }}>
                                             <Text style={[styles.taskTitle, { color: colors.text }]}>{task.title}</Text>
                                             <Text style={[styles.taskDesc, { color: colors.subtext }]}>
-                                                {task.description || 'Без описания'}
+                                                {task.description || 'No description'}
                                             </Text>
                                         </View>
                                         {task.mySubmission?.completed ? (
                                             <View style={[styles.badge, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
-                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>✓ Сдано</Text>
+                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>✓ Submitted</Text>
                                             </View>
                                         ) : (
                                             <View style={[styles.badge, { backgroundColor: colors.accent + '20' }]}>
-                                                <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '600' }}>Открыто</Text>
+                                                <Text style={{ color: colors.accent, fontSize: 11, fontWeight: '600' }}>Open</Text>
                                             </View>
                                         )}
                                     </View>
@@ -549,7 +549,7 @@ export default function StudentDashboardScreen() {
                                             <TextInput
                                                 value={taskResponse[task.id] || ''}
                                                 onChangeText={text => setTaskResponse(prev => ({ ...prev, [task.id]: text }))}
-                                                placeholder="Напишите ответ..."
+                                                placeholder="Write your response..."
                                                 placeholderTextColor={colors.subtext}
                                                 multiline
                                                 style={[styles.responseInput, {
@@ -568,7 +568,7 @@ export default function StudentDashboardScreen() {
                                                 ) : (
                                                     <>
                                                         <Send size={16} color="#fff" />
-                                                        <Text style={styles.submitText}>Отправить</Text>
+                                                        <Text style={styles.submitText}>Submit</Text>
                                                     </>
                                                 )}
                                             </TouchableOpacity>
@@ -577,7 +577,7 @@ export default function StudentDashboardScreen() {
 
                                     {task.mySubmission?.completed && task.mySubmission?.response && (
                                         <View style={[styles.myResponse, { borderTopColor: colors.border }]}>
-                                            <Text style={[styles.myResponseLabel, { color: colors.subtext }]}>Мой ответ:</Text>
+                                            <Text style={[styles.myResponseLabel, { color: colors.subtext }]}>My response:</Text>
                                             <Text style={[styles.myResponseText, { color: colors.text }]}>
                                                 {task.mySubmission.response}
                                             </Text>
@@ -592,14 +592,14 @@ export default function StudentDashboardScreen() {
                 {/* ============ STATS TAB ============ */}
                 {activeTab === 'stats' && (
                     <>
-                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Статистика</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text }]}>Stats</Text>
 
                         {/* Overall Stats */}
                         <View style={styles.statsGrid}>
-                            <StatMini label="Ср. настр." value={String(stats.avgMood)} color={colors} icon={<TrendingUp size={16} color={colors.accent} />} />
-                            <StatMini label="Записей" value={String(stats.totalEntries)} color={colors} icon={<BookOpen size={16} color={colors.accent} />} />
-                            <StatMini label="Ср. сон" value={stats.sleepAvg} color={colors} icon={<Moon size={16} color={colors.accent} />} />
-                            <StatMini label="Ср. энергия" value={stats.energyAvg} color={colors} icon={<Zap size={16} color={colors.accent} />} />
+                            <StatMini label="Avg. mood" value={String(stats.avgMood)} color={colors} icon={<TrendingUp size={16} color={colors.accent} />} />
+                            <StatMini label="Entries" value={String(stats.totalEntries)} color={colors} icon={<BookOpen size={16} color={colors.accent} />} />
+                            <StatMini label="Avg. sleep" value={stats.sleepAvg} color={colors} icon={<Moon size={16} color={colors.accent} />} />
+                            <StatMini label="Avg. energy" value={stats.energyAvg} color={colors} icon={<Zap size={16} color={colors.accent} />} />
                         </View>
 
                         {/* Streak */}
@@ -607,12 +607,12 @@ export default function StudentDashboardScreen() {
                             <Flame size={28} color={colors.accent} />
                             <View>
                                 <Text style={[styles.streakNum, { color: colors.text }]}>{streak}</Text>
-                                <Text style={[styles.streakLabel, { color: colors.subtext }]}>дней подряд</Text>
+                                <Text style={[styles.streakLabel, { color: colors.subtext }]}>days in a row</Text>
                             </View>
                         </Card>
 
                         {/* Line Chart: Mood + Energy */}
-                        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Твои показатели</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Your Metrics</Text>
                         <Card style={styles.chartCard}>
                             {(() => {
                                 const data = getLast7DaysData();
@@ -716,11 +716,11 @@ export default function StudentDashboardScreen() {
                                         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 12 }}>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                                 <View style={{ width: 12, height: 3, backgroundColor: '#818cf8', borderRadius: 2 }} />
-                                                <Text style={{ color: colors.subtext, fontSize: 11 }}>Настроение</Text>
+                                                <Text style={{ color: colors.subtext, fontSize: 11 }}>Mood</Text>
                                             </View>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                                 <View style={{ width: 12, height: 3, backgroundColor: '#facc15', borderRadius: 2 }} />
-                                                <Text style={{ color: colors.subtext, fontSize: 11 }}>Энергия</Text>
+                                                <Text style={{ color: colors.subtext, fontSize: 11 }}>Energy</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -729,7 +729,7 @@ export default function StudentDashboardScreen() {
                         </Card>
 
                         {/* Emotion Calendar Heatmap */}
-                        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Календарь настроения</Text>
+                        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Mood Calendar</Text>
                         <Card style={styles.chartCard}>
                             <View style={styles.calendarGrid}>
                                 {getCalendarData().map((cell, i) => (
@@ -749,14 +749,14 @@ export default function StudentDashboardScreen() {
                                         backgroundColor: moodHeatColor(m),
                                     }} />
                                 ))}
-                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>Плохо → Отлично</Text>
+                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>Low → Great</Text>
                             </View>
                         </Card>
 
                         {/* Top Emotions */}
                         {checkins.length > 0 && (
                             <>
-                                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Частые эмоции</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Common Emotions</Text>
                                 <Card>
                                     <View style={styles.emotionsGrid}>
                                         {(() => {
@@ -784,7 +784,7 @@ export default function StudentDashboardScreen() {
                         {/* Top Factors */}
                         {checkins.length > 0 && (
                             <>
-                                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Частые факторы</Text>
+                                <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 20 }]}>Common Factors</Text>
                                 <Card>
                                     <View style={styles.emotionsGrid}>
                                         {(() => {
@@ -927,3 +927,4 @@ const styles = StyleSheet.create({
     emotionName: { fontSize: 13, fontWeight: '600' },
     emotionCount: { fontSize: 12, fontWeight: '700' },
 });
+

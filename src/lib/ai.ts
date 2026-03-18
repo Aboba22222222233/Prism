@@ -11,12 +11,12 @@ export async function getGeminiInsight(prompt: string, model: string = DEFAULT_M
             }
         });
 
-        if (error) return `Ошибка AI: ${error.message}`;
-        if (data?.error) return `Ошибка: ${data.error}`;
+        if (error) return `AI error: ${error.message}`;
+        if (data?.error) return `Error: ${data.error}`;
 
-        return data?.choices?.[0]?.message?.content || "AI молчит...";
+        return data?.choices?.[0]?.message?.content || "No AI response.";
     } catch {
-        return "Сервис временно недоступен";
+        return "The service is temporarily unavailable.";
     }
 }
 
@@ -57,22 +57,22 @@ export async function assessStudentRisk(studentData: {
     reason: string;
 }> {
     if (!studentData.checkins || studentData.checkins.length === 0) {
-        return { isRisk: false, riskLevel: 0, status: 'normal', reason: 'Нет данных для анализа' };
+        return { isRisk: false, riskLevel: 0, status: 'normal', reason: 'No data available for analysis.' };
     }
 
     const checkinsText = studentData.checkins.map(c =>
-        `[${c.date}] Настроение: ${c.mood}/5, Сон: ${c.sleep}ч, Энергия: ${c.energy}/5, Факторы: ${c.factors.join(', ') || 'нет'}, Комментарий: "${c.comment || 'нет'}"`
+        `[${c.date}] Mood: ${c.mood}/5, Sleep: ${c.sleep}h, Energy: ${c.energy}/5, Factors: ${c.factors.join(', ') || 'none'}, Comment: "${c.comment || 'none'}"`
     ).join('\n');
 
-    const prompt = `Роль: Школьный психолог. Задача: Оценить риск (0-10) для ученика.
-Правила:
-- 0-4 (НОРМА): Обычное настроение, усталость, лень, стресс от учебы — ЭТО НОРМА.
-- 5-6 (ВНИМАНИЕ): Затяжная грусть (> 1 недели), апатия, изоляция.
-- 7-8 (РИСК): Симптомы депрессии, сильная тревога.
-- 9-10 (КРИТИЧЕСКИ): Суицид.мысли, самоповреждение, критический кризис.
-Данные "${studentData.name}":
+    const prompt = `Role: School counselor. Task: assess the student's risk level from 0 to 10.
+Rules:
+- 0-4 (NORMAL): ordinary mood changes, tiredness, laziness, and study stress are normal.
+- 5-6 (ATTENTION): prolonged sadness for more than one week, apathy, withdrawal.
+- 7-8 (RISK): depression symptoms, strong anxiety.
+- 9-10 (CRITICAL): suicidal thoughts, self-harm, or an acute crisis.
+Data for "${studentData.name}":
 ${checkinsText}
-Ответ JSON: {"riskLevel": number, "status": "normal"|"attention"|"warning"|"critical", "reason": "string"}`;
+Return JSON: {"riskLevel": number, "status": "normal"|"attention"|"warning"|"critical", "reason": "string"}`;
 
     try {
         const response = await getGeminiInsight(prompt, DEFAULT_MODEL);
@@ -87,12 +87,12 @@ ${checkinsText}
                 isRisk: safeRisk >= 7,
                 riskLevel: safeRisk,
                 status: parsed.status && ['normal', 'attention', 'warning', 'critical'].includes(parsed.status) ? parsed.status : (safeRisk >= 9 ? 'critical' : safeRisk >= 7 ? 'warning' : safeRisk >= 5 ? 'attention' : 'normal'),
-                reason: parsed.reason || 'Анализ завершён'
+                reason: parsed.reason || 'Analysis completed.'
             };
         }
     } catch {
         // AI unavailable
     }
 
-    return { isRisk: false, riskLevel: 0, status: 'normal', reason: 'AI-анализ временно недоступен' };
+    return { isRisk: false, riskLevel: 0, status: 'normal', reason: 'AI analysis is temporarily unavailable.' };
 }

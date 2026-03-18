@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 
 const MobileAuthCallback: React.FC = () => {
     useEffect(() => {
+        const search = window.location.search;
         const hash = window.location.hash;
 
-        if (hash) {
-            const deepLink = `prism-mobile://google-auth${hash}`;
+        if (hash || search) {
+            const deepLink = `prism-mobile://google-auth${search}${hash}`;
             window.location.href = deepLink;
         }
     }, []);
@@ -22,8 +23,8 @@ const MobileAuthCallback: React.FC = () => {
             fontFamily: 'Inter, sans-serif',
         }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-            <h2 style={{ margin: 0, fontSize: 20 }}>Авторизация успешна</h2>
-            <p style={{ color: '#888', marginTop: 8 }}>Возвращаем вас в приложение...</p>
+            <h2 style={{ margin: 0, fontSize: 20 }}>Authorization successful</h2>
+            <p style={{ color: '#888', marginTop: 8 }}>Returning you to the app...</p>
         </div>
     );
 };

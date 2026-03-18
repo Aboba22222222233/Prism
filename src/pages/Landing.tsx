@@ -9,58 +9,58 @@ import { PricingSection } from '../components/ui/pricing';
 const PLANS = [
     {
         name: 'Trial',
-        info: 'Бесплатный пробный период',
+        info: 'Free trial period',
         price: {
             monthly: 0,
             yearly: 0,
         },
         features: [
-            { text: 'Полный доступ к платформе' },
-            { text: '7 дней бесплатно' },
-            { text: 'AI-мониторинг эмоций', tooltip: 'Анализ эмоционального состояния учеников в реальном времени' },
-            { text: 'Базовая аналитика' },
+            { text: 'Full platform access' },
+            { text: '7 days free' },
+            { text: 'AI emotion monitoring', tooltip: 'Real-time analysis of student emotional wellbeing' },
+            { text: 'Basic analytics' },
         ],
         btn: {
-            text: 'Подать заявку',
+            text: 'Submit Request',
             href: '/login',
         },
     },
     {
         highlighted: true,
         name: 'Standard',
-        info: 'До 100 учеников',
+        info: 'Up to 100 students',
         price: {
             monthly: 75000,
             yearly: 75000,
         },
         features: [
-            { text: 'Охват до 100 учеников', tooltip: 'Примерно одна параллель или 3–4 класса' },
-            { text: 'Полный AI-мониторинг' },
-            { text: 'Расширенная аналитика' },
-            { text: 'Приоритетная поддержка', tooltip: 'Ответ в течение 24 часов' },
-            { text: 'Стоимость 750₸ на ученика' },
+            { text: 'Coverage for up to 100 students', tooltip: 'Roughly one grade level or 3-4 classes' },
+            { text: 'Full AI monitoring' },
+            { text: 'Advanced analytics' },
+            { text: 'Priority support', tooltip: 'Reply within 24 hours' },
+            { text: 'Cost: 750₸ per student' },
         ],
         btn: {
-            text: 'Выбрать тариф',
+            text: 'Choose Plan',
             href: '/login',
         },
     },
     {
         name: 'Ultra',
-        info: 'На всю школу',
+        info: 'School-wide',
         price: {
             monthly: 155000,
             yearly: 155000,
         },
         features: [
-            { text: 'До 500–1000 учеников' },
-            { text: 'Полный AI-мониторинг' },
-            { text: 'Продвинутая аналитика', tooltip: 'Детальные отчёты по классам и параллелям' },
-            { text: 'Персональный менеджер' },
-            { text: 'Школьная интеграция', tooltip: 'Интеграция с системами школьного учёта' },
+            { text: 'Up to 500-1000 students' },
+            { text: 'Full AI monitoring' },
+            { text: 'Deep analytics', tooltip: 'Detailed reports by class and grade level' },
+            { text: 'Dedicated account manager' },
+            { text: 'School integration', tooltip: 'Integration with school record systems' },
         ],
         btn: {
-            text: 'Выбрать тариф',
+            text: 'Choose Plan',
             href: '/login',
         },
     },
@@ -117,7 +117,7 @@ const PricingWithToggle = () => {
     return (
         <div className="max-w-7xl mx-auto px-8">
             <h2 className="text-5xl md:text-6xl font-bold text-white text-center mb-8 drop-shadow-2xl">
-                Выберите свой тариф
+                Choose Your Plan
             </h2>
 
             {/* Toggle */}
@@ -130,7 +130,7 @@ const PricingWithToggle = () => {
                             : 'text-white hover:bg-white/10'
                             }`}
                     >
-                        Месяц
+                        Month
                     </button>
                     <button
                         onClick={() => setIsYearly(true)}
@@ -139,7 +139,7 @@ const PricingWithToggle = () => {
                             : 'text-white hover:bg-white/10'
                             }`}
                     >
-                        Год
+                        Year
                     </button>
                 </div>
             </div>
@@ -148,66 +148,66 @@ const PricingWithToggle = () => {
                 {/* Trial */}
                 <div className="bg-white rounded-3xl p-10 shadow-2xl flex flex-col">
                     <div className="mb-6">
-                        <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full">Пробный</span>
+                        <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-4 py-1.5 rounded-full">Trial</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Trial</h3>
                     <div className="mb-5">
-                        <span className="text-5xl font-bold text-slate-900">Бесплатно</span>
-                        <span className="text-slate-500 ml-2 text-lg">/ 7 дней</span>
+                        <span className="text-5xl font-bold text-slate-900">Free</span>
+                        <span className="text-slate-500 ml-2 text-lg">/ 7 days</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
-                        Попробуйте все возможности Prism бесплатно. Идеально для знакомства с платформой.
+                        Try every Prism feature for free. Ideal for getting to know the platform.
                     </p>
                     <a
-                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Заявка на тариф Trial"
+                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Trial plan request"
                         className="w-full py-4 rounded-full bg-slate-900 text-white font-medium hover:bg-slate-800 transition-all text-center text-lg"
                     >
-                        Подать заявку
+                        Submit Request
                     </a>
                 </div>
 
                 {/* Standard */}
                 <div className="bg-white rounded-3xl p-10 shadow-2xl flex flex-col border-2 border-indigo-500 relative">
                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                        <span className="text-sm font-medium text-white bg-indigo-500 px-5 py-2 rounded-full shadow-lg">Популярный</span>
+                        <span className="text-sm font-medium text-white bg-indigo-500 px-5 py-2 rounded-full shadow-lg">Most Popular</span>
                     </div>
                     <div className="mb-6">
-                        <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full">До 100 учеников</span>
+                        <span className="text-sm font-medium text-indigo-600 bg-indigo-50 px-4 py-1.5 rounded-full">Up to 100 students</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Standard</h3>
                     <div className="mb-5">
                         <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.standard)} ₸</span>
-                        <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'год' : 'мес'}</span>
+                        <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
-                        Охват до 100 учеников — одна параллель или 3–4 класса. Стоимость всего 750₸ на ученика.
+                        Coverage for up to 100 students: one grade level or 3-4 classes. Cost: just 750₸ per student.
                     </p>
                     <a
-                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Заявка на тариф Standard"
+                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Standard plan request"
                         className="w-full py-4 rounded-full bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-all text-center text-lg shadow-lg"
                     >
-                        Подать заявку
+                        Submit Request
                     </a>
                 </div>
 
                 {/* Ultra */}
                 <div className="bg-white rounded-3xl p-10 shadow-2xl flex flex-col">
                     <div className="mb-6">
-                        <span className="text-sm font-medium text-amber-600 bg-amber-50 px-4 py-1.5 rounded-full">До 385 учеников</span>
+                        <span className="text-sm font-medium text-amber-600 bg-amber-50 px-4 py-1.5 rounded-full">Up to 385 students</span>
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Ultra</h3>
                     <div className="mb-5">
                         <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.ultra)} ₸</span>
-                        <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'год' : 'мес'}</span>
+                        <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
-                        School-wide тариф: до 385 учеников. Один платёж за всю школу — проще и выгоднее.
+                        School-wide plan: up to 385 students. One payment for the whole school, simpler and more cost-effective.
                     </p>
                     <a
-                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Заявка на тариф Ultra"
+                        href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Ultra plan request"
                         className="w-full py-4 rounded-full bg-slate-900 text-white font-medium hover:bg-slate-800 transition-all text-center text-lg"
                     >
-                        Подать заявку
+                        Submit Request
                     </a>
                 </div>
             </div>
@@ -239,13 +239,13 @@ const Navbar = () => {
                         onClick={() => navigate('/login')}
                         className="px-6 py-2.5 rounded-full border border-white/30 hover:bg-white/10 transition-all text-white text-sm font-medium backdrop-blur-sm"
                     >
-                        Вход для учителей
+                        Counselor Sign In
                     </button>
                     <button
                         onClick={() => navigate('/login')}
                         className="px-6 py-2.5 rounded-full bg-white text-slate-900 hover:bg-white/90 transition-all text-sm font-medium shadow-lg"
                     >
-                        Вход для учеников
+                        Student Sign In
                     </button>
                 </div>
 
@@ -260,10 +260,10 @@ const Navbar = () => {
             {isOpen && (
                 <div className="absolute top-full left-0 w-full bg-white shadow-xl p-6 flex flex-col gap-4 md:hidden border-b border-slate-100">
                     <button onClick={() => navigate('/login')} className="w-full px-6 py-3 rounded-full bg-slate-900 text-white font-medium">
-                        Вход для учеников
+                        Student Sign In
                     </button>
                     <button onClick={() => navigate('/login')} className="w-full px-6 py-3 rounded-full border border-slate-200 text-slate-700 font-medium">
-                        Вход для учителей
+                        Counselor Sign In
                     </button>
                 </div>
             )}
@@ -286,17 +286,17 @@ const HeroSection = () => {
             <div className="relative z-10 h-full flex items-center justify-end">
                 <div className="max-w-2xl mr-8 md:mr-20 lg:mr-32 space-y-8 text-right">
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-light leading-tight tracking-tight text-white drop-shadow-lg">
-                        Технологии, которые<br />чувствуют и понимают.
+                        Technology that<br />understands and responds.
                     </h1>
                     <p className="text-xl md:text-2xl text-white/80 leading-relaxed font-light drop-shadow-md">
-                        Доказываем, что искусственный интеллект может быть эмпатичным помощником. Prism анализирует эмоциональный фон школы в реальном времени, помогая сохранить ментальное здоровье каждого ребенка.
+                        We are proving that AI can be an empathetic support system. Prism analyzes the emotional climate of a school in real time, helping protect the mental wellbeing of every student.
                     </p>
                     <div className="flex justify-end">
                         <button
                             onClick={() => navigate('/login')}
                             className="px-10 py-5 bg-white text-slate-900 rounded-full text-lg font-medium hover:bg-slate-100 transition-all flex items-center gap-2 group shadow-xl border border-slate-200"
                         >
-                            Присоединиться
+                            Join Prism
                             <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                         </button>
                     </div>
@@ -311,35 +311,35 @@ const ForTeachersSection = () => {
         <section className="py-40 bg-white relative">
             <div className="max-w-[90rem] mx-auto px-8">
                 <div className="mb-24">
-                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">Для учителей</span>
+                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">For Counselors</span>
                     <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mt-5 mb-10">
-                        Управляйте климатом <br />
-                        в классе
+                        Manage the climate <br />
+                        in your class
                     </h2>
                     <p className="text-slate-500 max-w-2xl text-xl font-light">
-                        Всё, что нужно для понимания состояния учеников и эффективной работы.
+                        Everything needed to understand student wellbeing and act effectively.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                     <EvervaultFeatureCard
-                        title="AI Аналитика"
-                        description="Глубокий AI-анализ настроения и уровня стресса класса в реальном времени. Автоматическое выявление учеников в зоне риска и персональные рекомендации для каждого."
+                        title="AI Analytics"
+                        description="Deep AI analysis of class mood and stress levels in real time. Automatically detects at-risk students and generates tailored recommendations."
                         icon={Activity}
                     />
                     <EvervaultFeatureCard
-                        title="Умный Календарь"
-                        description="Планирование СОР, СОЧ и контрольных работ с умным распределением нагрузки. Ученики видят расписание сразу в своем приложении и получают напоминания."
+                        title="Smart Calendar"
+                        description="Plan quizzes, summatives, and tests with smart workload balancing. Students see the schedule in their app and receive reminders."
                         icon={FileText}
                     />
                     <EvervaultFeatureCard
-                        title="Ментор-Ассистент"
-                        description="Встроенный AI-помощник на базе Gemini, который дает педагогические советы и рекомендации на основе данных о состоянии каждого ученика."
+                        title="Mentor Assistant"
+                        description="A built-in Gemini-powered AI assistant that gives practical guidance based on each students wellbeing data."
                         icon={Bot}
                     />
                     <EvervaultFeatureCard
-                        title="Управление Классом"
-                        description="Легкое создание классов, добавление учеников через уникальный код и полный контроль над составом. Исключение неактивных и управление доступом."
+                        title="Class Management"
+                        description="Create classes easily, add students with a unique code, and keep full control over membership and access."
                         icon={Users}
                     />
                 </div>
@@ -353,35 +353,35 @@ const ForStudentsSection = () => {
         <section className="py-40 bg-slate-50 relative border-t border-slate-100">
             <div className="max-w-[90rem] mx-auto px-8">
                 <div className="mb-24 text-right">
-                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">Для учеников</span>
+                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">For Students</span>
                     <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mt-5 mb-10">
-                        Твоё пространство <br />
-                        спокойствия
+                        Your space for <br />
+                        calm
                     </h2>
                     <p className="text-slate-500 max-w-2xl text-xl ml-auto font-light">
-                        Инструменты для самопознания и поддержки ментального здоровья.
+                        Tools for self-reflection and mental wellbeing support.
                     </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                     <EvervaultFeatureCard
-                        title="Дейли Чек-ины"
-                        description="Ежедневно отмечай своё настроение, качество сна и уровень энергии. Анализируй свою статистику за неделю, месяц или весь учебный год."
+                        title="Daily Check-ins"
+                        description="Track your mood, sleep quality, and energy every day. Review your patterns across a week, month, or the full school year."
                         icon={Smile}
                     />
                     <EvervaultFeatureCard
-                        title="Ресурсный Хаб"
-                        description="Дыхательные практики, медитации и полезные статьи для снижения стресса. Готовься к экзаменам спокойно с нашими ресурсами."
+                        title="Resource Hub"
+                        description="Breathing practices, meditations, and useful articles to reduce stress. Prepare for exams more calmly with guided resources."
                         icon={Zap}
                     />
                     <EvervaultFeatureCard
-                        title="Мои Задания"
-                        description="Выполняй задания от учителя и рефлексируй в удобном формате прямо в приложении. Отслеживай свой прогресс и достижения."
+                        title="My Assignments"
+                        description="Complete assignments from your counselor and reflect inside the app. Track your progress and achievements."
                         icon={Lock}
                     />
                     <EvervaultFeatureCard
-                        title="Персональный Профиль"
-                        description="Настраивай аватар, следи за своим прогрессом и достижениями. Получай персональные рекомендации на основе твоих данных."
+                        title="Personal Profile"
+                        description="Customize your avatar, follow your progress, and receive personal recommendations based on your data."
                         icon={Users}
                     />
                 </div>
@@ -437,9 +437,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Соцсети */}
+                    {/* Socials */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4 drop-shadow-lg">Соцсети</h4>
+                        <h4 className="text-white font-semibold mb-4 drop-shadow-lg">Socials</h4>
                         <ul className="space-y-2">
                             <li>
                                 <a
@@ -464,9 +464,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Контакты */}
+                    {/* Contacts */}
                     <div>
-                        <h4 className="text-white font-semibold mb-4 drop-shadow-lg">Контакты</h4>
+                        <h4 className="text-white font-semibold mb-4 drop-shadow-lg">Contacts</h4>
                         <ul className="space-y-2">
                             <li>
                                 <a
@@ -485,10 +485,10 @@ const Footer = () => {
                 {/* Copyright */}
                 <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-white font-medium text-sm drop-shadow">
-                        © 2026 Prism. Все права защищены.
+                        © 2026 Prism. All rights reserved.
                     </p>
                     <p className="text-white font-medium text-xs drop-shadow">
-                        Сделано в РФМШ г.Астана
+                        Built at RFMS, Astana
                     </p>
                 </div>
             </div>
@@ -498,39 +498,39 @@ const Footer = () => {
 
 const testimonials = [
     {
-        quote: "Проект Prism представляет собой тщательно разработанное исследование с высокой научной и образовательной ценностью. Демонстрирует глубокое понимание проблемы и высокий уровень самостоятельности.",
-        name: "Шүкірбаев Нұржан Д.",
-        role: "Научный руководитель",
+        quote: "The Prism project is a carefully developed study with strong scientific and educational value. It demonstrates a deep understanding of the problem and a high level of independent work.",
+        name: "Nurzhan D. Shukirbayev",
+        role: "Academic Supervisor",
         type: "professional"
     },
     {
-        quote: "Проект оценивается как актуальный продукт с высокой психолого-педагогической ценностью. При грамотном внедрении он способен улучшить психологический климат в школе.",
-        name: "Икимова Д.Т.",
-        role: "Педагог-психолог",
+        quote: "The project stands out as a timely product with strong psychological and educational value. With thoughtful implementation, it can improve the emotional climate of a school.",
+        name: "D.T. Ikimova",
+        role: "School Counselor",
         type: "professional"
     },
     {
-        quote: "Честно, раньше было сложно говорить о своих переживаниях. А тут просто отмечаешь настроение каждый день, и это реально помогает понять себя лучше. Плюс ИИ-ментор всегда на связи.",
-        name: "Аружан К.",
-        role: "Ученица 10F класса, РФМШ",
+        quote: "Honestly, it used to be hard to talk about what I was feeling. Here you just log your mood every day, and it really helps you understand yourself better. The AI mentor is always there too.",
+        name: "Aruzhan K.",
+        role: "Student, Class 10F, RFMS",
         type: "student"
     },
     {
-        quote: "Pixel Year — это топ! Когда видишь весь год в цветах, понимаешь, что на самом деле хороших дней больше, чем казалось. Советую всем попробовать.",
-        name: "Даниял М.",
-        role: "Ученик 10F класса, РФМШ",
+        quote: "Pixel Year is amazing. When you see the whole year in color, you realize there were more good days than you thought. I would recommend it to everyone.",
+        name: "Daniyal M.",
+        role: "Student, Class 10F, RFMS",
         type: "student"
     },
     {
-        quote: "Мне нравится, что всё анонимно. Можно честно писать о своих чувствах, и никто не осудит. ИИ-ментор помог мне справиться со стрессом перед олимпиадой.",
-        name: "Амина Б.",
-        role: "Ученица 10F класса, РФМШ",
+        quote: "I like that everything is anonymous. You can write honestly about your feelings and no one judges you. The AI mentor helped me manage stress before an academic competition.",
+        name: "Amina B.",
+        role: "Student, Class 10F, RFMS",
         type: "student"
     },
     {
-        quote: "Prism — это как личный дневник, только умнее. Трекер настроения прикольный, заполняю каждый день. Рекомендую всем одноклассникам!",
-        name: "Арсен Т.",
-        role: "Ученик 10F класса, РФМШ",
+        quote: "Prism feels like a personal journal, just smarter. The mood tracker is great and I use it every day. I would recommend it to all my classmates.",
+        name: "Arsen T.",
+        role: "Student, Class 10F, RFMS",
         type: "student"
     }
 ];
@@ -541,12 +541,12 @@ const TestimonialsSection = () => {
             <div className="max-w-7xl mx-auto px-8">
                 {/* Header */}
                 <div className="mb-16">
-                    <p className="text-sm font-medium text-slate-400 tracking-widest mb-4">[ ОТЗЫВЫ ]</p>
+                    <p className="text-sm font-medium text-slate-400 tracking-widest mb-4">[ TESTIMONIALS ]</p>
                     <h2 className="text-4xl md:text-5xl font-bold text-slate-900 max-w-2xl leading-tight">
-                        Узнайте, что говорят о <span className="text-slate-900" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '0.7em' }}>Prism</span>
+                        See what people are saying about <span className="text-slate-900" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '0.7em' }}>Prism</span>
                     </h2>
                     <p className="text-lg text-slate-500 mt-4 max-w-xl">
-                        Реальные отзывы от педагогов, психологов и учеников РФМШ г. Астана.
+                        Real feedback from educators, counselors, and students at RFMS in Astana.
                     </p>
                 </div>
 
@@ -607,3 +607,4 @@ const Landing = () => {
 };
 
 export default Landing;
+

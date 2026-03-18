@@ -218,7 +218,7 @@ const StudentDashboard = () => {
         setStats({
             avgMood: Number(avgMood),
             totalEntries: total,
-            sleepAvg: avgSleep + " ч",
+            sleepAvg: avgSleep + " h",
             energyAvg: avgEnergy + "/10"
         });
 
@@ -250,10 +250,10 @@ const StudentDashboard = () => {
             const checkinsText = recent.map(c =>
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');
-            const prompt = `Ты школьный психолог. Твоя задача — поддержать ученика.
-Обращайся к ученику на "ТЫ". Не используй слово "ученик" или третье лицо.
-Кратко (макс 3 предл) оцени его состояние и дай 1 совет.
-Данные: ${checkinsText}`;
+            const prompt = `You are a school counselor supporting a student.
+Address the student directly as "you".
+In no more than 3 sentences, briefly assess their current state and give 1 practical suggestion.
+Data: ${checkinsText}`;
 
             const result = await getGeminiInsight(prompt, "openai/gpt-oss-120b");
             setAiAdvice(result);
@@ -270,7 +270,7 @@ const StudentDashboard = () => {
 
         } catch (err) {
             console.error(err);
-            setAiAdvice("Не удалось проанализировать данные. Попробуйте позже.");
+            setAiAdvice("I could not analyze your data right now. Please try again later.");
         } finally {
             setLoadingAI(false);
         }
@@ -296,11 +296,11 @@ const StudentDashboard = () => {
             setTasks(prev => prev.map(t => t.id === viewingTask.id ? { ...t, mySubmission: { completed: true, response: taskResponse } } : t));
             setViewingTask(null);
             setTaskResponse('');
-            alert("Задание отправлено!");
+            alert("Assignment submitted.");
 
         } catch (error: any) {
             console.error(error);
-            alert(`Ошибка отправки: ${error.message || 'Неизвестная ошибка'}`);
+            alert(`Submission failed: ${error.message || 'Unknown error'}`);
         }
     };
 
@@ -314,7 +314,7 @@ const StudentDashboard = () => {
             const { data: joinedClassId, error: joinRpcError } = await supabase
                 .rpc('join_class_by_code', { input_code: classCode.trim().toUpperCase() });
 
-            if (joinRpcError || !joinedClassId) throw new Error("Класс с таким кодом не найден");
+            if (joinRpcError || !joinedClassId) throw new Error("No class was found with that code");
 
             const { data: foundClass, error: classError } = await supabase
                 .from('classes')
@@ -322,17 +322,17 @@ const StudentDashboard = () => {
                 .eq('id', joinedClassId)
                 .single();
 
-            if (classError || !foundClass) throw new Error("Не удалось получить данные класса");
+            if (classError || !foundClass) throw new Error("Failed to load class details");
 
             // 2. Check overlap
             const existing = classes.find(c => c.id === foundClass.id);
             if (existing) {
-                alert("Вы уже состоите в этом классе");
+                alert("You are already enrolled in this class");
                 setShowJoinModal(false);
                 return;
             }
 
-            alert(`Вы успешно присоединились к классу "${foundClass.name}"!`);
+            alert(`You joined "${foundClass.name}" successfully.`);
 
             setClasses(prev => {
                 // Double check to avoid duplicates in state
@@ -349,7 +349,7 @@ const StudentDashboard = () => {
 
     const leaveClass = async (e: React.MouseEvent, classId: string) => {
         e.stopPropagation();
-        if (!confirm('Вы уверены, что хотите покинуть этот класс?')) return;
+        if (!confirm('Are you sure you want to leave this class?')) return;
 
         try {
             // Remove from enrollments
@@ -362,16 +362,16 @@ const StudentDashboard = () => {
             if (error) throw error;
 
             setClasses(prev => prev.filter(c => c.id !== classId));
-            alert('Вы успешно покинули курс');
+            alert('You left the class successfully.');
 
         } catch (err: any) {
             console.error(err);
-            alert(`Ошибка при выходе из курса: ${err.message || JSON.stringify(err)}`);
+            alert(`Failed to leave the class: ${err.message || JSON.stringify(err)}`);
         }
     };
 
     const deleteCheckin = async (id: string) => {
-        if (!confirm('Вы уверены, что хотите удалить эту запись?')) return;
+        if (!confirm('Are you sure you want to delete this entry?')) return;
         try {
             const { error } = await supabase.from('checkins').delete().eq('id', id);
             if (error) throw error;
@@ -382,7 +382,7 @@ const StudentDashboard = () => {
 
         } catch (err) {
             console.error(err);
-            alert('Ошибка при удалении');
+            alert('Failed to delete the entry');
         }
     };
 
@@ -402,16 +402,16 @@ const StudentDashboard = () => {
             if (error) throw error;
 
             setUserProfile({ ...userProfile, full_name: editName, bio: editBio });
-            alert('Профиль обновлен!');
+            alert('Profile updated.');
         } catch (error: any) {
             console.error(error);
-            alert('Ошибка при обновлении профиля: ' + error.message);
+            alert('Failed to update profile: ' + error.message);
         } finally {
             setSavingProfile(false);
         }
     };
 
-    if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">Загрузка...</div>;
+    if (loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">Loading...</div>;
 
     // --- COURSES GALLERY VIEW ---
     if (currentView === 'courses') {
@@ -431,7 +431,7 @@ const StudentDashboard = () => {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setShowJoinModal(true)} className="p-2 hover:bg-white/5 rounded-full transition-colors" title="Присоединиться к курсу">
+                        <button onClick={() => setShowJoinModal(true)} className="p-2 hover:bg-white/5 rounded-full transition-colors" title="Join a class">
                             <span className="text-2xl font-light text-slate-300">+</span>
                         </button>
 
@@ -460,7 +460,7 @@ const StudentDashboard = () => {
                                             className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-white/5 hover:text-red-300 flex items-center gap-3 transition-colors"
                                         >
                                             <LogOut className="w-4 h-4" />
-                                            Выйти из аккаунта
+                                            Sign Out
                                         </button>
                                     </div>
                                 </>
@@ -479,13 +479,13 @@ const StudentDashboard = () => {
                                     alt="Empty"
                                 />
                             </div>
-                            <h2 className="text-3xl font-bold text-slate-200 mb-4">Здесь пока пусто</h2>
-                            <p className="text-lg text-slate-400 mb-10 max-w-xl leading-relaxed">Присоединитесь к своему первому классу, чтобы начать отслеживать прогресс.</p>
+                            <h2 className="text-3xl font-bold text-slate-200 mb-4">Nothing here yet</h2>
+                            <p className="text-lg text-slate-400 mb-10 max-w-xl leading-relaxed">Join your first class to start tracking your progress.</p>
                             <button
                                 onClick={() => setShowJoinModal(true)}
                                 className="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white text-lg rounded-xl font-semibold transition-all shadow-[0_4px_20px_rgba(37,99,235,0.3)] hover:shadow-[0_4px_25px_rgba(37,99,235,0.5)] hover:-translate-y-1"
                             >
-                                Присоединиться к курсу
+                                Join a Class
                             </button>
                         </div>
                     ) : (
@@ -504,14 +504,14 @@ const StudentDashboard = () => {
                                         </div>
                                     </div>
                                     <div className="p-4 h-32 flex flex-col justify-between relative bg-[#111]">
-                                        <p className="text-xs text-slate-500 truncate">Код курса: {cls.code}</p>
+                                        <p className="text-xs text-slate-500 truncate">Class code: {cls.code}</p>
                                         <div className="flex justify-between items-center border-t border-white/5 pt-3 mt-2">
                                             <button
                                                 onClick={(e) => leaveClass(e, cls.id)}
                                                 className="text-slate-500 hover:text-red-400 text-xs flex items-center gap-1 transition-colors"
-                                                title="Покинуть курс"
+                                                title="Leave class"
                                             >
-                                                <LogOut className="w-3 h-3" /> Покинуть
+                                                <LogOut className="w-3 h-3" /> Leave
                                             </button>
                                             <div className="flex gap-1">
                                                 <div className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white">
@@ -533,15 +533,15 @@ const StudentDashboard = () => {
                 {showJoinModal && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                         <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl">
-                            <h2 className="text-xl font-bold mb-4">Присоединиться к курсу</h2>
-                            <p className="text-slate-400 text-sm mb-6">Попросите код курса у учителя и введите его здесь.</p>
+                            <h2 className="text-xl font-bold mb-4">Join a Class</h2>
+                            <p className="text-slate-400 text-sm mb-6">Ask your counselor for the class code and enter it here.</p>
                             <form onSubmit={joinClass}>
                                 <input
                                     type="text"
                                     value={classCode}
                                     onChange={(e) => setClassCode(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-blue-500"
-                                    placeholder="Код курса"
+                                    placeholder="Class code"
                                 />
                                 {joinError && <div className="text-red-400 text-sm text-center mb-4">{joinError}</div>}
                                 <div className="flex justify-end gap-3">
@@ -550,13 +550,13 @@ const StudentDashboard = () => {
                                         onClick={() => setShowJoinModal(false)}
                                         className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
                                     >
-                                        Отмена
+                                        Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium"
                                     >
-                                        Присоединиться
+                                        Join
                                     </button>
                                 </div>
                             </form>
@@ -568,20 +568,20 @@ const StudentDashboard = () => {
                 {showLogoutModal && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                         <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                            <h2 className="text-xl font-bold mb-2">Выйти из аккаунта?</h2>
-                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                            <h2 className="text-xl font-bold mb-2">Sign Out?</h2>
+                            <p className="text-slate-400 text-sm mb-6">Are you sure you want to sign out of your account?</p>
                             <div className="flex justify-end gap-3">
                                 <button
                                     onClick={() => setShowLogoutModal(false)}
                                     className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
                                 >
-                                    Отмена
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleLogout}
                                     className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
                                 >
-                                    Выйти
+                                    Sign Out
                                 </button>
                             </div>
                         </div>
@@ -605,34 +605,34 @@ const StudentDashboard = () => {
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                         <ChevronRight className="w-5 h-5 text-slate-400 rotate-180" />
                     </div>
-                    <span className="hidden lg:block font-bold text-sm tracking-tight text-slate-300">К списку курсов</span>
+                    <span className="hidden lg:block font-bold text-sm tracking-tight text-slate-300">Back to classes</span>
                 </div>
 
                 <div className="px-6 mb-4">
-                    <h2 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2 hidden lg:block">Курс</h2>
+                    <h2 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-2 hidden lg:block">Class</h2>
                     <div className="text-sm font-bold text-white truncate px-1 hidden lg:block">{selectedClass?.name || 'Loading...'}</div>
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2">
-                    <NavItem icon={Home} label="Главная" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-                    <NavItem icon={Book} label="Дневник" active={activeTab === 'diary'} onClick={() => setActiveTab('diary')} />
-                    <NavItem icon={FileText} label={`Задания ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? '•' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
-                    <NavItem icon={BarChart2} label="Статистика" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
+                    <NavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+                    <NavItem icon={Book} label="Journal" active={activeTab === 'diary'} onClick={() => setActiveTab('diary')} />
+                    <NavItem icon={FileText} label={`Assignments ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? '•' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
+                    <NavItem icon={BarChart2} label="Stats" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
 
                     <button
                         onClick={() => setShowResources(true)}
                         className="w-full flex items-center gap-3 p-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                     >
                         <Book className="w-5 h-5" />
-                        <span className="hidden lg:block font-medium">Ресурсы</span>
+                        <span className="hidden lg:block font-medium">Resources</span>
                     </button>
-                    <NavItem icon={Settings} label="Настройки" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+                    <NavItem icon={Settings} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
                 </nav>
 
                 <div className="p-4 border-t border-white/5">
                     <button onClick={() => setShowLeaveClassModal(true)} className="flex items-center gap-3 p-3 text-slate-400 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all w-full text-left">
                         <LogOut className="w-5 h-5" />
-                        <span className="hidden lg:block font-medium">Покинуть курс</span>
+                        <span className="hidden lg:block font-medium">Leave Class</span>
                     </button>
                 </div>
             </aside>
@@ -641,14 +641,14 @@ const StudentDashboard = () => {
             {showLeaveClassModal && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                     <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                        <h2 className="text-xl font-bold mb-2">Покинуть курс?</h2>
-                        <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите покинуть курс <strong className="text-white">{selectedClass?.name}</strong>? Ваши записи останутся, но вы потеряете доступ.</p>
+                        <h2 className="text-xl font-bold mb-2">Leave this class?</h2>
+                        <p className="text-slate-400 text-sm mb-6">Are you sure you want to leave <strong className="text-white">{selectedClass?.name}</strong>? Your entries will remain saved, but you will lose access.</p>
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowLeaveClassModal(false)}
                                 className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
                             >
-                                Отмена
+                                Cancel
                             </button>
                             <button
                                 onClick={async () => {
@@ -664,12 +664,12 @@ const StudentDashboard = () => {
                                         setCurrentView('courses');
                                         setSelectedClass(null);
                                     } catch (err: any) {
-                                        alert(`Ошибка: ${err.message}`);
+                                        alert(`Error: ${err.message}`);
                                     }
                                 }}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
                             >
-                                Покинуть
+                                Leave
                             </button>
                         </div>
                     </div>
@@ -680,20 +680,20 @@ const StudentDashboard = () => {
             {showLogoutModal && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                     <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                        <h2 className="text-xl font-bold mb-2">Выйти из аккаунта?</h2>
-                        <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                        <h2 className="text-xl font-bold mb-2">Sign Out?</h2>
+                        <p className="text-slate-400 text-sm mb-6">Are you sure you want to sign out of your account?</p>
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowLogoutModal(false)}
                                 className="px-4 py-2 text-slate-400 hover:text-white transition-colors"
                             >
-                                Отмена
+                                Cancel
                             </button>
                             <button
                                 onClick={handleLogout}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition-colors"
                             >
-                                Выйти
+                                Sign Out
                             </button>
                         </div>
                     </div>
@@ -709,13 +709,13 @@ const StudentDashboard = () => {
                         <div>
 
                             <h1 className="text-4xl lg:text-5xl font-bold text-white">
-                                {activeTab === 'home' && `Доброе утро, ${userProfile?.full_name?.split(' ')[0] || 'Ученик'}`}
-                                {activeTab === 'diary' && 'Твой Дневник'}
-                                {activeTab === 'tasks' && 'Мои Задания'}
-                                {activeTab === 'stats' && 'Твой Прогресс'}
-                                {activeTab === 'settings' && 'Настройки'}
+                                {activeTab === 'home' && `Good morning, ${userProfile?.full_name?.split(' ')[0] || 'Student'}`}
+                                {activeTab === 'diary' && 'Your Journal'}
+                                {activeTab === 'tasks' && 'My Assignments'}
+                                {activeTab === 'stats' && 'Your Progress'}
+                                {activeTab === 'settings' && 'Settings'}
                             </h1>
-                            {activeTab === 'home' && <p className="text-slate-400 mt-2">Готов отслеживать свой прогресс сегодня?</p>}
+                            {activeTab === 'home' && <p className="text-slate-400 mt-2">Ready to track your progress today?</p>}
                         </div>
                         <div className="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 overflow-hidden">
                             <User className="w-full h-full p-2 text-slate-400" />
@@ -730,20 +730,20 @@ const StudentDashboard = () => {
                             <div className="bg-[#0A0A0A] border border-white/5 p-8 rounded-[32px] relative overflow-hidden group">
                                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-2">Как ты себя чувствуешь?</h2>
-                                        <p className="text-slate-400 mb-6 max-w-md">Отметь свое текущее состояние. Это поможет нам построить более точную карту твоих эмоций.</p>
+                                        <h2 className="text-2xl font-bold mb-2">How are you feeling?</h2>
+                                        <p className="text-slate-400 mb-6 max-w-md">Log your current state so we can build a clearer picture of your wellbeing.</p>
                                         <button
-                                            onClick={() => navigate('/checkin', { state: { classId: selectedClass?.id, prompt: "Как прошел твой день?" } })}
+                                            onClick={() => navigate('/checkin', { state: { classId: selectedClass?.id, prompt: "How did your day go?" } })}
                                             className="bg-white text-black font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                                         >
-                                            Открыть дневник
+                                            Open Journal
                                         </button>
 
                                         {/* Smart Journaling Prompts */}
                                         <div className="mt-6 space-y-2">
-                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Или ответь на вопрос:</p>
+                                            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2">Or answer a prompt:</p>
                                             <div className="flex flex-wrap gap-2">
-                                                {["Что тебя сегодня порадовало?", "Что вызвало трудности?", "За что ты благодарен?"].map(p => (
+                                                {["What made you feel good today?", "What felt difficult today?", "What are you grateful for today?"].map(p => (
                                                     <button
                                                         key={p}
                                                         onClick={() => navigate('/checkin', { state: { classId: selectedClass?.id, prompt: p } })}
@@ -778,15 +778,15 @@ const StudentDashboard = () => {
                                         <div className="p-2 bg-indigo-500/10 rounded-lg">
                                             <Brain className="w-5 h-5 text-indigo-400" />
                                         </div>
-                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">AI Анализ состояния</span>
+                                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">AI Wellbeing Insight</span>
                                     </div>
 
                                     <div className="relative z-10">
                                         <h2 className="text-lg md:text-xl font-medium leading-relaxed text-slate-200">
                                             {loadingAI ? (
-                                                <span className="animate-pulse">Анализирую твои показатели...</span>
+                                                <span className="animate-pulse">Reviewing your patterns...</span>
                                             ) : (
-                                                aiAdvice || "Сделай первую запись в дневнике, чтобы я мог проанализировать твое состояние."
+                                                aiAdvice || "Add your first journal entry so I can analyze your wellbeing."
                                             )}
                                         </h2>
                                     </div>
@@ -800,17 +800,17 @@ const StudentDashboard = () => {
                                         <Flame className="w-10 h-10 text-white fill-white" />
                                     </div>
                                     <div className="text-4xl font-bold text-white mb-1">{streak}</div>
-                                    <div className="text-sm text-slate-400 font-medium">дней подряд</div>
-                                    <div className="text-xs text-slate-600 mt-2">Ты в ударе!</div>
+                                    <div className="text-sm text-slate-400 font-medium">days in a row</div>
+                                    <div className="text-xs text-slate-600 mt-2">You are on a roll.</div>
                                 </div>
                             </div>
 
                             {/* Bottom Row: Trends & Stats */}
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                                <StatCard label="Среднее" value={stats.avgMood} icon={TrendingUp} color="emerald" />
-                                <StatCard label="Записей" value={stats.totalEntries} icon={Book} color="purple" />
-                                <StatCard label="Сон" value={stats.sleepAvg} icon={Moon} color="indigo" />
-                                <StatCard label="Энергия" value={stats.energyAvg} icon={Zap} color="yellow" />
+                                <StatCard label="Average" value={stats.avgMood} icon={TrendingUp} color="emerald" />
+                                <StatCard label="Entries" value={stats.totalEntries} icon={Book} color="purple" />
+                                <StatCard label="Sleep" value={stats.sleepAvg} icon={Moon} color="indigo" />
+                                <StatCard label="Energy" value={stats.energyAvg} icon={Zap} color="yellow" />
                             </div>
                         </>
                     )}
@@ -818,7 +818,7 @@ const StudentDashboard = () => {
                     {activeTab === 'diary' && (
                         <div className="space-y-4">
                             {checkins.length === 0 ? (
-                                <div className="text-slate-500">Пока нет записей.</div>
+                                <div className="text-slate-500">No entries yet.</div>
                             ) : checkins.map((entry) => (
                                 <div key={entry.id} className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-start gap-4 hover:bg-white/10 transition-colors group">
                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br ${entry.mood_score >= 4 ? 'from-green-500 to-emerald-700' : entry.mood_score <= 2 ? 'from-red-500 to-orange-700' : 'from-slate-500 to-slate-700'}`}>
@@ -826,13 +826,13 @@ const StudentDashboard = () => {
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h3 className="font-bold text-lg">{new Date(entry.created_at).toLocaleDateString('ru-RU')}</h3>
+                                            <h3 className="font-bold text-lg">{new Date(entry.created_at).toLocaleDateString('en-US')}</h3>
                                             <div className="flex items-center gap-3">
-                                                <span className="text-xs text-slate-500">{new Date(entry.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className="text-xs text-slate-500">{new Date(entry.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                                                 <button
                                                     onClick={() => deleteCheckin(entry.id)}
                                                     className="p-1.5 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
-                                                    title="Удалить запись"
+                                                    title="Delete entry"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
@@ -841,9 +841,9 @@ const StudentDashboard = () => {
                                         <div className="flex flex-wrap gap-2 mb-3">
                                             {entry.emotions?.map((e: string) => <span key={e} className="px-2 py-0.5 rounded-md bg-white/5 text-xs text-slate-300 border border-white/10">{e}</span>)}
                                         </div>
-                                        <p className="text-slate-300 text-sm mb-3">"{entry.comment || "Без комментария"}"</p>
+                                        <p className="text-slate-300 text-sm mb-3">"{entry.comment || "No note"}"</p>
                                         <div className="flex gap-4 text-xs text-slate-500">
-                                            <span className="flex items-center gap-1"><Moon className="w-3 h-3" /> {entry.sleep_hours || '-'}ч</span>
+                                            <span className="flex items-center gap-1"><Moon className="w-3 h-3" /> {entry.sleep_hours || '-'}h</span>
                                             <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {entry.energy_level || '-'}/10</span>
                                         </div>
                                     </div>
@@ -864,11 +864,11 @@ const StudentDashboard = () => {
                                         </div>
                                     )}
                                     <h3 className="text-xl font-bold mb-2">{task.title}</h3>
-                                    <p className="text-slate-400 mb-6">{task.description || "Без описания"}</p>
+                                    <p className="text-slate-400 mb-6">{task.description || "No description"}</p>
 
                                     {task.mySubmission?.completed ? (
                                         <div className="bg-white/5 rounded-xl p-4 text-sm text-slate-300">
-                                            <div className="text-xs text-slate-500 uppercase font-bold mb-1">Твой ответ</div>
+                                            <div className="text-xs text-slate-500 uppercase font-bold mb-1">Your response</div>
                                             {task.mySubmission.response}
                                         </div>
                                     ) : (
@@ -876,13 +876,13 @@ const StudentDashboard = () => {
                                             onClick={() => setViewingTask(task)}
                                             className="px-6 py-2 bg-white text-black font-bold rounded-xl hover:bg-slate-200 transition-colors"
                                         >
-                                            Выполнить
+                                            Open
                                         </button>
                                     )}
                                 </div>
                             ))}
                             {tasks.length === 0 && (
-                                <div className="text-center py-12 text-slate-500">Учитель пока не добавил заданий.</div>
+                                <div className="text-center py-12 text-slate-500">No assignments have been added yet.</div>
                             )}
                         </div>
                     )}
@@ -890,7 +890,7 @@ const StudentDashboard = () => {
                     {activeTab === 'stats' && (
                         <>
                             <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                                <h2 className="text-2xl font-bold mb-6">Твои показатели</h2>
+                                <h2 className="text-2xl font-bold mb-6">Your Metrics</h2>
                                 <div className="h-[300px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <AreaChart data={chartData}>
@@ -910,12 +910,12 @@ const StudentDashboard = () => {
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <p className="text-center text-slate-500 text-sm mt-4">Фиолетовый: Настроение • Желтый: Энергия</p>
+                                <p className="text-center text-slate-500 text-sm mt-4">Purple: Mood • Yellow: Energy</p>
                             </div>
 
                             {/* MOOD CALENDAR (PIXEL YEAR) */}
                             <div className="bg-white/5 border border-white/10 rounded-3xl p-8 mt-6">
-                                <h2 className="text-2xl font-bold mb-6">Календарь настроения</h2>
+                                <h2 className="text-2xl font-bold mb-6">Mood Calendar</h2>
                                 <MoodCalendar checkins={checkins} />
                             </div>
                         </>
@@ -923,26 +923,26 @@ const StudentDashboard = () => {
 
                     {activeTab === 'settings' && (
                         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 max-w-xl">
-                            <h2 className="text-xl font-bold mb-6">Профиль</h2>
+                            <h2 className="text-xl font-bold mb-6">Profile</h2>
                             <div className="mb-6">
-                                <label className="block text-slate-400 text-sm mb-2">Имя</label>
+                                <label className="block text-slate-400 text-sm mb-2">Name</label>
                                 <input
                                     type="text"
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
-                                    placeholder="Ваше имя"
+                                    placeholder="Your name"
                                 />
                             </div>
 
 
                             <div className="mb-6">
-                                <label className="block text-slate-400 text-sm mb-2">О себе</label>
+                                <label className="block text-slate-400 text-sm mb-2">About you</label>
                                 <textarea
                                     value={editBio}
                                     onChange={(e) => setEditBio(e.target.value)}
                                     className="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500 transition-colors h-24 resize-none"
-                                    placeholder="Расскажите немного о себе..."
+                                    placeholder="Tell us a little about yourself..."
                                 />
                             </div>
                             <div className="mb-8">
@@ -960,7 +960,7 @@ const StudentDashboard = () => {
                                 disabled={savingProfile}
                                 className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
-                                {savingProfile ? 'Сохранение...' : 'Сохранить изменения'}
+                                {savingProfile ? 'Saving...' : 'Save Changes'}
                             </button>
                         </div>
                     )}
@@ -989,13 +989,13 @@ const StudentDashboard = () => {
                         <h3 className="text-2xl font-bold mb-4">{viewingTask.title}</h3>
                         <textarea
                             className="w-full h-40 bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-purple-500 resize-none mb-6"
-                            placeholder="Твой ответ..."
+                            placeholder="Your response..."
                             value={taskResponse}
                             onChange={(e) => setTaskResponse(e.target.value)}
                         ></textarea>
                         <div className="flex justify-end gap-3">
-                            <button onClick={() => setViewingTask(null)} className="px-6 py-3 text-slate-400 font-bold hover:text-white">Отмена</button>
-                            <button onClick={submitTask} className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)]">Отправить</button>
+                            <button onClick={() => setViewingTask(null)} className="px-6 py-3 text-slate-400 font-bold hover:text-white">Cancel</button>
+                            <button onClick={submitTask} className="px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)]">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -1013,21 +1013,21 @@ const StudentDashboard = () => {
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
                                 <LogOut className="w-8 h-8 text-red-400" />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Выйти из аккаунта?</h3>
-                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                            <h3 className="text-xl font-bold text-white mb-2">Sign Out?</h3>
+                            <p className="text-slate-400 text-sm mb-6">Are you sure you want to sign out of your account?</p>
 
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setShowLogoutModal(false)}
                                     className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-medium hover:bg-white/10 transition-colors"
                                 >
-                                    Отмена
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleLogout}
                                     className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
                                 >
-                                    Выйти
+                                    Sign Out
                                 </button>
                             </div>
                         </div>
@@ -1051,10 +1051,10 @@ const MoodCalendar = ({ checkins }: { checkins: any[] }) => {
     }
 
     const getColor = (date: Date) => {
-        const dateStr = date.toLocaleDateString('ru-RU');
+        const dateStr = date.toLocaleDateString('en-US');
         // Find existing checkin for this day
         // Note: Checkins string date format might differ, ensuring date-only comparison
-        const checkin = checkins.find(c => new Date(c.created_at).toLocaleDateString('ru-RU') === dateStr);
+        const checkin = checkins.find(c => new Date(c.created_at).toLocaleDateString('en-US') === dateStr);
 
         if (!checkin) return 'bg-white/5';
 
@@ -1072,7 +1072,7 @@ const MoodCalendar = ({ checkins }: { checkins: any[] }) => {
                 <div
                     key={i}
                     className={`w-3 h-3 rounded-sm ${getColor(date)} hover:scale-125 transition-transform cursor-pointer`}
-                    title={`${date.toLocaleDateString('ru-RU')}`}
+                    title={`${date.toLocaleDateString('en-US')}`}
                 ></div>
             ))}
 

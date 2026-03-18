@@ -77,9 +77,9 @@ export default function TeacherClassesScreen() {
             await fetchClasses();
             setNewClassName('');
             setShowCreate(false);
-            Alert.alert('Готово', `Класс "${data.name}" создан!\nКод: ${code}`);
+            Alert.alert('Done', `Class "${data.name}" created.\nCode: ${code}`);
         } catch (err: any) {
-            Alert.alert('Ошибка', err.message || 'Не удалось создать класс');
+            Alert.alert('Error', err.message || 'Failed to create class');
         } finally {
             setCreating(false);
         }
@@ -99,16 +99,16 @@ export default function TeacherClassesScreen() {
             await fetchClasses();
             setJoinClassCode('');
             setShowJoin(false);
-            Alert.alert('Готово', 'Вы подключены к существующему классу.');
+            Alert.alert('Done', 'You joined the existing class.');
         } catch (err: any) {
-            Alert.alert('Ошибка', err.message || 'Не удалось подключиться к классу');
+            Alert.alert('Error', err.message || 'Failed to join the class');
         } finally {
             setJoining(false);
         }
     };
 
     const copyCode = (code: string) => {
-        Alert.alert('Код класса', code, [{ text: 'OK' }]);
+        Alert.alert('Class code', code, [{ text: 'OK' }]);
     };
 
     if (loading) {
@@ -123,12 +123,12 @@ export default function TeacherClassesScreen() {
 
     return (
         <ScreenWrapper>
-            {/* Заголовок */}
+            {/* Header */}
             <View style={styles.header}>
                 <View>
-                    <Text style={[styles.greeting, { color: colors.subtext }]}>Привет,</Text>
+                    <Text style={[styles.greeting, { color: colors.subtext }]}>Hello,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {(!profile?.full_name || profile.full_name === 'Учитель') ? 'Психолог' : profile.full_name} 👋
+                        {(!profile?.full_name || profile.full_name === 'Teacher') ? 'Counselor' : profile.full_name} 👋
                     </Text>
                 </View>
                 <View style={styles.headerActions}>
@@ -153,24 +153,24 @@ export default function TeacherClassesScreen() {
                 </View>
             </View>
 
-            {/* Форма создания класса */}
+            {/* Create class form */}
             {showCreate && (
                 <Card style={{ marginHorizontal: 20, marginBottom: 16 }}>
-                    <Text style={[styles.cardTitle, { color: colors.text }]}>Новый класс</Text>
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>New Class</Text>
                     <Input
-                        placeholder="Название (например, 9Б)"
+                        placeholder="Name (for example, 9B)"
                         value={newClassName}
                         onChangeText={setNewClassName}
                     />
                     <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
                         <Button
-                            title="Отмена"
+                            title="Cancel"
                             variant="secondary"
                             onPress={() => setShowCreate(false)}
                             style={{ flex: 1 }}
                         />
                         <Button
-                            title="Создать"
+                            title="Create"
                             variant="accent"
                             onPress={createClass}
                             loading={creating}
@@ -182,22 +182,22 @@ export default function TeacherClassesScreen() {
 
             {showJoin && (
                 <Card style={{ marginHorizontal: 20, marginBottom: 16 }}>
-                    <Text style={[styles.cardTitle, { color: colors.text }]}>Войти в существующий класс</Text>
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>Join an Existing Class</Text>
                     <Input
-                        placeholder="Код класса"
+                        placeholder="Class code"
                         value={joinClassCode}
                         onChangeText={setJoinClassCode}
                         autoCapitalize="characters"
                     />
                     <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
                         <Button
-                            title="Отмена"
+                            title="Cancel"
                             variant="secondary"
                             onPress={() => setShowJoin(false)}
                             style={{ flex: 1 }}
                         />
                         <Button
-                            title="Войти"
+                            title="Join"
                             variant="accent"
                             onPress={joinClass}
                             loading={joining}
@@ -207,16 +207,16 @@ export default function TeacherClassesScreen() {
                 </Card>
             )}
 
-            {/* Список классов */}
+            {/* Class list */}
             {classes.length === 0 ? (
                 <View style={styles.emptyContainer}>
-                    <Text style={[styles.emptyTitle, { color: colors.text }]}>Нет классов</Text>
+                    <Text style={[styles.emptyTitle, { color: colors.text }]}>No classes yet</Text>
                     <Text style={[styles.emptySubtitle, { color: colors.subtext }]}>
-                        Создайте свой первый класс{'\n'}или войдите в существующий.
+                        Create your first class{'\n'}or join an existing one.
                     </Text>
                     <View style={{ flexDirection: 'row', gap: 10, marginTop: 24 }}>
                         <Button
-                            title="Создать класс"
+                            title="Create Class"
                             variant="accent"
                             onPress={() => {
                                 setShowCreate(true);
@@ -225,7 +225,7 @@ export default function TeacherClassesScreen() {
                             style={{ flex: 1 }}
                         />
                         <Button
-                            title="Войти по коду"
+                            title="Join by Code"
                             variant="secondary"
                             onPress={() => {
                                 setShowJoin(true);
@@ -257,12 +257,12 @@ export default function TeacherClassesScreen() {
                                             onPress={() => copyCode(item.code)}
                                         >
                                             <Text style={[styles.codeText, { color: colors.subtext }]}>
-                                                Код: {item.code}
+                                                Code: {item.code}
                                             </Text>
                                             <Copy size={12} color={colors.subtext} />
                                         </TouchableOpacity>
                                         <Text style={[styles.classMeta, { color: colors.subtext }]}>
-                                            {item.teacher_id === user?.id ? 'Создан вами' : 'Подключённый класс'}
+                                            {item.teacher_id === user?.id ? 'Created by you' : 'Joined class'}
                                         </Text>
                                     </View>
                                     <ChevronRight size={20} color={colors.subtext} />
@@ -308,3 +308,5 @@ const styles = StyleSheet.create({
     emptyTitle: { fontSize: 24, fontWeight: '700', marginBottom: 8 },
     emptySubtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
 });
+
+

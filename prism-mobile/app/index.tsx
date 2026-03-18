@@ -18,10 +18,7 @@ export default function Index() {
         }
 
         if (!profile) {
-            const timeout = setTimeout(() => {
-                router.replace('/login');
-            }, 3000);
-            return () => clearTimeout(timeout);
+            return;
         }
 
         if (profile.role === 'teacher') {
@@ -34,7 +31,9 @@ export default function Index() {
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
             <ActivityIndicator size="large" color={colors.accent} />
-            <Text style={{ color: colors.subtext, marginTop: 16, fontSize: 14 }}>Загрузка...</Text>
+            <Text style={{ color: colors.subtext, marginTop: 16, fontSize: 14 }}>
+                {!session ? 'Loading...' : !profile ? 'Setting up your account...' : 'Loading...'}
+            </Text>
         </View>
     );
 }

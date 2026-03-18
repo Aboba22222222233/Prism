@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setSession(session);
             setUser(session?.user ?? null);
             if (session?.user) {
-                fetchProfile(session.user.id);
+                fetchProfile(session.user);
             } else {
                 setLoading(false);
             }
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setSession(session);
                 setUser(session?.user ?? null);
                 if (session?.user) {
-                    fetchProfile(session.user.id);
+                    fetchProfile(session.user);
                 } else {
                     setProfile(null);
                     setLoading(false);
@@ -68,22 +68,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => subscription.unsubscribe();
     }, []);
 
-    const fetchProfile = async (userId: string, retryCount = 0) => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('id, email, full_name, role, bio')
-                .eq('id', userId)
-                .maybeSingle();
+    const createMissingProfile = async (currentUser: User) => {
+        const fullName =
+            currentUser.user_metadata?.full_name ||
+            currentUser.user_metadata?.name ||
+            currentUser.email?.split('@')[0] ||
+            null;
 
-            if (data && !error) {
-                setProfile(data as UserProfile);
-            } else if (retryCount < 2) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                return fetchProfile(userId, retryCount + 1);
+        const { error } = await supabase
+            .from('profiles')
+            .upsert({
+                id: currentUser.id,
+                email: currentUser.email,
+                full_name: fullName,
+                role: 'student',
+                avatar_url: currentUser.user_metadata?.avatar_url ?? null,
+            }, {
+                onConflict: 'id',
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        const { data, error: selectError } = await supabase
+            .from('profiles')
+            .select('id, email, full_name, role, bio')
+            .eq('id', currentUser.id)
+            .single();
+
+        if (selectError) {
+            throw selectError;
+        }
+
+        return data as UserProfile;
+    };
+
+    const fetchProfile = async (currentUser: User) => {
+        setLoading(true);
+        try {
+            for (let attempt = 0; attempt < 3; attempt += 1) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('id, email, full_name, role, bio')
+                    .eq('id', currentUser.id)
+                    .maybeSingle();
+
+                if (data && !error) {
+                    setProfile(data as UserProfile);
+                    return;
+                }
+
+                if (attempt < 2) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
+
+            const createdProfile = await createMissingProfile(currentUser);
+            setProfile(createdProfile);
         } catch (e) {
-            console.error('Ошибка загрузки профиля:', e);
+            console.error('Failed to load profile:', e);
+            setProfile(null);
         } finally {
             setLoading(false);
         }
@@ -91,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const refreshProfile = async () => {
         if (user) {
-            await fetchProfile(user.id);
+            await fetchProfile(user);
         }
     };
 

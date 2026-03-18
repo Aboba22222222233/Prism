@@ -8,29 +8,29 @@ const staticCommits = [
     {
         date: "Jan 24, 2026",
         items: [
-            "Добавлен AI анализ риска учеников с сохранением в БД, окно подтверждения выхода, улучшен профиль ученика",
-            "Выход для учителей и фикс багов"
+            "Added AI student risk analysis with database persistence, a sign-out confirmation dialog, and an improved student profile",
+            "Added counselor sign-out and fixed bugs"
         ]
     },
     {
         date: "Jan 23, 2026",
         items: [
-            "Исправил мусорные слова в AI анализе",
-            "Запрет Markdown в чатах",
-            "Исправил дизайн чата"
+            "Removed noisy wording from AI analysis",
+            "Disabled Markdown in chats",
+            "Improved chat design"
         ]
     },
     {
         date: "Jan 22, 2026",
         items: [
-            "Добавил DeepSeek R1 + контекст записей учеников для AI",
-            "Заменил Xiaomi Mimo на Google Gemini 2.0 Flash"
+            "Added DeepSeek R1 and student entry context for AI",
+            "Replaced Xiaomi Mimo with Google Gemini 2.0 Flash"
         ]
     },
     {
         date: "Jan 5, 2026",
         items: [
-            "Небольшие исправления"
+            "Minor fixes"
         ]
     },
     {
@@ -157,7 +157,7 @@ const Changelog = () => {
         });
 
         if (error) {
-            setLoginError('Неверный email или пароль');
+            setLoginError('Invalid email or password');
         } else {
             const { data: adminData } = await supabase
                 .from('blog_admins')
@@ -172,7 +172,7 @@ const Changelog = () => {
                 setPassword('');
             } else {
                 await supabase.auth.signOut();
-                setLoginError('У вас нет прав администратора');
+                setLoginError('You do not have admin access');
             }
         }
         setLoginLoading(false);
@@ -197,7 +197,7 @@ const Changelog = () => {
 
         if (error) {
             console.error('Error adding entry:', error);
-            alert('Ошибка при добавлении записи');
+            alert('Failed to add the entry');
         } else {
             await fetchEntries();
             setNewDate('');
@@ -209,7 +209,7 @@ const Changelog = () => {
 
     // Delete entry
     const handleDeleteEntry = async (id: string) => {
-        if (!confirm('Удалить запись?')) return;
+        if (!confirm('Delete this entry?')) return;
 
         const { error } = await supabase
             .from('changelog_entries')
@@ -246,7 +246,7 @@ const Changelog = () => {
                         </button>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">Changelog</h1>
-                            <p className="text-sm text-slate-500">История изменений платформы Prism</p>
+                            <p className="text-sm text-slate-500">Change history for the Prism platform</p>
                         </div>
                     </div>
                     {isAdmin && (
@@ -256,13 +256,13 @@ const Changelog = () => {
                                 className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
                             >
                                 <Plus className="w-4 h-4" />
-                                Добавить
+                                Add
                             </button>
                             <button
                                 onClick={handleLogout}
                                 className="text-slate-500 hover:text-slate-700 text-sm transition-colors"
                             >
-                                Выйти
+                                Sign Out
                             </button>
                         </div>
                     )}
@@ -333,7 +333,7 @@ const Changelog = () => {
             {/* Footer */}
             <div className="bg-white border-t border-slate-200 py-8">
                 <div className="max-w-4xl mx-auto px-8 text-center text-slate-400 text-sm">
-                    © <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. Все права защищены.
+                    © <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
                 </div>
             </div>
 
@@ -341,7 +341,7 @@ const Changelog = () => {
             {showLoginModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-                        <h3 className="text-xl font-bold text-slate-900 mb-4">Вход в админ-панель</h3>
+                        <h3 className="text-xl font-bold text-slate-900 mb-4">Admin Login</h3>
 
                         {loginError && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -362,7 +362,7 @@ const Changelog = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                            placeholder="Пароль"
+                            placeholder="Password"
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 bg-white"
                         />
                         <div className="flex gap-3">
@@ -373,7 +373,7 @@ const Changelog = () => {
                                 }}
                                 className="flex-1 px-4 py-3 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
                             >
-                                Отмена
+                                Cancel
                             </button>
                             <button
                                 onClick={handleLogin}
@@ -381,7 +381,7 @@ const Changelog = () => {
                                 className="flex-1 px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {loginLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Войти
+                                Sign In
                             </button>
                         </div>
                     </div>
@@ -393,7 +393,7 @@ const Changelog = () => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl p-8 w-full max-w-lg mx-4">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-slate-900">Новая запись</h3>
+                            <h3 className="text-xl font-bold text-slate-900">New Entry</h3>
                             <button
                                 onClick={() => setShowAddModal(false)}
                                 className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
@@ -405,13 +405,13 @@ const Changelog = () => {
                             type="text"
                             value={newDate}
                             onChange={(e) => setNewDate(e.target.value)}
-                            placeholder="Дата (например: Feb 7, 2026)"
+                            placeholder="Date (for example: Feb 7, 2026)"
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900"
                         />
                         <textarea
                             value={newContent}
                             onChange={(e) => setNewContent(e.target.value)}
-                            placeholder="Описание изменения..."
+                            placeholder="Change description..."
                             rows={4}
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-slate-900"
                         />
@@ -421,7 +421,7 @@ const Changelog = () => {
                             className="w-full px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {saving ? 'Сохранение...' : 'Добавить'}
+                            {saving ? 'Saving...' : 'Add'}
                         </button>
                     </div>
                 </div>
@@ -431,3 +431,4 @@ const Changelog = () => {
 };
 
 export default Changelog;
+

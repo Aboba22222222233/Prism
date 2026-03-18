@@ -5,17 +5,17 @@ import { supabase } from '../lib/supabase';
 import ColorBends from '../components/ColorBends';
 
 const emotionsList = [
-    '😌 Спокойствие', '😊 Радость', '😰 Тревога', '😴 Усталость',
-    '😠 Злость', '✨ Вдохновение', '😢 Грусть', '😑 Скука',
-    '🥰 Благодарность', '😤 Раздражение', '😔 Разочарование', '🤩 Восторг',
-    '😟 Беспокойство', '💪 Уверенность', '🫣 Стеснение', '😶 Безразличие',
+    '😌 Calm', '😊 Joy', '😰 Anxiety', '😴 Tiredness',
+    '😠 Anger', '✨ Inspiration', '😢 Sadness', '😑 Boredom',
+    '🥰 Gratitude', '😤 Irritation', '😔 Disappointment', '🤩 Excitement',
+    '😟 Worry', '💪 Confidence', '🫣 Shyness', '😶 Indifference',
 ];
 
 const categorizedFactors = {
-    'Школа': ['Учеба', 'Экзамены', 'Учителя', 'Одноклассники', 'Домашнее задание'],
-    'Отношения': ['Друзья', 'Семья', 'Любовь', 'Конфликт', 'Одиночество'],
-    'Здоровье': ['Сон', 'Еда', 'Болезнь', 'Спорт', 'Усталость'],
-    'Личное': ['Будущее', 'Хобби', 'Деньги', 'Погода', 'Новости']
+    'School': ['Study', 'Exams', 'Teachers', 'Classmates', 'Homework'],
+    'Relationships': ['Friends', 'Family', 'Love', 'Conflict', 'Loneliness'],
+    'Health': ['Sleep', 'Food', 'Illness', 'Sports', 'Fatigue'],
+    'Personal': ['Future', 'Hobbies', 'Money', 'Weather', 'News']
 };
 
 const factorsList = Object.values(categorizedFactors).flat();
@@ -33,7 +33,7 @@ const StudentCheckIn = () => {
     const [loading, setLoading] = useState(false);
 
     // New: Category State for Factors
-    const [activeCategory, setActiveCategory] = useState('Школа');
+    const [activeCategory, setActiveCategory] = useState('School');
 
     // Aura colors based on mood
     const moodColors = {
@@ -61,10 +61,10 @@ const StudentCheckIn = () => {
         setLoading(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Не авторизован");
+            if (!user) throw new Error("Not authenticated");
 
             if (!classId) {
-                alert("Ошибка: Не выбран класс!");
+                alert("Error: no class selected.");
                 navigate('/student-dashboard');
                 return;
             }
@@ -87,7 +87,7 @@ const StudentCheckIn = () => {
 
         } catch (error: any) {
             console.error("Save error full object:", error);
-            alert(`Ошибка сохранения: ${error.message || JSON.stringify(error)}`);
+            alert(`Failed to save entry: ${error.message || JSON.stringify(error)}`);
         } finally {
             setLoading(false);
         }
@@ -118,8 +118,8 @@ const StudentCheckIn = () => {
 
                     {step === 1 && (
                         <div className="flex-1 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-300">
-                            <h2 className="text-2xl font-bold mb-2">Как ты сейчас?</h2>
-                            <p className="text-slate-400 mb-8">Сдвинь ползунок, чтобы описать состояние</p>
+                            <h2 className="text-2xl font-bold mb-2">How are you feeling right now?</h2>
+                            <p className="text-slate-400 mb-8">Move the slider to describe how you feel.</p>
 
                             <div className="w-full h-64 flex items-center justify-center relative mb-8">
                                 {/* Visual Representation of Mood */}
@@ -146,8 +146,8 @@ const StudentCheckIn = () => {
                                     className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-500"
                                 />
                                 <div className="flex justify-between text-xs text-slate-500 mt-2 font-bold uppercase tracking-wider">
-                                    <span>Плохо</span>
-                                    <span>Отлично</span>
+                                    <span>Low</span>
+                                    <span>Great</span>
                                 </div>
                             </div>
                         </div>
@@ -155,7 +155,7 @@ const StudentCheckIn = () => {
 
                     {step === 2 && (
                         <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300">
-                            <h2 className="text-xl font-bold mb-6 text-center">Что ты чувствуешь?</h2>
+                            <h2 className="text-xl font-bold mb-6 text-center">What are you feeling?</h2>
 
                             <div className="flex flex-wrap gap-3 justify-center content-start">
                                 {emotionsList.map(item => (
@@ -176,15 +176,15 @@ const StudentCheckIn = () => {
 
                     {step === 3 && (
                         <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 px-2">
-                            <h2 className="text-xl font-bold mb-6 text-center">Физиология</h2>
+                            <h2 className="text-xl font-bold mb-6 text-center">Physical State</h2>
 
                             <div className="mb-8">
                                 <div className="flex justify-between items-center mb-4">
                                     <label className="text-sm font-bold text-slate-300 flex items-center gap-2">
                                         <Moon className="w-4 h-4 text-indigo-400" />
-                                        Сон (часов)
+                                        Sleep (hours)
                                     </label>
-                                    <span className="text-xl font-bold text-white">{sleep} ч</span>
+                                    <span className="text-xl font-bold text-white">{sleep} h</span>
                                 </div>
                                 <input
                                     type="range"
@@ -201,7 +201,7 @@ const StudentCheckIn = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <label className="text-sm font-bold text-slate-300 flex items-center gap-2">
                                         <Zap className="w-4 h-4 text-yellow-400" />
-                                        Энергия
+                                        Energy
                                     </label>
                                     <span className="text-xl font-bold text-white">{energy}/10</span>
                                 </div>
@@ -220,12 +220,12 @@ const StudentCheckIn = () => {
 
                     {step === 4 && (
                         <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300">
-                            <h2 className="text-xl font-bold mb-2 text-center">Что на это влияет?</h2>
-                            <p className="text-center text-slate-400 text-xs mb-6">Выбери основные сферы</p>
+                            <h2 className="text-xl font-bold mb-2 text-center">What is affecting this?</h2>
+                            <p className="text-center text-slate-400 text-xs mb-6">Choose the main areas.</p>
 
                             <div className="flex flex-col gap-4 mb-4">
                                 <div className="flex gap-2 justify-center pb-2 border-b border-white/10 overflow-x-auto">
-                                    {['Школа', 'Отношения', 'Здоровье', 'Личное'].map(cat => (
+                                    {['School', 'Relationships', 'Health', 'Personal'].map(cat => (
                                         <button
                                             key={cat}
                                             onClick={() => setActiveCategory(cat)}
@@ -252,12 +252,12 @@ const StudentCheckIn = () => {
                             </div>
 
                             <div className="mt-auto">
-                                <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-2 block">Личная заметка (необязательно)</label>
+                                <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-2 block">Private Note (optional)</label>
                                 <textarea
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     className="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-purple-500/50 focus:outline-none resize-none h-24"
-                                    placeholder="Сегодня я..."
+                                    placeholder="Today I feel..."
                                 />
                             </div>
                         </div>
@@ -270,7 +270,7 @@ const StudentCheckIn = () => {
                                 onClick={() => setStep(step - 1)}
                                 className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors"
                             >
-                                Назад
+                                Back
                             </button>
                         )}
 
@@ -282,7 +282,7 @@ const StudentCheckIn = () => {
                                 : 'bg-white text-black hover:bg-slate-200'
                                 }`}
                         >
-                            {loading ? "Сохранение..." : (step === 4 ? "Завершить" : "Далее")}
+                            {loading ? "Saving..." : (step === 4 ? "Finish" : "Next")}
                             {!loading && <ArrowRight className="w-4 h-4" />}
                         </button>
                     </div>

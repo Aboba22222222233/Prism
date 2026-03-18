@@ -46,7 +46,7 @@ const BreathingWidget = () => {
         <div className="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center relative overflow-hidden">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                 <Wind className="w-5 h-5 text-cyan-400" />
-                Дыхание 4-7-8
+                4-7-8 Breathing
             </h3>
 
             {/* Breathing Visualizer */}
@@ -56,10 +56,10 @@ const BreathingWidget = () => {
 
                 <div className="text-center z-10">
                     <div className="text-sm text-slate-400 uppercase tracking-widest font-bold mb-1">
-                        {phase === 'inhale' && "Вдох"}
-                        {phase === 'hold' && "Задержка"}
-                        {phase === 'exhale' && "Выдох"}
-                        {!isActive && "Готов?"}
+                        {phase === 'inhale' && "Inhale"}
+                        {phase === 'hold' && "Hold"}
+                        {phase === 'exhale' && "Exhale"}
+                        {!isActive && "Ready?"}
                     </div>
                     <div className="text-5xl font-bold tabular-nums">
                         {timeLeft}
@@ -73,7 +73,7 @@ const BreathingWidget = () => {
                     className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black font-bold hover:scale-105 transition-transform"
                 >
                     {isActive ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                    {isActive ? "Пауза" : "Начать"}
+                    {isActive ? "Pause" : "Start"}
                 </button>
                 <button
                     onClick={handleReset}
@@ -84,7 +84,7 @@ const BreathingWidget = () => {
             </div>
 
             <div className="mt-6 text-xs text-slate-500 font-mono">
-                Циклов: {cycleCount}
+                Cycles: {cycleCount}
             </div>
         </div>
     );
@@ -97,47 +97,47 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
 
     const articles = [
         {
-            id: 1, title: "Энергия — как её сохранить на весь день", tag: "Энергия",
+            id: 1, title: "Energy: How to Keep It All Day", tag: "Energy",
             content: `
-            <h3>Почему устаём так быстро?</h3>
-            <p>У школьников энергия уходит на уроки, домашку, ЕНТ, соцсети и игры. К вечеру сил нет даже на любимое дело. Хорошая новость: энергию можно тренировать, как мышцы.</p>
+            <h3>Why do we run out of energy so quickly?</h3>
+            <p>Students spend their energy on classes, homework, exam pressure, social media, and games. By the evening there is often no energy left even for favorite activities. The good news: energy can be trained like a muscle.</p>
 
-            <h3>5 простых правил энергии:</h3>
+            <h3>5 simple energy rules:</h3>
             <ul class="list-disc pl-5 space-y-2">
-                <li><strong>Правило 90 минут:</strong> Мозг работает циклами по 90 минут. После каждого цикла — 5-10 минут перерыва: встань, пройдись, посмотри в окно. Не сиди в телефоне — это крадёт энергию.</li>
-                <li><strong>Ешь для энергии, а не для голода:</strong>
+                <li><strong>The 90-minute rule:</strong> Your brain works in 90-minute cycles. After each cycle, take a 5-10 minute break: stand up, walk, and look out the window. Staying on your phone drains energy.</li>
+                <li><strong>Eat for energy, not just hunger:</strong>
                     <ul class="list-circle pl-5 mt-1 text-sm text-slate-300">
-                        <li>Утром: овсянка, яйца, банан (медленные углеводы).</li>
-                        <li>Днём: курица/рыба + овощи + гречка/рис.</li>
-                        <li>Избегай: газировка, чипсы, сладости до 16:00 (резкий скачок сахара → обвал сил).</li>
+                        <li>Morning: oatmeal, eggs, banana for steady energy.</li>
+                        <li>Daytime: chicken or fish with vegetables and rice or buckwheat.</li>
+                        <li>Avoid soda, chips, and sweets before 4 PM because the sugar spike often leads to a crash.</li>
                     </ul>
                 </li>
-                <li><strong>Дыхание для быстрого заряда:</strong> Когда чувствуешь усталость: 1 минута дыхания 4-7-8 (Вдох 4с, Задержка 7с, Выдох 8с). Повтори 4 раза.</li>
-                <li><strong>Ходи 10 000 шагов:</strong> Не спортзал, а просто ходьба. Шаги = свежая кровь = энергия.</li>
-                <li><strong>Сон = главный источник:</strong> 7-9 часов сна важнее всего. Ложись до 23:00.</li>
+                <li><strong>Breathing для быстрого заряда:</strong> Когда чувствуешь усталость: 1 минута дыхания 4-7-8 (Inhale 4с, Hold 7с, Exhale 8с). Повтори 4 раза.</li>
+                <li><strong>Walk 10,000 steps:</strong> Not the gym, just walking. Steps mean circulation, and circulation means energy.</li>
+                <li><strong>Sleep is the main source:</strong> 7-9 hours matters more than anything else. Try to get to bed before 11 PM.</li>
             </ul>
             <div class="bg-indigo-900/30 p-4 rounded-xl mt-4 border-l-4 border-indigo-500">
-                <strong>Быстрый тест:</strong> Если после обеда хочется спать — проблема в еде или сне. Если утром нет сил — проверь режим дня.
+                <strong>Quick check:</strong> If you get sleepy after lunch, the issue is usually food or sleep. If you wake up with no energy, review your routine.
             </div>`
         },
         {
-            id: 2, title: "Сон — суперсила для мозга и оценок", tag: "Здоровье",
+            id: 2, title: "Sleep: A Superpower for the Brain and Grades", tag: "Health",
             content: `
-            <h3>Сон не для лентяев — это твоя суперсила.</h3>
-            <p>Во сне мозг перерабатывает информацию дня и закрепляет знания.</p>
+            <h3>Sleep is not laziness. It is a superpower.</h3>
+            <p>During sleep, your brain processes the day and locks in what you learned.</p>
             <ul class="list-disc pl-5 space-y-2 mt-2">
-                <li>Каждый час сна = +10% к концентрации на уроках.</li>
-                <li>Сон 7-9 часов = мозг работает как у чемпиона.</li>
+                <li>Every extra hour of sleep can noticeably improve concentration in class.</li>
+                <li>7-9 hours of sleep helps your brain work at its best.</li>
             </ul>
             
-            <h3>Идеальный режим:</h3>
-            <p>22:00-23:00 — отбой, 6:00-7:00 — подъём.</p>
+            <h3>An ideal routine:</h3>
+            <p>Lights out around 10-11 PM and wake up around 6-7 AM.</p>
 
-            <h3>Что делать, если не спится:</h3>
+            <h3>What to do if you cannot fall asleep:</h3>
             <ul class="list-disc pl-5 mt-2">
-                <li>Ритуал перед сном (30 минут): Без гаджетов, горячий душ, чтение.</li>
-                <li>Если не спится 20 минут — встань, почитай книгу, вернись.</li>
-                <li>Темные шторы и прохлада (18-20°C).</li>
+                <li>Create a 30-minute sleep ritual: no devices, a warm shower, and reading.</li>
+                <li>If you are still awake after 20 minutes, get up, read quietly, then come back.</li>
+                <li>Use dark curtains and keep the room cool (18-20°C).</li>
             </ul>`
         },
         {
@@ -146,7 +146,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
             <h3>Настроение можно настроить, как радио.</h3>
             <p>5 приёмов смены настроения за 5 минут:</p>
             <ol class="list-decimal pl-5 space-y-2 mt-2">
-                <li><strong>Дыхание 4-4-4:</strong> Вдох 4с, задержка 4с, выдох 4с. 2 минуты перезагрузки.</li>
+                <li><strong>Breathing 4-4-4:</strong> Inhale 4с, задержка 4с, выдох 4с. 2 минуты перезагрузки.</li>
                 <li><strong>Смена позы:</strong> Выпрями спину, расправь плечи. +20% уверенности.</li>
                 <li><strong>Звук природы:</strong> Шум дождя или леса.</li>
                 <li><strong>Движение:</strong> 10 приседаний или танец.</li>
@@ -182,7 +182,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
             content: `
             <h3>5 шагов разрешения конфликтов:</h3>
             <ol class="list-decimal pl-5 space-y-2">
-                <li><strong>Пауза 24 часа:</strong> Остынь, не пиши сгоряча.</li>
+                <li><strong>Pause 24 часа:</strong> Остынь, не пиши сгоряча.</li>
                 <li><strong>Я-высказывания:</strong> "Мне грустно, когда...", а не "Ты всегда...".</li>
                 <li><strong>Слушай 2 минуты:</strong> Не перебивай.</li>
                 <li><strong>Общая цель:</strong> "Давай не ссориться из-за ерунды".</li>
@@ -224,7 +224,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
             id: 10, title: "Тревога перед контрольной", tag: "Психология",
             content: `
             <h3>Анти-тревожный протокол (10 мин):</h3>
-            <p>1 мин — Дыхание 4-7-8.<br/>
+            <p>1 мин — 4-7-8 Breathing.<br/>
             2 мин — Поза силы.<br/>
             3 мин — Запиши 3 факта "Я знаю материал".<br/>
             2 мин — Жвачка.</p>`
@@ -253,7 +253,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
         { id: 'mot1', title: "МОТИВАЦИЯ НА УЧЕБУ ЗА 9 МИНУТ", author: "Блогер", url: "https://www.youtube.com/embed/8J6iZkUCmiI", category: "Мотивация" },
         { id: 'mot2', title: "КАК ЗАСТАВИТЬ СЕБЯ УЧИТЬСЯ?", author: "Советы", url: "https://www.youtube.com/embed/g67tmlv9k4s", category: "Мотивация" },
         { id: 'mot3', title: "Как Смотивировать Себя На Учёбу", author: "Back to School", url: "https://www.youtube.com/embed/VsYH0rB8nq8", category: "Мотивация" },
-        { id: 'sleep', title: "Здоровый сон подростка", author: "Врач-сомнолог", url: "https://www.youtube.com/embed/HqGjWYaWX1Y", category: "Здоровье" },
+        { id: 'sleep', title: "Здоровый сон подростка", author: "Врач-сомнолог", url: "https://www.youtube.com/embed/HqGjWYaWX1Y", category: "Health" },
         { id: 'proc', title: "Прокрастинация. Что делать?", author: "Психолог", url: "https://www.youtube.com/embed/QaZFayzPoVg", category: "Учеба" },
         { id: 'gen', title: "8 Советов Подросткам до 18 лет", author: "Психология", url: "https://www.youtube.com/embed/6HbzQT111-k", category: "Общее" },
     ];
@@ -271,7 +271,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
             <header className="p-6 border-b border-white/10 flex justify-between items-center bg-black/50">
                 <div className="flex items-center gap-3">
                     <BookOpen className="w-6 h-6 text-purple-400" />
-                    <h2 className="text-xl font-bold">Библиотека Ресурсов</h2>
+                    <h2 className="text-xl font-bold">Resource Library</h2>
                 </div>
                 <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                     <X className="w-6 h-6 text-slate-400" />
@@ -282,10 +282,10 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
                 {/* Sidebar / Tabs */}
                 <aside className="w-full md:w-64 p-4 border-r border-white/10 bg-black/20 overflow-x-auto md:overflow-visible flex md:flex-col gap-2 shrink-0">
                     {[
-                        { id: 'articles', icon: BookOpen, label: 'Статьи' },
-                        { id: 'videos', icon: Play, label: 'Видео-советы' },
-                        { id: 'meditation', icon: Music, label: 'Медитации' },
-                        { id: 'breathing', icon: Wind, label: 'Дыхание' },
+                        { id: 'articles', icon: BookOpen, label: 'Articles' },
+                        { id: 'videos', icon: Play, label: 'Video Tips' },
+                        { id: 'meditation', icon: Music, label: 'Meditations' },
+                        { id: 'breathing', icon: Wind, label: 'Breathing' },
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -306,10 +306,10 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
                         <div className="max-w-2xl mx-auto h-full flex flex-col items-center justify-center">
                             <BreathingWidget />
                             <div className="mt-8 text-center text-slate-400 max-w-lg mx-auto">
-                                <h4 className="font-bold text-white mb-2">О технике 4-7-8</h4>
+                                <h4 className="font-bold text-white mb-2">About the 4-7-8 Method</h4>
                                 <p className="text-sm">
-                                    Вдох через нос (4 сек) → Задержка (7 сек) → Выдох ртом (8 сек).
-                                    Эффективно снижает уровень кортизола и успокаивает нервную систему перед экзаменом или сном.
+                                    Inhale через нос (4 сек) → Hold (7 сек) → Exhale ртом (8 сек).
+                                    This technique helps lower cortisol and calm the nervous system before sleep or an exam.
                                 </p>
                             </div>
                         </div>
@@ -373,7 +373,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
                                         onClick={() => setSelectedArticle(null)}
                                         className="mb-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-medium text-sm"
                                     >
-                                        <RotateCcw className="w-4 h-4" /> Назад к списку
+                                        <RotateCcw className="w-4 h-4" /> Back to list
                                     </button>
                                     <div className="max-w-3xl mx-auto">
                                         <span className="inline-block px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold uppercase tracking-wider mb-4 border border-purple-500/20">
@@ -402,7 +402,7 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
                                                 </p>
                                             </div>
                                             <div className="mt-4 flex items-center text-xs text-slate-400 group-hover:text-white transition-colors gap-2">
-                                                <span>Читать статью</span>
+                                                <span>Read Article</span>
                                                 <ChevronRight className="w-3 h-3" />
                                             </div>
                                         </div>
@@ -441,3 +441,4 @@ const ResourceHub = ({ onClose }: { onClose: () => void }) => {
 };
 
 export default ResourceHub;
+

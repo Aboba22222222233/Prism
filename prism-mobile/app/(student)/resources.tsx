@@ -73,16 +73,16 @@ const BreathingWidget = () => {
     };
 
     const phaseLabels = {
-        inhale: 'Вдох',
-        hold: 'Задержка',
-        exhale: 'Выдох',
+        inhale: 'Inhale',
+        hold: 'Hold',
+        exhale: 'Exhale',
     };
 
     return (
         <View style={styles.breathingContainer}>
             <View style={styles.breathingHeader}>
                 <Wind size={22} color="#22d3ee" />
-                <Text style={[styles.breathingTitle, { color: colors.text }]}>Дыхание 4-7-8</Text>
+                <Text style={[styles.breathingTitle, { color: colors.text }]}>4-7-8 Breathing</Text>
             </View>
 
             <View style={styles.circleWrapper}>
@@ -108,7 +108,7 @@ const BreathingWidget = () => {
                 {/* Center Text */}
                 <View style={styles.breathCenter}>
                     <Text style={[styles.breathPhase, { color: colors.subtext }]}>
-                        {isActive ? phaseLabels[phase] : 'Готов?'}
+                        {isActive ? phaseLabels[phase] : 'Ready?'}
                     </Text>
                     <Text style={[styles.breathTimer, { color: colors.text }]}>{timeLeft}</Text>
                 </View>
@@ -125,7 +125,7 @@ const BreathingWidget = () => {
                         <Play size={20} color={colors.background} />
                     )}
                     <Text style={[styles.breathMainBtnText, { color: colors.background }]}>
-                        {isActive ? 'Пауза' : 'Начать'}
+                        {isActive ? 'Pause' : 'Start'}
                     </Text>
                 </TouchableOpacity>
 
@@ -138,7 +138,7 @@ const BreathingWidget = () => {
             </View>
 
             <Text style={[styles.breathCycles, { color: colors.subtext }]}>
-                Циклов: {cycleCount}
+                Cycles: {cycleCount}
             </Text>
         </View>
     );
@@ -147,67 +147,67 @@ const BreathingWidget = () => {
 // ============ DATA ============
 const articles = [
     {
-        id: 1, title: 'Энергия — как её сохранить на весь день', tag: 'Энергия',
-        summary: 'Правило 90 минут, правильное питание, дыхание для заряда.',
-        content: 'Мозг работает циклами по 90 минут. После каждого — перерыв 5-10 мин. Утром ешь овсянку и яйца (медленные углеводы), избегай чипсы и газировку до 16:00. Когда устал — дыхание 4-7-8: вдох 4с, задержка 7с, выдох 8с, повтори 4 раза. Ходи 10 000 шагов в день. Сон 7-9 часов — главный источник энергии.',
+        id: 1, title: 'Energy: How to Keep It All Day', tag: 'Energy',
+        summary: 'The 90-minute rule, better nutrition, and breathing for a reset.',
+        content: 'Your brain works in 90-minute cycles. After each cycle, take a 5-10 minute break: stand up, walk, and look away from a screen. In the morning, choose oatmeal and eggs for steady energy, and avoid chips or soda before 4 PM. When you feel tired, use 4-7-8 breathing for four rounds. Aim for 10,000 steps a day and 7-9 hours of sleep.',
     },
     {
-        id: 2, title: 'Сон — суперсила для мозга', tag: 'Здоровье',
-        summary: 'Каждый час сна = +10% к концентрации.',
-        content: 'Во сне мозг закрепляет знания дня. Идеальный режим: 22:00-23:00 отбой, 6:00-7:00 подъём. Если не спится — ритуал: 30 мин без гаджетов, горячий душ, чтение. Если не уснул за 20 мин — встань, почитай, вернись. Темнота и прохлада (18-20°C) — лучшие друзья сна.',
+        id: 2, title: 'Sleep: A Superpower for the Brain', tag: 'Health',
+        summary: 'Every hour of sleep can improve focus by around 10%.',
+        content: 'Sleep helps your brain lock in what you learned during the day. A strong routine is lights out around 10-11 PM and waking up around 6-7 AM. If you cannot sleep, try 30 minutes without devices, a warm shower, or reading. If you are still awake after 20 minutes, get up, read quietly, and return later. Darkness and a cool room help.',
     },
     {
-        id: 3, title: 'Настроение — как им управлять', tag: 'Психология',
-        summary: '5 приёмов смены настроения за 5 минут.',
-        content: '1. Дыхание 4-4-4: вдох, задержка, выдох по 4 секунды. 2. Смена позы: выпрями спину, расправь плечи (+20% уверенности). 3. Звук природы: шум дождя или леса. 4. Движение: 10 приседаний или танец. 5. Благодарность: запиши 3 вещи, за которые благодарен.',
+        id: 3, title: 'Mood: How to Reset It', tag: 'Psychology',
+        summary: 'Five ways to shift your mood in five minutes.',
+        content: '1. Try 4-4-4 breathing: inhale, hold, exhale for 4 seconds each. 2. Change your posture: straighten your back and shoulders. 3. Listen to nature sounds like rain or forest ambience. 4. Move your body with 10 squats or a short dance. 5. Write down 3 things you feel grateful for.',
     },
     {
-        id: 4, title: 'Учеба без выгорания', tag: 'Учеба',
-        summary: '80% школьников выгорают к концу четверти.',
-        content: 'Правило 52/17: 52 мин работы, 17 мин отдыха. Таймблокинг: Математика 17:00-17:52, Английский 18:10-19:02. Награда: после блока — 10 мин TikTok. Один полный день без учебников каждую неделю.',
+        id: 4, title: 'Study Without Burnout', tag: 'Study',
+        summary: 'Many students feel burned out by the end of a term.',
+        content: 'Use the 52/17 rule: 52 minutes of focused work and 17 minutes of rest. Time-block subjects instead of mixing everything at once. Give yourself a short reward after each block, and keep one lighter day each week.',
     },
     {
-        id: 5, title: 'Соцсети — как не тонуть в скролле', tag: 'Цифровой Детокс',
-        summary: 'Соцсети крадут 3+ часа в день.',
-        content: 'Таймер на приложения (30 мин/день). Утро без телефона до 9:00. "Дофаминовый детокс" — 1 день в неделю без соцсетей. Убери подписки, которые не вдохновляют.',
+        id: 5, title: 'Social Media: How Not to Drown in the Scroll', tag: 'Digital Detox',
+        summary: 'Social media can take more than 3 hours a day.',
+        content: 'Set app timers to 30 minutes a day. Keep mornings phone-free until 9 AM. Try one social-free day a week, and unfollow accounts that leave you drained.',
     },
     {
-        id: 6, title: 'Друзья и конфликты', tag: 'Отношения',
-        summary: '5 шагов разрешения конфликтов.',
-        content: '1. Пауза 24 часа: остынь, не пиши сгоряча. 2. Я-высказывания: "Мне грустно, когда..." вместо "Ты всегда...". 3. Слушай 2 минуты, не перебивай. 4. Общая цель: "Давай не ссориться из-за ерунды". 5. Восстановление связи.',
+        id: 6, title: 'Friends and Conflict', tag: 'Relationships',
+        summary: 'Five steps for handling conflict.',
+        content: '1. Pause for 24 hours before reacting. 2. Use I-statements such as "I feel upset when..." instead of "You always...". 3. Listen for two minutes without interrupting. 4. Focus on a shared goal. 5. Repair the connection after the conflict.',
     },
     {
-        id: 7, title: 'ЕНТ без паники', tag: 'Экзамены',
-        summary: 'ЕНТ — не конец света.',
-        content: 'Правило 80/20: учи "золотые темы". Тренировки по таймеру: 25 мин тест → 5 мин отдых. Метод "Двоечника": сначала 70% легких заданий, трудные в конце. Перед экзаменом спи 8 часов.',
+        id: 7, title: 'Exams Without Panic', tag: 'Exams',
+        summary: 'Major exams are not the end of the world.',
+        content: 'Use the 80/20 rule and focus on the highest-value topics. Practice in 25-minute timed blocks with 5-minute breaks. Start with easier questions first, then move to harder ones. Before an exam, protect your sleep.',
     },
     {
-        id: 8, title: 'Прокрастинация — как начать', tag: 'Продуктивность',
-        summary: '5 приёмов для начала работы.',
-        content: 'Правило 5 секунд: 5-4-3-2-1 → ВСТАВАЙ! "Сделаю только 2 минуты" — 90% продолжат дальше. «Съешь лягушку»: самое сложное — первым делом утром.',
+        id: 8, title: 'Procrastination: How to Start', tag: 'Productivity',
+        summary: 'Five ways to get started.',
+        content: 'Use the 5-second rule to start moving. Tell yourself you will work for just two minutes; most people keep going. Tackle the hardest task first when your energy is highest.',
     },
     {
-        id: 9, title: 'Тревога перед контрольной', tag: 'Психология',
-        summary: 'Анти-тревожный протокол за 10 минут.',
-        content: '1 мин — Дыхание 4-7-8. 2 мин — Поза силы (руки на бока, грудь вперед). 3 мин — Запиши 3 факта "Я знаю материал". 2 мин — Жвачка (+40% крови к мозгу).',
+        id: 9, title: 'Anxiety Before a Test', tag: 'Psychology',
+        summary: 'A 10-minute anti-anxiety reset.',
+        content: '1 minute of 4-7-8 breathing. 2 minutes of a strong posture. 3 minutes writing down 3 facts that prove you know the material. 2 minutes of chewing gum or a quick physical reset.',
     },
 ];
 
 const videos = [
-    { id: 'stress1', title: 'Психология: Стресс', author: 'Диана Старунская', videoId: 'OpUN63HAmSo', cat: 'Стресс' },
-    { id: 'stress2', title: 'Как побороть школьный стресс?', author: 'Психология', videoId: 'g5cuGaRbt3k', cat: 'Стресс' },
-    { id: 'mot1', title: 'Мотивация на учебу за 9 мин', author: 'Блогер', videoId: '8J6iZkUCmiI', cat: 'Мотивация' },
-    { id: 'mot2', title: 'Как заставить себя учиться?', author: 'Советы', videoId: 'g67tmlv9k4s', cat: 'Мотивация' },
-    { id: 'sleep', title: 'Здоровый сон подростка', author: 'Врач-сомнолог', videoId: 'HqGjWYaWX1Y', cat: 'Здоровье' },
-    { id: 'proc', title: 'Прокрастинация. Что делать?', author: 'Психолог', videoId: 'QaZFayzPoVg', cat: 'Учеба' },
-    { id: 'gen', title: '8 Советов Подросткам', author: 'Психология', videoId: '6HbzQT111-k', cat: 'Общее' },
+    { id: 'stress1', title: 'Psychology: Stress', author: 'Diana Starunskaya', videoId: 'OpUN63HAmSo', cat: 'Stress' },
+    { id: 'stress2', title: 'How to Beat School Stress?', author: 'Psychology', videoId: 'g5cuGaRbt3k', cat: 'Stress' },
+    { id: 'mot1', title: 'Study Motivation in 9 Minutes', author: 'Creator', videoId: '8J6iZkUCmiI', cat: 'Motivation' },
+    { id: 'mot2', title: 'How to Make Yourself Study?', author: 'Tips', videoId: 'g67tmlv9k4s', cat: 'Motivation' },
+    { id: 'sleep', title: 'Healthy Sleep for Teens', author: 'Sleep Doctor', videoId: 'HqGjWYaWX1Y', cat: 'Health' },
+    { id: 'proc', title: 'Procrastination: What to Do?', author: 'Psychologist', videoId: 'QaZFayzPoVg', cat: 'Study' },
+    { id: 'gen', title: '8 Tips for Teens', author: 'Psychology', videoId: '6HbzQT111-k', cat: 'General' },
 ];
 
 const meditations = [
-    { id: 'm1', title: '5-мин медитация от стресса', author: 'Заземление', videoId: 'Nc4AXkNTfCs', time: '5 мин' },
-    { id: 'm2', title: 'Медитация для детей', author: 'Спокойствие', videoId: 'FRNXuYg-dxU', time: '5 мин' },
-    { id: 'm3', title: 'Медитация на ночь', author: 'Сон', videoId: 'elNw_BOE2Rg', time: '10 мин' },
-    { id: 'm4', title: 'Дыхательная гимнастика', author: 'Для перемен', videoId: 'W6nFGRliGKM', time: '5 мин' },
+    { id: 'm1', title: '5-Minute Stress Meditation', author: 'Grounding', videoId: 'Nc4AXkNTfCs', time: '5 min' },
+    { id: 'm2', title: 'Meditation for Kids', author: 'Calm', videoId: 'FRNXuYg-dxU', time: '5 min' },
+    { id: 'm3', title: 'Night Meditation', author: 'Sleep', videoId: 'elNw_BOE2Rg', time: '10 min' },
+    { id: 'm4', title: 'Breathing Practice', author: 'For Break Time', videoId: 'W6nFGRliGKM', time: '5 min' },
 ];
 
 // ============ MAIN SCREEN ============
@@ -223,10 +223,10 @@ export default function ResourcesScreen() {
     };
 
     const tabItems: { key: ResourceTab; icon: any; label: string }[] = [
-        { key: 'articles', icon: BookOpen, label: 'Статьи' },
-        { key: 'videos', icon: Play, label: 'Видео' },
-        { key: 'meditation', icon: Music, label: 'Медитации' },
-        { key: 'breathing', icon: Wind, label: 'Дыхание' },
+        { key: 'articles', icon: BookOpen, label: 'Articles' },
+        { key: 'videos', icon: Play, label: 'Videos' },
+        { key: 'meditation', icon: Music, label: 'Meditations' },
+        { key: 'breathing', icon: Wind, label: 'Breathing' },
     ];
 
     return (
@@ -235,7 +235,7 @@ export default function ResourcesScreen() {
                 {/* Header */}
                 <View style={styles.header}>
                     <BookOpen size={24} color={colors.accent} />
-                    <Text style={[styles.title, { color: colors.text }]}>Библиотека Ресурсов</Text>
+                    <Text style={[styles.title, { color: colors.text }]}>Resource Library</Text>
                 </View>
 
                 {/* Tabs */}
@@ -283,7 +283,7 @@ export default function ResourcesScreen() {
                                         {article.summary}
                                     </Text>
                                     <View style={styles.readMore}>
-                                        <Text style={[styles.readMoreText, { color: colors.accent }]}>Читать</Text>
+                                        <Text style={[styles.readMoreText, { color: colors.accent }]}>Read</Text>
                                         <ChevronRight size={14} color={colors.accent} />
                                     </View>
                                 </Card>
@@ -300,7 +300,7 @@ export default function ResourcesScreen() {
                             style={styles.backToList}
                         >
                             <ArrowLeft size={16} color={colors.subtext} />
-                            <Text style={[styles.backToListText, { color: colors.subtext }]}>Назад</Text>
+                            <Text style={[styles.backToListText, { color: colors.subtext }]}>Back</Text>
                         </TouchableOpacity>
                         <View style={[styles.articleTagBadge, { backgroundColor: colors.accent + '15', alignSelf: 'flex-start' }]}>
                             <Text style={[styles.articleTag, { color: colors.accent }]}>{selectedArticle.tag}</Text>
@@ -389,10 +389,10 @@ export default function ResourcesScreen() {
                     <>
                         <BreathingWidget />
                         <Card style={styles.breathInfo}>
-                            <Text style={[styles.breathInfoTitle, { color: colors.text }]}>О технике 4-7-8</Text>
+                            <Text style={[styles.breathInfoTitle, { color: colors.text }]}>About the 4-7-8 Method</Text>
                             <Text style={[styles.breathInfoText, { color: colors.subtext }]}>
-                                Вдох через нос (4 сек) → Задержка (7 сек) → Выдох ртом (8 сек).
-                                Эффективно снижает уровень кортизола и успокаивает нервную систему перед экзаменом или сном.
+                                Inhale through the nose (4 sec) → Hold (7 sec) → Exhale through the mouth (8 sec).
+                                This technique helps lower cortisol and calm the nervous system before sleep or an exam.
                             </Text>
                         </Card>
                     </>
@@ -501,3 +501,4 @@ const styles = StyleSheet.create({
     breathInfoTitle: { fontSize: 17, fontWeight: '700', marginBottom: 8 },
     breathInfoText: { fontSize: 14, lineHeight: 22 },
 });
+

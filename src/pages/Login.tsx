@@ -46,7 +46,7 @@ const Login = () => {
       const { data, error } = await supabase.rpc('verify_teacher_code', { input_code: secretCode });
 
       if (error || !data) {
-        setError('Неверный код доступа учителя');
+        setError('Invalid counselor access code');
       } else {
         setTeacherVerified(true);
         setError(null);
@@ -58,7 +58,7 @@ const Login = () => {
         }
       }
     } catch (err) {
-      setError('Ошибка проверки кода');
+      setError('Failed to verify access code');
     } finally {
       setLoading(false);
     }
@@ -136,8 +136,8 @@ const Login = () => {
     setError(null);
 
     try {
-      if (!email || !password) throw new Error("Заполните все поля");
-      if (password.length < 6) throw new Error("Пароль должен быть не менее 6 символов");
+      if (!email || !password) throw new Error("Please fill in all fields");
+      if (password.length < 6) throw new Error("Password must be at least 6 characters long");
 
       await performSignUp('student'); // All new accounts start as students. Teacher role is gained via code.
     } catch (err: any) {
@@ -193,13 +193,13 @@ const Login = () => {
                 onClick={() => handleRoleChange(true)}
                 className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold transition-colors ${isTeacher ? 'text-black' : 'text-slate-400'}`}
               >
-                Учитель
+                Counselor
               </button>
               <button
                 onClick={() => handleRoleChange(false)}
                 className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold transition-colors ${!isTeacher ? 'text-black' : 'text-slate-400'}`}
               >
-                Ученик
+                Student
               </button>
             </div>
           </div>
@@ -213,16 +213,16 @@ const Login = () => {
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 text-green-400 border border-green-500/30">
                 <Mail className="w-8 h-8" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">Подтвердите Email</h2>
+              <h2 className="text-2xl font-bold mb-3">Verify Your Email</h2>
               <p className="text-slate-400 mb-8 leading-relaxed">
-                Ссылка для подтверждения отправлена на <strong>{email}</strong>.<br />
-                Пожалуйста, проверьте почту и перейдите по ссылке для завершения регистрации.
+                A verification link has been sent to <strong>{email}</strong>.<br />
+                Please check your inbox and follow the link to complete registration.
               </p>
               <button
                 onClick={() => { setVerificationSent(false); setMode('login'); }}
                 className="w-full py-3 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors"
               >
-                Вернуться ко входу
+                Back to Sign In
               </button>
             </div>
           ) : isTeacher && !teacherVerified ? (
@@ -231,8 +231,8 @@ const Login = () => {
                 <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-amber-500/30">
                   <Lock className="w-6 h-6 text-amber-500" />
                 </div>
-                <h2 className="text-xl font-bold">Доступ ограничен</h2>
-                <p className="text-slate-400 text-sm mt-2">Введите корпоративный код доступа для входа в учительскую панель.</p>
+                <h2 className="text-xl font-bold">Restricted Access</h2>
+                <p className="text-slate-400 text-sm mt-2">Enter your organization access code to open the counselor panel.</p>
               </div>
 
               <div className="space-y-2">
@@ -257,16 +257,16 @@ const Login = () => {
                 type="submit"
                 className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold transition-colors shadow-lg shadow-amber-500/20"
               >
-                Подтвердить
+                Confirm
               </button>
             </form>
           ) : (
             /* MAIN LOGIN FORM (Student OR Verified Teacher) */
             <div className="animate-in fade-in slide-in-from-right duration-300">
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold">{mode === 'login' ? 'С возвращением!' : 'Создать аккаунт'}</h2>
+                <h2 className="text-2xl font-bold">{mode === 'login' ? 'Welcome Back' : 'Create an Account'}</h2>
                 <p className="text-slate-400 text-sm">
-                  {isTeacher ? 'Вход в учительскую панель' : 'Вход в личный кабинет ученика'}
+                  {isTeacher ? 'Sign in to the counselor panel' : 'Sign in to the student account'}
                 </p>
               </div>
 
@@ -277,11 +277,11 @@ const Login = () => {
                     className="w-full py-3 bg-white text-black rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-3 shadow-lg"
                   >
                     <div className="w-5 h-5 flex items-center justify-center"><Chrome className="w-4 h-4" /></div>
-                    Войти через Google
+                    Continue with Google
                   </button>
                   <div className="mt-6 flex items-center gap-4 text-slate-500 text-xs uppercase font-bold tracking-widest">
                     <div className="h-px bg-white/10 flex-1"></div>
-                    ИЛИ
+                    OR
                     <div className="h-px bg-white/10 flex-1"></div>
                   </div>
                 </div>
@@ -300,7 +300,7 @@ const Login = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Пароль</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Password</label>
                   <input
                     type="password"
                     required
@@ -323,7 +323,7 @@ const Login = () => {
                   disabled={loading}
                   className="w-full py-4 bg-white text-black rounded-xl font-bold text-base hover:bg-slate-200 transition-all flex items-center justify-center gap-2 group shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)] hover:-translate-y-0.5"
                 >
-                  {loading ? 'Загрузка...' : (mode === 'login' ? 'Войти' : 'Создать аккаунт')}
+                  {loading ? 'Loading...' : (mode === 'login' ? 'Sign In' : 'Create Account')}
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -333,7 +333,7 @@ const Login = () => {
                     onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
                     className="text-sm text-slate-400 hover:text-white transition-colors"
                   >
-                    {mode === 'login' ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+                    {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                   </button>
                 </div>
               </form>

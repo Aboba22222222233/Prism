@@ -14,25 +14,25 @@ import {
 } from 'lucide-react-native';
 
 const emotionsList = [
-    '😌 Спокойствие', '😊 Радость', '😰 Тревога', '😴 Усталость',
-    '😠 Злость', '✨ Вдохновение', '😢 Грусть', '😑 Скука',
-    '🥰 Благодарность', '😤 Раздражение', '😔 Разочарование', '🤩 Восторг',
-    '😟 Беспокойство', '💪 Уверенность', '🫣 Стеснение', '😶 Безразличие',
+    '😌 Calm', '😊 Joy', '😰 Anxiety', '😴 Tiredness',
+    '😠 Anger', '✨ Inspiration', '😢 Sadness', '😑 Boredom',
+    '🥰 Gratitude', '😤 Irritation', '😔 Disappointment', '🤩 Excitement',
+    '😟 Worry', '💪 Confidence', '🫣 Shyness', '😶 Indifference',
 ];
 
 const categorizedFactors: Record<string, string[]> = {
-    'Школа': ['Учеба', 'Экзамены', 'Психологи', 'Одноклассники', 'Домашнее задание'],
-    'Отношения': ['Друзья', 'Семья', 'Любовь', 'Конфликт', 'Одиночество'],
-    'Здоровье': ['Сон', 'Еда', 'Болезнь', 'Спорт', 'Усталость'],
-    'Личное': ['Будущее', 'Хобби', 'Деньги', 'Погода', 'Новости'],
+    'School': ['Study', 'Exams', 'Counselors', 'Classmates', 'Homework'],
+    'Relationships': ['Friends', 'Family', 'Love', 'Conflict', 'Loneliness'],
+    'Health': ['Sleep', 'Food', 'Illness', 'Sports', 'Fatigue'],
+    'Personal': ['Future', 'Hobbies', 'Money', 'Weather', 'News'],
 };
 
 const moodEmojis = [
-    { value: 1, Icon: Frown, color: '#ef4444', label: 'Плохо' },
-    { value: 2, Icon: CloudRain, color: '#f97316', label: 'Не очень' },
-    { value: 3, Icon: Meh, color: '#a1a1aa', label: 'Нормально' },
-    { value: 4, Icon: Sun, color: '#22c55e', label: 'Хорошо' },
-    { value: 5, Icon: Smile, color: '#ec4899', label: 'Отлично' },
+    { value: 1, Icon: Frown, color: '#ef4444', label: 'Low' },
+    { value: 2, Icon: CloudRain, color: '#f97316', label: 'Not Great' },
+    { value: 3, Icon: Meh, color: '#a1a1aa', label: 'Okay' },
+    { value: 4, Icon: Sun, color: '#22c55e', label: 'Good' },
+    { value: 5, Icon: Smile, color: '#ec4899', label: 'Excellent' },
 ];
 
 export default function CheckInScreen() {
@@ -47,7 +47,7 @@ export default function CheckInScreen() {
     const [sleep, setSleep] = useState(7);
     const [energy, setEnergy] = useState(5);
     const [selectedFactors, setSelectedFactors] = useState<string[]>([]);
-    const [activeCategory, setActiveCategory] = useState('Школа');
+    const [activeCategory, setActiveCategory] = useState('School');
     const [comment, setComment] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -62,9 +62,9 @@ export default function CheckInScreen() {
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            if (!user) throw new Error('Не авторизован');
+            if (!user) throw new Error('Not authenticated');
             if (!classId) {
-                Alert.alert('Ошибка', 'Не выбран класс!');
+                Alert.alert('Error', 'No class selected.');
                 router.back();
                 return;
             }
@@ -82,10 +82,10 @@ export default function CheckInScreen() {
             });
 
             if (error) throw error;
-            Alert.alert('Готово!', 'Запись сохранена ✓');
+            Alert.alert('Done', 'Entry saved successfully.');
             router.back();
         } catch (err: any) {
-            Alert.alert('Ошибка', err.message || 'Не удалось сохранить');
+            Alert.alert('Error', err.message || 'Failed to save the entry.');
         } finally {
             setLoading(false);
         }
@@ -101,7 +101,7 @@ export default function CheckInScreen() {
                     <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                         <ArrowLeft size={20} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={[styles.headerTitle, { color: colors.text }]}>Новая запись</Text>
+                    <Text style={[styles.headerTitle, { color: colors.text }]}>New Check-in</Text>
                 </View>
 
                 {/* Progress Dots */}
@@ -117,9 +117,9 @@ export default function CheckInScreen() {
                 {/* Step 1: Mood */}
                 {step === 1 && (
                     <View style={styles.stepContainer}>
-                        <Text style={[styles.stepTitle, { color: colors.text }]}>Как ты сейчас?</Text>
+                        <Text style={[styles.stepTitle, { color: colors.text }]}>How are you feeling right now?</Text>
                         <Text style={[styles.stepSubtitle, { color: colors.subtext }]}>
-                            Выбери своё настроение
+                            Choose your current mood
                         </Text>
 
                         <View style={styles.moodContainer}>
@@ -158,9 +158,9 @@ export default function CheckInScreen() {
                 {/* Step 2: Emotions */}
                 {step === 2 && (
                     <View style={styles.stepContainer}>
-                        <Text style={[styles.stepTitle, { color: colors.text }]}>Что ты чувствуешь?</Text>
+                        <Text style={[styles.stepTitle, { color: colors.text }]}>What are you feeling?</Text>
                         <Text style={[styles.stepSubtitle, { color: colors.subtext }]}>
-                            Выбери подходящие эмоции
+                            Pick the emotions that fit best
                         </Text>
 
                         <View style={styles.chipsGrid}>
@@ -194,16 +194,16 @@ export default function CheckInScreen() {
                 {/* Step 3: Sleep & Energy */}
                 {step === 3 && (
                     <View style={styles.stepContainer}>
-                        <Text style={[styles.stepTitle, { color: colors.text }]}>Физиология</Text>
+                        <Text style={[styles.stepTitle, { color: colors.text }]}>Physical State</Text>
 
                         {/* Sleep */}
                         <View style={[styles.sliderCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                             <View style={styles.sliderHeader}>
                                 <View style={styles.sliderLabelRow}>
                                     <Moon size={18} color="#818cf8" />
-                                    <Text style={[styles.sliderLabel, { color: colors.text }]}>Сон</Text>
+                                    <Text style={[styles.sliderLabel, { color: colors.text }]}>Sleep</Text>
                                 </View>
-                                <Text style={[styles.sliderValue, { color: colors.text }]}>{sleep} ч</Text>
+                                <Text style={[styles.sliderValue, { color: colors.text }]}>{sleep} h</Text>
                             </View>
                             <View style={styles.sliderTrack}>
                                 {Array.from({ length: 13 }, (_, i) => (
@@ -222,8 +222,8 @@ export default function CheckInScreen() {
                                 ))}
                             </View>
                             <View style={styles.sliderLabels}>
-                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>0 ч</Text>
-                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>12 ч</Text>
+                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>0 h</Text>
+                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>12 h</Text>
                             </View>
                         </View>
 
@@ -232,7 +232,7 @@ export default function CheckInScreen() {
                             <View style={styles.sliderHeader}>
                                 <View style={styles.sliderLabelRow}>
                                     <Zap size={18} color="#facc15" />
-                                    <Text style={[styles.sliderLabel, { color: colors.text }]}>Энергия</Text>
+                                    <Text style={[styles.sliderLabel, { color: colors.text }]}>Energy</Text>
                                 </View>
                                 <Text style={[styles.sliderValue, { color: colors.text }]}>{energy}/10</Text>
                             </View>
@@ -253,8 +253,8 @@ export default function CheckInScreen() {
                                 ))}
                             </View>
                             <View style={styles.sliderLabels}>
-                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>Мало</Text>
-                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>Много</Text>
+                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>Low</Text>
+                                <Text style={[styles.sliderMin, { color: colors.subtext }]}>High</Text>
                             </View>
                         </View>
                     </View>
@@ -263,9 +263,9 @@ export default function CheckInScreen() {
                 {/* Step 4: Factors + Comment */}
                 {step === 4 && (
                     <View style={styles.stepContainer}>
-                        <Text style={[styles.stepTitle, { color: colors.text }]}>Что на это влияет?</Text>
+                        <Text style={[styles.stepTitle, { color: colors.text }]}>What is affecting this?</Text>
                         <Text style={[styles.stepSubtitle, { color: colors.subtext }]}>
-                            Выбери основные сферы
+                            Choose the main areas
                         </Text>
 
                         {/* Category Tabs */}
@@ -323,12 +323,12 @@ export default function CheckInScreen() {
 
                         {/* Comment */}
                         <Text style={[styles.commentLabel, { color: colors.subtext }]}>
-                            Личная заметка (необязательно)
+                            Private Note (optional)
                         </Text>
                         <TextInput
                             value={comment}
                             onChangeText={setComment}
-                            placeholder="Сегодня я..."
+                            placeholder="Today I feel..."
                             placeholderTextColor={colors.subtext}
                             multiline
                             style={[styles.commentInput, {
@@ -348,7 +348,7 @@ export default function CheckInScreen() {
                             style={[styles.navBtn, { backgroundColor: colors.surface, borderColor: colors.border, flex: 1 }]}
                         >
                             <ArrowLeft size={18} color={colors.text} />
-                            <Text style={[styles.navBtnText, { color: colors.text }]}>Назад</Text>
+                            <Text style={[styles.navBtnText, { color: colors.text }]}>Back</Text>
                         </TouchableOpacity>
                     )}
 
@@ -366,7 +366,7 @@ export default function CheckInScreen() {
                         ) : (
                             <>
                                 <Text style={[styles.navBtnText, { color: colors.text }]}>
-                                    {step === 4 ? 'Завершить' : 'Далее'}
+                                    {step === 4 ? 'Finish' : 'Next'}
                                 </Text>
                                 {step === 4 ? (
                                     <Check size={18} color={colors.text} />

@@ -17,7 +17,7 @@ const SimpleLineChart = ({ data, color }: { data: number[], color: string }) => 
     if (data.length < 2) {
         return (
             <View style={{ height: 100, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ color: '#888', fontStyle: 'italic' }}>Недостаточно данных</Text>
+                <Text style={{ color: '#888', fontStyle: 'italic' }}>Not enough data</Text>
             </View>
         );
     }
@@ -135,20 +135,20 @@ export default function StudentDetailScreen() {
 
     const runAnalysis = async () => {
         if (assessing) return;
-        if (checkins.length === 0) return Alert.alert('Нет данных', 'У ученика нет записей для анализа.');
+        if (checkins.length === 0) return Alert.alert('No data', 'This student has no entries to analyze.');
 
         Alert.alert(
-            'Подтвердите действие',
-            'Запустить ИИ-анализ состояния ученика? Это обновит текущий статус риска.',
+            'Confirm action',
+            'Run the AI wellbeing analysis for this student? This will update the current risk status.',
             [
-                { text: 'Отмена', style: 'cancel' },
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Запустить',
+                    text: 'Run',
                     onPress: async () => {
                         setAssessing(true);
                         try {
                             const analysisData = {
-                                name: student?.full_name || 'Ученик',
+                                name: student?.full_name || 'Student',
                                 checkins: checkins.slice(0, 20).map(c => ({
                                     date: new Date(c.created_at).toLocaleDateString(),
                                     mood: c.mood_score,
@@ -174,7 +174,7 @@ export default function StudentDetailScreen() {
                                 }, { onConflict: 'student_id,class_id' });
                             }
                         } catch (e) {
-                            Alert.alert('Ошибка', 'Не удалось провести анализ');
+                            Alert.alert('Error', 'The analysis could not be completed');
                         } finally {
                             setAssessing(false);
                         }
@@ -207,7 +207,7 @@ export default function StudentDetailScreen() {
                         <ArrowLeft size={24} color={colors.text} />
                     </TouchableOpacity>
                     <View>
-                        <Text style={[styles.name, { color: colors.text }]}>{student?.full_name || 'Ученик'}</Text>
+                        <Text style={[styles.name, { color: colors.text }]}>{student?.full_name || 'Student'}</Text>
                         <Text style={[styles.email, { color: colors.subtext }]}>{student?.email}</Text>
                     </View>
                 </View>
@@ -217,11 +217,11 @@ export default function StudentDetailScreen() {
                     {/* Stats Grid */}
                     <View style={styles.statsRow}>
                         <Card style={styles.statCard}>
-                            <Text style={[styles.label, { color: colors.subtext }]}>СРЕДНЕЕ НАСТРОЕНИЕ</Text>
+                            <Text style={[styles.label, { color: colors.subtext }]}>AVERAGE MOOD</Text>
                             <Text style={[styles.value, { color: colors.text }]}>{stats.avgMood}</Text>
                         </Card>
                         <Card style={styles.statCard}>
-                            <Text style={[styles.label, { color: colors.subtext }]}>ЗАПИСЕЙ</Text>
+                            <Text style={[styles.label, { color: colors.subtext }]}>ENTRIES</Text>
                             <Text style={[styles.value, { color: colors.text }]}>{stats.total}</Text>
                         </Card>
                     </View>
@@ -234,7 +234,7 @@ export default function StudentDetailScreen() {
                     }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <View style={{ flex: 1 }}>
-                                <Text style={[styles.label, { color: colors.subtext, marginBottom: 4 }]}>AI СТАТУС РИСКА</Text>
+                                <Text style={[styles.label, { color: colors.subtext, marginBottom: 4 }]}>AI RISK STATUS</Text>
                                 {risk ? (
                                     <>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -243,7 +243,7 @@ export default function StudentDetailScreen() {
                                                 : <AlertTriangle size={20} color={risk.status === 'critical' ? "rgb(239,68,68)" : risk.status === 'warning' ? "#F97316" : "#EAB308"} />
                                             }
                                             <Text style={{ fontSize: 18, fontWeight: '700', color: risk.status === 'normal' ? "rgb(34,197,94)" : (risk.status === 'critical' ? "rgb(239,68,68)" : risk.status === 'warning' ? "#F97316" : "#EAB308") }}>
-                                                {risk.status === 'normal' ? 'Норма' : risk.status === 'critical' ? 'Крит.' : risk.status === 'warning' ? 'Риск' : 'Внимание'} ({risk.riskLevel}/10)
+                                                {risk.status === 'normal' ? 'Normal' : risk.status === 'critical' ? 'Critical' : risk.status === 'warning' ? 'Risk' : 'Attention'} ({risk.riskLevel}/10)
                                             </Text>
                                         </View>
                                         <Text style={{ color: colors.subtext, fontSize: 13, marginTop: 4 }}>
@@ -251,12 +251,12 @@ export default function StudentDetailScreen() {
                                         </Text>
                                         {risk.date && (
                                             <Text style={{ color: colors.subtext, fontSize: 10, marginTop: 4, opacity: 0.7 }}>
-                                                Обновлено: {new Date(risk.date).toLocaleDateString()}
+                                                Updated: {new Date(risk.date).toLocaleDateString()}
                                             </Text>
                                         )}
                                     </>
                                 ) : (
-                                    <Text style={{ color: colors.subtext, fontStyle: 'italic' }}>Анализ еще не проводился</Text>
+                                    <Text style={{ color: colors.subtext, fontStyle: 'italic' }}>No analysis has been run yet</Text>
                                 )}
                             </View>
 
@@ -272,12 +272,12 @@ export default function StudentDetailScreen() {
 
                     {/* Chart */}
                     <Card>
-                        <Text style={[styles.label, { color: colors.subtext, marginBottom: 10 }]}>ДИНАМИКА (7 ЗАПИСЕЙ)</Text>
+                        <Text style={[styles.label, { color: colors.subtext, marginBottom: 10 }]}>TREND (7 ENTRIES)</Text>
                         <SimpleLineChart data={chartData} color={colors.accent} />
                     </Card>
 
                     {/* Checkins History */}
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>ПОСЛЕДНИЕ ЗАМЕТКИ</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>RECENT NOTES</Text>
 
                     {checkins.map((item, i) => (
                         <Card key={item.id} style={{ marginBottom: 4 }}>
@@ -286,18 +286,18 @@ export default function StudentDetailScreen() {
                                     {new Date(item.created_at).toLocaleDateString()}
                                 </Text>
                                 <Text style={{ color: item.mood_score >= 4 ? 'rgb(34,197,94)' : item.mood_score <= 2 ? 'rgb(239,68,68)' : 'orange', fontWeight: '700' }}>
-                                    Настроение: {item.mood_score}/5
+                                    Mood: {item.mood_score}/5
                                 </Text>
                             </View>
 
                             <View style={{ flexDirection: 'row', gap: 12, marginBottom: 8 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                     <Moon size={14} color="#60A5FA" />
-                                    <Text style={{ color: colors.text, fontSize: 13 }}>Сон: {item.sleep_hours}ч</Text>
+                                    <Text style={{ color: colors.text, fontSize: 13 }}>Sleep: {item.sleep_hours}h</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                     <Zap size={14} color="#FBBF24" />
-                                    <Text style={{ color: colors.text, fontSize: 13 }}>Энергия: {item.energy_level}/10</Text>
+                                    <Text style={{ color: colors.text, fontSize: 13 }}>Energy: {item.energy_level}/10</Text>
                                 </View>
                             </View>
 
@@ -307,7 +307,7 @@ export default function StudentDetailScreen() {
                                 </Text>
                             ) : (
                                 <Text style={{ color: colors.subtext, fontSize: 14, fontStyle: 'italic' }}>
-                                    Нет комментария
+                                    No comment
                                 </Text>
                             )}
                         </Card>

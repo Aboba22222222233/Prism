@@ -15,16 +15,16 @@ export default function TeacherSettingsScreen() {
 
     const handleLogout = async () => {
         if (Platform.OS === 'web') {
-            const confirmed = window.confirm('Вы уверены, что хотите выйти?');
+            const confirmed = window.confirm('Are you sure you want to sign out?');
             if (confirmed) {
                 await signOut();
                 router.replace('/login');
             }
         } else {
-            Alert.alert('Выход', 'Вы уверены?', [
-                { text: 'Отмена', style: 'cancel' },
+            Alert.alert('Sign Out', 'Are you sure?', [
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Выйти', style: 'destructive', onPress: async () => {
+                    text: 'Sign Out', style: 'destructive', onPress: async () => {
                         await signOut();
                         router.replace('/login');
                     },
@@ -36,9 +36,9 @@ export default function TeacherSettingsScreen() {
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <Text style={[styles.title, { color: colors.text }]}>Настройки</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
-                {/* Профиль */}
+                {/* Profile */}
                 <Card style={{ marginBottom: 16 }}>
                     <View style={styles.profileRow}>
                         <View style={[styles.avatar, { backgroundColor: colors.accent }]}>
@@ -46,7 +46,7 @@ export default function TeacherSettingsScreen() {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={[styles.profileName, { color: colors.text }]}>
-                                {(!profile?.full_name || profile.full_name === 'Учитель') ? 'Психолог' : profile.full_name}
+                                {(!profile?.full_name || profile.full_name === 'Teacher') ? 'Counselor' : profile.full_name}
                             </Text>
                             <Text style={[styles.profileEmail, { color: colors.subtext }]}>
                                 {profile?.email}
@@ -55,17 +55,17 @@ export default function TeacherSettingsScreen() {
                     </View>
                 </Card>
 
-                {/* Тема */}
+                {/* Theme */}
                 <Card style={{ marginBottom: 16 }}>
                     <View style={styles.settingRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.settingTitle, { color: colors.text }]}>Тема</Text>
+                            <Text style={[styles.settingTitle, { color: colors.text }]}>Theme</Text>
                             <Text style={[styles.settingDesc, { color: colors.subtext }]}>
-                                {mode === 'dark' ? 'Тёмная тема' : 'Светлая тема'}
+                                {mode === 'dark' ? 'Dark theme' : 'Light theme'}
                             </Text>
                         </View>
                         <Button
-                            title={mode === 'dark' ? '☀️ Светлая' : '🌙 Тёмная'}
+                            title={mode === 'dark' ? '☀️ Light' : '🌙 Dark'}
                             variant="secondary"
                             onPress={toggleTheme}
                             style={{ paddingVertical: 10, paddingHorizontal: 16 }}
@@ -74,9 +74,9 @@ export default function TeacherSettingsScreen() {
                     </View>
                 </Card>
 
-                {/* Выход */}
+                {/* Sign out */}
                 <Button
-                    title="Выйти из аккаунта"
+                    title="Sign Out"
                     variant="danger"
                     onPress={handleLogout}
                     icon={<LogOut size={16} color="rgb(239,68,68)" />}

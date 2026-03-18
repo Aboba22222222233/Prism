@@ -10,6 +10,7 @@ import {
 import { supabase } from '../lib/supabase';
 import { getGeminiInsight, assessStudentRisk } from '../lib/ai';
 import { useNavigate } from 'react-router-dom';
+import { TeacherMentorChat } from '../components/TeacherMentorChat';
 
 const KpiCard = ({ title, value, status }: any) => {
     const colors = {
@@ -29,7 +30,7 @@ const KpiCard = ({ title, value, status }: any) => {
 
 const TeacherDashboard = () => {
     const navigate = useNavigate();
-    const [selectedPeriod, setSelectedPeriod] = useState('Неделя');
+    const [selectedPeriod, setSelectedPeriod] = useState('Week');
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -198,18 +199,18 @@ const TeacherDashboard = () => {
 
             setTasks([data, ...tasks]);
             setNewTaskTitle('');
-            alert('Задание создано!');
+            alert('Assignment created.');
 
         } catch (error) {
             console.error(error);
-            alert('Ошибка создания задания');
+            alert('Failed to create assignment');
         } finally {
             setCreatingTask(false);
         }
     };
 
     const deleteTask = async (taskId: string) => {
-        if (!confirm('Вы уверены, что хотите удалить это задание? Это также удалит все ответы учеников.')) return;
+        if (!confirm('Are you sure you want to delete this assignment? This will also remove every student response.')) return;
 
         try {
             // Optimistic Update
@@ -224,7 +225,7 @@ const TeacherDashboard = () => {
 
         } catch (error) {
             console.error(error);
-            alert('Ошибка при удалении задания. Попробуйте обновить страницу.');
+            alert('Failed to delete the assignment. Try refreshing the page.');
         }
     };
 
@@ -260,7 +261,7 @@ const TeacherDashboard = () => {
 
         } catch (error) {
             console.error('Error creating class:', error);
-            alert('Ошибка при создании класса');
+            alert('Failed to create class');
         } finally {
             setCreatingClass(false);
         }
@@ -283,7 +284,7 @@ const TeacherDashboard = () => {
             await fetchAccessibleClasses(classId);
         } catch (error: any) {
             console.error('Error joining class:', error);
-            alert(error?.message || 'Ошибка при подключении к классу');
+            alert(error?.message || 'Failed to join class');
         } finally {
             setJoiningClass(false);
         }
@@ -313,10 +314,10 @@ const TeacherDashboard = () => {
             setShowEventModal(false);
             setNewEventTitle('');
             setNewEventDate('');
-            alert('Событие добавлено!');
+            alert('Event added.');
         } catch (err) {
             console.error(err);
-            alert('Ошибка при создании события');
+            alert('Failed to create event');
         } finally {
             setCreatingEvent(false);
         }
@@ -396,7 +397,7 @@ const TeacherDashboard = () => {
                 return {
                     id: e.profiles.id,
                     realName: e.profiles.full_name || e.profiles.email.split('@')[0],
-                    anonName: `Ученик ${index + 1}`,
+                    anonName: `Student ${index + 1}`,
                     email: e.profiles.email,
                     avgMood,
                     lastCheckin: lastCheckin, // Pass raw object or null
@@ -508,25 +509,25 @@ const TeacherDashboard = () => {
 
             const studentsContext = students.slice(0, 10).map((s, i) => {
                 const recentCheckins = (s.rawCheckins || []).slice(-20).map((c: any) =>
-                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5${c.factors?.length ? ', Факторы: ' + c.factors.join(', ') : ''}`
-                ).join('\n') || '  Нет записей';
-                return `${s.anonName} ${s.isRisk ? '⚠️ РИСК' : ''}:\n${recentCheckins}`;
+                    `  - ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5${c.factors?.length ? ', Factors: ' + c.factors.join(', ') : ''}`
+                ).join('\n') || '  No entries';
+                return `${s.anonName} ${s.isRisk ? '⚠️ AT RISK' : ''}:\n${recentCheckins}`;
             }).join('\n\n');
 
-            const prompt = `Ты педагогический ассистент. Проанализируй класс и дай краткую сводку.
+            const prompt = `You are a school counselor assistant. Review the class data and provide a short summary.
 
-СТРОГИЕ ПРАВИЛА:
-- Пиши ТОЛЬКО на русском языке
-- НЕ используй английские, немецкие или другие иностранные слова
-- НЕ используй технические термины и специальные символы
-- Максимум 3-4 предложения
+RULES:
+- Respond only in English
+- Use simple non-technical language
+- Avoid jargon and unusual symbols
+- Keep it to 3-4 sentences maximum
 
-Статистика: ${stats.totalStudents} учеников, среднее настроение ${stats.avgMood}/5, в зоне риска ${stats.riskCount}.
+Statistics: ${stats.totalStudents} students, average mood ${stats.avgMood}/5, at risk ${stats.riskCount}.
 
-Данные учеников:
+Student data:
 ${studentsContext}
 
-Дай: 1) Сводку атмосферы класса. 2) Один совет учителю.`;
+Give: 1) a summary of the class atmosphere. 2) one practical action for the counselor.`;
 
             const insight = await getGeminiInsight(prompt);
             setInsightText(insight);
@@ -545,7 +546,7 @@ ${studentsContext}
 
         } catch (err) {
             console.error(err);
-            setInsightText("Не удалось выполнить анализ.");
+            setInsightText("The analysis could not be completed.");
         } finally {
             setAnalyzing(false);
         }
@@ -564,7 +565,7 @@ ${studentsContext}
             try {
                 // Prepare checkins data
                 const checkinsData = (student.rawCheckins || []).slice(-20).map((c: any) => ({
-                    date: new Date(c.created_at).toLocaleDateString('ru-RU'),
+                    date: new Date(c.created_at).toLocaleDateString('en-US'),
                     mood: c.mood_score,
                     sleep: c.sleep_hours || 7,
                     energy: c.energy_level || 3,
@@ -588,7 +589,7 @@ ${studentsContext}
                     isRisk: false,
                     riskLevel: 0,
                     status: 'normal',
-                    reason: 'Ошибка анализа'
+                    reason: 'Analysis error'
                 };
             }
         }
@@ -628,7 +629,7 @@ ${studentsContext}
     const removeStudent = async (studentId: string, studentName: string) => {
         // NOTE: Confirmation handled by button UI now
         if (!selectedClass || selectedClass.teacher_id !== currentTeacherId) {
-            return { success: false, error: new Error('Только создатель класса может удалять учеников') };
+            return { success: false, error: new Error('Only the class owner can remove students') };
         }
 
         try {
@@ -666,7 +667,7 @@ ${studentsContext}
 
     const removeTeacherAccess = async (teacherId: string) => {
         if (!selectedClass || selectedClass.teacher_id !== currentTeacherId) {
-            return { success: false, error: new Error('Только создатель класса может управлять психологами') };
+            return { success: false, error: new Error('Only the class owner can manage counselors') };
         }
 
         try {
@@ -699,7 +700,7 @@ ${studentsContext}
             await fetchAccessibleClasses();
         } catch (error: any) {
             console.error('Error leaving class:', error);
-            alert(error?.message || 'Не удалось выйти из класса');
+            alert(error?.message || 'Failed to leave the class');
         }
     };
 
@@ -710,11 +711,11 @@ ${studentsContext}
 
     const exportToCSV = () => {
         if (!students || students.length === 0) {
-            alert("Нет данных для экспорта");
+            alert("No data available for export");
             return;
         }
 
-        const headers = ['Класс', 'Имя ученика', 'Email', 'Состояние', 'Оценка ИИ (0-10)', 'Ср. настроение'];
+        const headers = ['Class', 'Student Name', 'Email', 'Status', 'AI Score (0-10)', 'Avg. Mood'];
 
         const dataRows = students.map(s => {
             const aiAssessment = aiRiskAssessments[s.id];
@@ -723,15 +724,15 @@ ${studentsContext}
             const name = s.realName;
             const email = s.email;
 
-            let status = s.isRisk ? 'Риск' : 'Норма';
+            let status = s.isRisk ? 'Risk' : 'Normal';
             let riskLevel = 0;
 
             if (aiAssessment) {
                 const statusLabels: any = {
-                    critical: 'Критично',
-                    warning: 'Риск',
-                    attention: 'Внимание',
-                    normal: 'Норма'
+                    critical: 'Critical',
+                    warning: 'Risk',
+                    attention: 'Attention',
+                    normal: 'Normal'
                 };
                 status = statusLabels[aiAssessment.status] || aiAssessment.status;
                 riskLevel = aiAssessment.riskLevel;
@@ -755,7 +756,7 @@ ${studentsContext}
                 const { saveAs } = await import('file-saver');
 
                 const workbook = new ExcelJS.Workbook();
-                const worksheet = workbook.addWorksheet('Отчет по ученикам');
+                const worksheet = workbook.addWorksheet('Student Report');
 
                 worksheet.addRow(headers);
                 dataRows.forEach(row => worksheet.addRow(row));
@@ -773,10 +774,10 @@ ${studentsContext}
 
                 const buffer = await workbook.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                saveAs(blob, `Отчет_Класс_${selectedClass?.name || 'Экспорт'}_${new Date().toLocaleDateString('ru-RU')}.xlsx`);
+                saveAs(blob, `Class_Report_${selectedClass?.name || 'Export'}_${new Date().toLocaleDateString('en-US')}.xlsx`);
             } catch (err) {
-                console.error("Ошибка при экспорте Excel:", err);
-                alert("Ошибка при создании Excel файла. Проверьте консоль.");
+                console.error("Excel export error:", err);
+                alert("Failed to create the Excel file. Check the console.");
             }
         };
 
@@ -787,11 +788,11 @@ ${studentsContext}
         alert("DEBUG: Start Delete"); // Prove it connects
         console.log("Delete button clicked", selectedClass);
         if (!selectedClass) {
-            alert("Ошибка: класс не выбран");
+            alert("Error: no class selected");
             return;
         }
 
-        if (!window.confirm(`Вы действительно хотите удалить класс "${selectedClass.name}"?`)) {
+        if (!window.confirm(`Do you really want to delete the class "${selectedClass.name}"?`)) {
             return;
         }
 
@@ -825,11 +826,11 @@ ${studentsContext}
                 setSelectedClass(null);
             }
 
-            alert(`Класс "${selectedClass.name}" удален.`);
+            alert(`Class "${selectedClass.name}" deleted.`);
 
         } catch (error) {
             console.error('Error deleting class:', error);
-            alert('Ошибка при удалении класса. Попробуйте еще раз.');
+            alert('Failed to delete the class. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -838,17 +839,17 @@ ${studentsContext}
 
 
     // --- RENDER ---
-    if (loading && !selectedClass) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Загрузка...</div>;
-    if (accessDenied) return <div className="text-white bg-black h-screen flex items-center justify-center">Доступ запрещен</div>;
+    if (loading && !selectedClass) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
+    if (accessDenied) return <div className="text-white bg-black h-screen flex items-center justify-center">Access denied</div>;
 
     // NO CLASSES VIEW
     if (classes.length === 0 && !loading) {
         return (
             <div className="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden font-sans">
                 <div className="bg-white/5 border border-white/10 p-10 rounded-3xl max-w-md w-full text-center relative z-10 backdrop-blur-xl shadow-2xl">
-                    <h1 className="text-3xl font-bold mb-3">Начало работы</h1>
+                    <h1 className="text-3xl font-bold mb-3">Getting Started</h1>
                     <p className="text-slate-400 mb-8 leading-relaxed">
-                        Создайте свой первый класс или войдите в уже существующий по коду.
+                        Create your first class or join an existing one with a code.
                     </p>
                     <div className="grid grid-cols-2 gap-3 mb-5">
                         <button
@@ -859,7 +860,7 @@ ${studentsContext}
                             }}
                             className={`py-3 rounded-xl border text-sm font-bold transition-colors ${showCreateClassForm ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                         >
-                            Новый класс
+                            New Class
                         </button>
                         <button
                             type="button"
@@ -869,7 +870,7 @@ ${studentsContext}
                             }}
                             className={`py-3 rounded-xl border text-sm font-bold transition-colors ${showJoinClassForm ? 'bg-emerald-400 text-black border-emerald-300' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                         >
-                            Войти по коду
+                            Join by Code
                         </button>
                     </div>
 
@@ -877,14 +878,14 @@ ${studentsContext}
                         <form onSubmit={createClass} className="space-y-4">
                             <input
                                 type="text"
-                                placeholder="Название (например, 9Б)"
+                                placeholder="Name (for example, 9B)"
                                 className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-purple-500"
                                 value={newClassName}
                                 onChange={(e) => setNewClassName(e.target.value)}
                                 required
                             />
                             <button type="submit" disabled={creatingClass} className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors disabled:opacity-50">
-                                {creatingClass ? "Создание..." : "Создать класс"}
+                                {creatingClass ? "Creating..." : "Create Class"}
                             </button>
                         </form>
                     )}
@@ -893,21 +894,21 @@ ${studentsContext}
                         <form onSubmit={joinExistingClass} className="space-y-4">
                             <input
                                 type="text"
-                                placeholder="Код класса"
+                                placeholder="Class code"
                                 className="w-full bg-black/50 border border-white/10 rounded-xl px-5 py-4 text-white uppercase focus:outline-none focus:border-emerald-400"
                                 value={joinClassCode}
                                 onChange={(e) => setJoinClassCode(e.target.value)}
                                 required
                             />
                             <button type="submit" disabled={joiningClass} className="w-full py-4 bg-emerald-400 text-black rounded-xl font-bold hover:bg-emerald-300 transition-colors disabled:opacity-50">
-                                {joiningClass ? "Подключение..." : "Войти в класс"}
+                                {joiningClass ? "Connecting..." : "Join Class"}
                             </button>
                         </form>
                     )}
 
                     {!showCreateClassForm && !showJoinClassForm && (
                         <div className="text-sm text-slate-500">
-                            Выберите действие, чтобы продолжить.
+                            Choose an action to continue.
                         </div>
                     )}
                 </div>
@@ -933,7 +934,7 @@ ${studentsContext}
                                         {isAnonymous ? selectedStudent.anonName : selectedStudent.realName}
                                     </h2>
                                     <p className="text-slate-400 text-sm">
-                                        {isAnonymous ? 'Информация скрыта' : selectedStudent.email}
+                                        {isAnonymous ? 'Information hidden' : selectedStudent.email}
                                     </p>
                                 </div>
                             </div>
@@ -951,19 +952,19 @@ ${studentsContext}
                             {/* Key Metrics */}
                             <div className="grid grid-cols-3 gap-4 mb-6">
                                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Среднее настроение</div>
+                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Average mood</div>
                                     <div className={`text-2xl font-bold ${Number(selectedStudent.avgMood) < 3 ? 'text-red-400' : Number(selectedStudent.avgMood) > 4 ? 'text-green-400' : 'text-white'}`}>
                                         {selectedStudent.avgMood}
                                     </div>
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Записей</div>
+                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Entries</div>
                                     <div className="text-2xl font-bold text-white">
                                         {selectedStudent.rawCheckins.length}
                                     </div>
                                 </div>
                                 <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Статус</div>
+                                    <div className="text-xs text-slate-500 uppercase font-bold mb-1">Status</div>
                                     <div className="text-xl font-bold">
                                         {(() => {
                                             const aiAssessment = aiRiskAssessments[selectedStudent.id];
@@ -976,10 +977,10 @@ ${studentsContext}
                                                     normal: 'text-emerald-400'
                                                 };
                                                 const statusLabels = {
-                                                    critical: 'Критично',
-                                                    warning: 'Риск',
-                                                    attention: 'Внимание',
-                                                    normal: 'Норма'
+                                                    critical: 'Critical',
+                                                    warning: 'Risk',
+                                                    attention: 'Attention',
+                                                    normal: 'Normal'
                                                 };
                                                 const StatusIcon = {
                                                     critical: AlertCircle,
@@ -1002,11 +1003,11 @@ ${studentsContext}
                                             // Fallback to rule-based
                                             return selectedStudent.isRisk ? (
                                                 <span className="text-red-400 flex items-center gap-2">
-                                                    <AlertTriangle className="w-5 h-5" /> Риск
+                                                    <AlertTriangle className="w-5 h-5" /> Risk
                                                 </span>
                                             ) : (
                                                 <span className="text-emerald-400 flex items-center gap-2">
-                                                    <CheckCircle className="w-5 h-5" /> Норма
+                                                    <CheckCircle className="w-5 h-5" /> Normal
                                                 </span>
                                             );
                                         })()}
@@ -1016,7 +1017,7 @@ ${studentsContext}
 
                             {/* Chart */}
                             <div className="mb-6">
-                                <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Динамика (7 дней)</h3>
+                                <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Trend (7 days)</h3>
                                 <div className="h-40 w-full bg-white/5 rounded-xl border border-white/10 p-4">
                                     {selectedStudent.history.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
@@ -1038,7 +1039,7 @@ ${studentsContext}
                                         </ResponsiveContainer>
                                     ) : (
                                         <div className="h-full flex items-center justify-center text-slate-500 text-sm">
-                                            Нет данных для графика
+                                            No chart data
                                         </div>
                                     )}
                                 </div>
@@ -1046,33 +1047,33 @@ ${studentsContext}
 
                             {/* Recent Notes (Only if not anonymous ideally, but showing for now with caveat) */}
                             <div>
-                                <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Последние заметки</h3>
+                                <h3 className="text-sm font-bold text-slate-400 mb-3 uppercase tracking-wider">Recent Notes</h3>
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                                     {selectedStudent.rawCheckins.slice().reverse().slice(0, 5).map((c: any) => (
                                         <div key={c.id} className="bg-white/5 rounded-lg p-3 text-sm border border-white/5">
                                             <div className="flex justify-between items-center mb-2">
-                                                <span className="text-slate-500 text-xs">{new Date(c.created_at).toLocaleDateString('ru-RU')}</span>
+                                                <span className="text-slate-500 text-xs">{new Date(c.created_at).toLocaleDateString('en-US')}</span>
                                                 <div className="flex items-center gap-3">
                                                     <span className={`text-xs font-bold ${c.mood_score < 3 ? 'text-red-400' : 'text-emerald-400'}`}>
-                                                        Настроение: {c.mood_score}/5
+                                                        Mood: {c.mood_score}/5
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="flex gap-4 mb-2 text-xs">
                                                 <span className="text-blue-400">
-                                                    Сон: {c.sleep_hours || '?'}ч
+                                                    Sleep: {c.sleep_hours || '?'}h
                                                 </span>
                                                 <span className="text-yellow-400">
-                                                    Энергия: {c.energy_level || '?'}/10
+                                                    Energy: {c.energy_level || '?'}/10
                                                 </span>
                                             </div>
                                             <p className="text-slate-300">
-                                                {isAnonymous ? "Текст скрыт настройками приватности" : (c.comment || "Без заметки")}
+                                                {isAnonymous ? "Text hidden by privacy settings" : (c.comment || "No note")}
                                             </p>
                                         </div>
                                     ))}
                                     {selectedStudent.rawCheckins.length === 0 && (
-                                        <div className="text-slate-600 text-sm italic">Записей нет</div>
+                                        <div className="text-slate-600 text-sm italic">No entries</div>
                                     )}
                                 </div>
                             </div>
@@ -1099,7 +1100,7 @@ ${studentsContext}
                             }}
                             className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
                         >
-                            <Plus className="w-4 h-4" /> Новый
+                            <Plus className="w-4 h-4" /> New
                         </button>
                         <button
                             onClick={() => {
@@ -1108,14 +1109,14 @@ ${studentsContext}
                             }}
                             className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
                         >
-                            <Users className="w-4 h-4" /> Войти
+                            <Users className="w-4 h-4" /> Join
                         </button>
                     </div>
                     {showCreateClassForm && (
                         <form onSubmit={createClass} className="mt-3 space-y-2 animate-in slide-in-from-top-2">
                             <input
                                 className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm"
-                                placeholder="Название..."
+                                placeholder="Name..."
                                 autoFocus
                                 value={newClassName}
                                 onChange={e => setNewClassName(e.target.value)}
@@ -1125,7 +1126,7 @@ ${studentsContext}
                                 disabled={creatingClass}
                                 className="w-full py-2 rounded-lg bg-white text-black text-sm font-bold disabled:opacity-50"
                             >
-                                {creatingClass ? 'Создание...' : 'Создать класс'}
+                                {creatingClass ? 'Creating...' : 'Create Class'}
                             </button>
                         </form>
                     )}
@@ -1133,7 +1134,7 @@ ${studentsContext}
                         <form onSubmit={joinExistingClass} className="mt-3 space-y-2 animate-in slide-in-from-top-2">
                             <input
                                 className="w-full bg-black border border-white/20 rounded-lg p-2 text-sm uppercase"
-                                placeholder="Код класса..."
+                                placeholder="Class code..."
                                 autoFocus
                                 value={joinClassCode}
                                 onChange={e => setJoinClassCode(e.target.value)}
@@ -1143,7 +1144,7 @@ ${studentsContext}
                                 disabled={joiningClass}
                                 className="w-full py-2 rounded-lg bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
                             >
-                                {joiningClass ? 'Подключение...' : 'Войти в класс'}
+                                {joiningClass ? 'Connecting...' : 'Join Class'}
                             </button>
                         </form>
                     )}
@@ -1179,7 +1180,7 @@ ${studentsContext}
                         >
                             <span className="bg-white/10 px-2 py-0.5 rounded text-white font-mono">{selectedClass?.code}</span>
                             <Copy className="w-3 h-3" />
-                            <span>Код для входа</span>
+                    <span>Join code</span>
                         </div>
                     </div>
 
@@ -1194,7 +1195,7 @@ ${studentsContext}
                                     const btn = e.currentTarget;
 
                                     if (btn.dataset.confirming === "true") {
-                                        btn.innerHTML = "Удаление...";
+                                        btn.innerHTML = "Deleting...";
                                         btn.disabled = true;
 
                                         try {
@@ -1205,14 +1206,14 @@ ${studentsContext}
 
                                             window.location.reload();
                                         } catch (err) {
-                                            alert("Ошибка: " + JSON.stringify(err));
+                                            alert("Error: " + JSON.stringify(err));
                                             btn.disabled = false;
-                                            btn.innerText = "Ошибка";
+                                            btn.innerText = "Error";
                                         }
                                     } else {
                                         btn.dataset.confirming = "true";
                                         const originalContent = btn.innerHTML;
-                                        btn.innerHTML = `<span class="font-bold text-xs uppercase">Подтвердить?</span>`;
+                                        btn.innerHTML = `<span class="font-bold text-xs uppercase">Confirm?</span>`;
                                         btn.className = "flex items-center gap-2 px-4 py-2 rounded-full border transition-all bg-red-600 border-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.5)]";
 
                                         setTimeout(() => {
@@ -1225,7 +1226,7 @@ ${studentsContext}
                                     }
                                 }}
                                 className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400"
-                                title="Удалить класс"
+                                title="Delete class"
                             >
                                 <Trash2 className="w-5 h-5" />
                             </button>
@@ -1234,10 +1235,10 @@ ${studentsContext}
                         <button
                             onClick={exportToCSV}
                             className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-colors`}
-                            title="Скачать отчет"
+                            title="Download report"
                         >
                             <FileText className="w-4 h-4" />
-                            <span>Экспорт CSV</span>
+                            <span>Export CSV</span>
                         </button>
 
                         <button
@@ -1245,24 +1246,24 @@ ${studentsContext}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-colors ${isAnonymous ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
                             {isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            <span className="text-sm font-bold">{isAnonymous ? 'Имена скрыты' : 'Имена открыты'}</span>
+                            <span className="text-sm font-bold">{isAnonymous ? 'Names hidden' : 'Names visible'}</span>
                         </button>
                         <button
                             onClick={() => setShowLogoutModal(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-full border bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
-                            title="Выйти из аккаунта"
+                            title="Sign out"
                         >
                             <LogOut className="w-4 h-4" />
-                            <span className="text-sm font-bold">Выйти</span>
+                            <span className="text-sm font-bold">Sign Out</span>
                         </button>
                         {selectedClass?.teacher_id !== currentTeacherId && (
                             <button
                                 onClick={leaveSelectedClass}
                                 className="flex items-center gap-2 px-4 py-2 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 transition-colors"
-                                title="Выйти из класса"
+                                title="Leave class"
                             >
                                 <LogOut className="w-4 h-4" />
-                                <span className="text-sm font-bold">Выйти из класса</span>
+                                <span className="text-sm font-bold">Leave Class</span>
                             </button>
                         )}
                     </div>
@@ -1273,19 +1274,19 @@ ${studentsContext}
                         onClick={() => setActiveTab('dashboard')}
                         className={`pb-3 px-2 font-bold transition-colors ${activeTab === 'dashboard' ? 'text-white border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
                     >
-                        Дашборд
+                        Dashboard
                     </button>
                     <button
                         onClick={() => setActiveTab('tasks')}
                         className={`pb-3 px-2 font-bold transition-colors ${activeTab === 'tasks' ? 'text-white border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
                     >
-                        Задания ({tasks.length})
+                        Assignments ({tasks.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('calendar')}
                         className={`pb-3 px-2 font-bold transition-colors ${activeTab === 'calendar' ? 'text-white border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300'}`}
                     >
-                        Календарь
+                        Calendar
                     </button>
                 </div>
 
@@ -1294,13 +1295,13 @@ ${studentsContext}
                 {activeTab === 'tasks' ? (
                     <div className="max-w-4xl">
                         <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 mb-8">
-                            <h3 className="text-xl font-bold mb-4">Новое задание</h3>
+                            <h3 className="text-xl font-bold mb-4">New Assignment</h3>
                             <form onSubmit={createTask} className="flex gap-4">
                                 <input
                                     type="text"
                                     value={newTaskTitle}
                                     onChange={(e) => setNewTaskTitle(e.target.value)}
-                                    placeholder="Например: Опишите свое настроение одним словом..."
+                                    placeholder="For example: Describe your mood in one word..."
                                     className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500"
                                 />
                                 <button
@@ -1308,7 +1309,7 @@ ${studentsContext}
                                     disabled={creatingTask}
                                     className="px-6 py-3 bg-white text-black rounded-xl font-bold hover:bg-slate-200 transition-colors disabled:opacity-50"
                                 >
-                                    Создать
+                                    Create
                                 </button>
                             </form>
                         </div>
@@ -1320,21 +1321,21 @@ ${studentsContext}
                                         <div>
                                             <h4 className="text-lg font-bold mb-1">{task.title}</h4>
                                             <span className="text-xs text-slate-500 bg-white/5 px-2 py-1 rounded">
-                                                {new Date(task.created_at).toLocaleDateString('ru-RU')}
+                                                {new Date(task.created_at).toLocaleDateString('en-US')}
                                             </span>
                                         </div>
                                         <button
                                             onClick={() => deleteTask(task.id)}
                                             className="text-red-400 hover:text-red-300 text-sm opacity-50 hover:opacity-100 transition-opacity"
                                         >
-                                            Удалить
+                                            Delete
                                         </button>
                                     </div>
 
                                     {/* Submissions List */}
                                     <div className="border-t border-white/5 pt-4">
                                         <h5 className="text-xs font-bold text-slate-500 uppercase mb-3">
-                                            Ответы ({task.student_tasks?.length || 0})
+                                            Responses ({task.student_tasks?.length || 0})
                                         </h5>
                                         <div className="space-y-3">
                                             {task.student_tasks && task.student_tasks.length > 0 ? (
@@ -1344,7 +1345,7 @@ ${studentsContext}
                                                         <div key={submission.id} className="bg-black/30 rounded-lg p-3 text-sm">
                                                             <div className="flex justify-between items-center mb-1">
                                                                 <span className="font-bold text-purple-300">
-                                                                    {student ? (isAnonymous ? student.anonName : student.realName) : 'Неизвестный'}
+                                                                    {student ? (isAnonymous ? student.anonName : student.realName) : 'Unknown'}
                                                                 </span>
                                                                 <span className="text-xs text-slate-600">
                                                                     {new Date(submission.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -1355,7 +1356,7 @@ ${studentsContext}
                                                     );
                                                 })
                                             ) : (
-                                                <p className="text-slate-600 italic text-sm">Пока нет ответов</p>
+                                                <p className="text-slate-600 italic text-sm">No responses yet</p>
                                             )}
                                         </div>
                                     </div>
@@ -1364,7 +1365,7 @@ ${studentsContext}
                             {tasks.length === 0 && (
                                 <div className="text-center py-12 text-slate-500 border border-dashed border-white/10 rounded-2xl">
                                     <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                                    <p>В этом классе пока нет заданий</p>
+                                    <p>There are no assignments in this class yet</p>
                                 </div>
                             )}
                         </div>
@@ -1373,10 +1374,10 @@ ${studentsContext}
                     <>
                         {/* STATS ROW */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                            <KpiCard title="Учеников" value={stats.totalStudents} status="neutral" />
-                            <KpiCard title="Среднее настроение" value={stats.avgMood} status={stats.avgMood > 3.5 ? 'green' : stats.avgMood < 2.5 ? 'red' : 'yellow'} />
-                            <KpiCard title="В зоне риска" value={stats.riskCount} status={stats.riskCount > 0 ? 'red' : 'green'} />
-                            <KpiCard title="Активных" value={stats.activeCount} status="neutral" />
+                            <KpiCard title="Students" value={stats.totalStudents} status="neutral" />
+                            <KpiCard title="Average Mood" value={stats.avgMood} status={stats.avgMood > 3.5 ? 'green' : stats.avgMood < 2.5 ? 'red' : 'yellow'} />
+                            <KpiCard title="At Risk" value={stats.riskCount} status={stats.riskCount > 0 ? 'red' : 'green'} />
+                            <KpiCard title="Active" value={stats.activeCount} status="neutral" />
                         </div>
 
                         {/* MAIN GRID */}
@@ -1386,7 +1387,7 @@ ${studentsContext}
                             <div className="col-span-12 lg:col-span-8">
                                 <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 min-h-[500px]">
                                     <div className="flex justify-between items-center mb-6">
-                                        <h3 className="font-bold text-lg">Успеваемость и Состояние</h3>
+                                        <h3 className="font-bold text-lg">Progress and Wellbeing</h3>
                                         <button
                                             onClick={runAIRiskAssessment}
                                             disabled={assessingRisk || students.length === 0}
@@ -1396,7 +1397,7 @@ ${studentsContext}
                                                 }`}
                                         >
                                             <BrainCircuit className={`w-4 h-4 ${assessingRisk ? 'animate-spin' : ''}`} />
-                                            {assessingRisk ? `Анализ ${assessingStudentId ? '...' : ''}` : 'AI Анализ риска'}
+                                            {assessingRisk ? `Analyzing ${assessingStudentId ? '...' : ''}` : 'AI Risk Review'}
                                         </button>
                                     </div>
 
@@ -1404,10 +1405,10 @@ ${studentsContext}
                                         <table className="w-full text-left border-collapse">
                                             <thead>
                                                 <tr className="text-slate-500 text-xs uppercase tracking-wider border-b border-white/10">
-                                                    <th className="pb-3 pl-2">Ученик</th>
+                                                    <th className="pb-3 pl-2">Student</th>
                                                     <th className="pb-3">Mood (Avg)</th>
-                                                    <th className="pb-3">Статус</th>
-                                                    <th className="pb-3 text-right pr-2">Посл. запись</th>
+                                                    <th className="pb-3">Status</th>
+                                                    <th className="pb-3 text-right pr-2">Last Entry</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="text-sm">
@@ -1449,7 +1450,7 @@ ${studentsContext}
                                                                     return (
                                                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-purple-500/10 text-purple-400 border-purple-500/20 animate-pulse">
                                                                             <BrainCircuit className="w-3 h-3 animate-spin" />
-                                                                            Анализ...
+                                                                            Analyzing...
                                                                         </span>
                                                                     );
                                                                 }
@@ -1462,10 +1463,10 @@ ${studentsContext}
                                                                         normal: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                                                     };
                                                                     const statusLabels = {
-                                                                        critical: 'Критично',
-                                                                        warning: 'Риск',
-                                                                        attention: 'Внимание',
-                                                                        normal: 'Норма'
+                                                                        critical: 'Critical',
+                                                                        warning: 'Risk',
+                                                                        attention: 'Attention',
+                                                                        normal: 'Normal'
                                                                     };
 
                                                                     return (
@@ -1494,7 +1495,7 @@ ${studentsContext}
                                                                         : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                                                         }`}>
                                                                         {s.isRisk ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                                                                        {s.isRisk ? 'Риск' : 'Норма'}
+                                                                        {s.isRisk ? 'Risk' : 'Normal'}
                                                                     </span>
                                                                 );
                                                             })()}
@@ -1519,13 +1520,13 @@ ${studentsContext}
                                                                             if (!result.success) {
                                                                                 btn.dataset.processing = "false";
                                                                                 btn.dataset.confirming = "false";
-                                                                                btn.innerHTML = "Ошибка";
+                                                                                btn.innerHTML = "Error";
                                                                                 console.error(result.error);
-                                                                                alert("Ошибка при удалении: " + (result.error.message || "Unknown error"));
+                                                                                alert("Delete failed: " + (result.error.message || "Unknown error"));
                                                                             }
                                                                         } else {
                                                                             btn.dataset.confirming = "true";
-                                                                            btn.innerHTML = `<span class="text-xs font-bold text-red-500">Удалить?</span>`;
+                                                                            btn.innerHTML = `<span class="text-xs font-bold text-red-500">Delete?</span>`;
 
                                                                             setTimeout(() => {
                                                                                 if (btn && btn.dataset.processing !== "true") {
@@ -1536,7 +1537,7 @@ ${studentsContext}
                                                                         }
                                                                     }}
                                                                     className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
-                                                                    title="Исключить из класса"
+                                                                    title="Remove from class"
                                                                 >
                                                                     <Trash2 className="w-4 h-4 pointer-events-none" />
                                                                 </button>
@@ -1556,7 +1557,7 @@ ${studentsContext}
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
                                             <Users className="w-5 h-5 text-cyan-400" />
-                                            <h3 className="font-bold text-lg">Психологи класса</h3>
+                                            <h3 className="font-bold text-lg">Class Counselors</h3>
                                         </div>
                                         <span className="text-xs text-slate-500">{classTeachers.length}</span>
                                     </div>
@@ -1567,7 +1568,7 @@ ${studentsContext}
                                                     <div className="font-medium text-white">{teacher.fullName}</div>
                                                     <div className="text-xs text-slate-500">{teacher.email}</div>
                                                     <div className="text-[11px] text-slate-400 mt-1">
-                                                        {teacher.id === selectedClass?.teacher_id ? 'Создатель класса' : 'Подключённый психолог'}
+                                                        {teacher.id === selectedClass?.teacher_id ? 'Class owner' : 'Connected counselor'}
                                                     </div>
                                                 </div>
                                                 {selectedClass?.teacher_id === currentTeacherId && teacher.id !== currentTeacherId && (
@@ -1575,11 +1576,11 @@ ${studentsContext}
                                                         onClick={async () => {
                                                             const result = await removeTeacherAccess(teacher.id);
                                                             if (!result.success) {
-                                                                alert("Ошибка: " + ((result.error as any)?.message || 'Не удалось удалить психолога'));
+                                                                alert("Error: " + ((result.error as any)?.message || 'Failed to remove counselor'));
                                                             }
                                                         }}
                                                         className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
-                                                        title="Удалить психолога"
+                                                        title="Remove counselor"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -1587,7 +1588,7 @@ ${studentsContext}
                                             </div>
                                         ))}
                                         {classTeachers.length === 0 && (
-                                            <div className="text-sm text-slate-500">В этом классе пока нет подключённых психологов.</div>
+                                            <div className="text-sm text-slate-500">There are no connected counselors in this class yet.</div>
                                         )}
                                     </div>
                                 </div>
@@ -1599,24 +1600,24 @@ ${studentsContext}
                                             <div className="p-2 bg-indigo-500/10 rounded-lg">
                                                 <BrainCircuit className="w-5 h-5 text-indigo-400" />
                                             </div>
-                                            <h3 className="font-bold text-indigo-100">AI Аналитик</h3>
+                                            <h3 className="font-bold text-indigo-100">AI Analyst</h3>
                                         </div>
                                         <button
                                             onClick={runAIAnalysis}
                                             disabled={analyzing}
                                             className="text-xs bg-indigo-500 hover:bg-indigo-400 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                                         >
-                                            {analyzing ? 'Думаю...' : 'Анализ'}
+                                            {analyzing ? 'Thinking...' : 'Analyze'}
                                         </button>
                                     </div>
                                     <p className="text-sm text-indigo-200 leading-relaxed mb-4 min-h-[60px]">
-                                        {insightText || "Нажмите 'Анализ', чтобы получить саммари состояния класса на основе последних данных."}
+                                        {insightText || "Click 'Analyze' to get a class summary based on the latest data."}
                                     </p>
                                 </div>
 
                                 {/* CHART CARD */}
                                 <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
-                                    <h3 className="font-bold text-lg mb-4">Динамика настроения</h3>
+                                    <h3 className="font-bold text-lg mb-4">Mood Trend</h3>
                                     <div className="h-48 text-xs">
                                         <ResponsiveContainer width="100%" height="100%">
                                             <AreaChart data={moodChartData}>
@@ -1646,12 +1647,12 @@ ${studentsContext}
                 ) : activeTab === 'calendar' ? (
                     <div>
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold">Расписание и оценки</h3>
+                            <h3 className="text-xl font-bold">Schedule and Assessments</h3>
                             <button
                                 onClick={() => setShowEventModal(true)}
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-colors"
                             >
-                                <Plus className="w-4 h-4" /> Добавить
+                                <Plus className="w-4 h-4" /> Add
                             </button>
                         </div>
 
@@ -1686,7 +1687,7 @@ ${studentsContext}
                             ))}
                             {events.length === 0 && (
                                 <div className="text-center py-12 text-slate-500 border border-dashed border-white/10 rounded-2xl">
-                                    <p>Нет запланированных событий</p>
+                                    <p>No scheduled events</p>
                                 </div>
                             )}
                         </div>
@@ -1695,20 +1696,20 @@ ${studentsContext}
                         {showEventModal && (
                             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                                 <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 max-w-sm w-full">
-                                    <h3 className="text-xl font-bold mb-4">Новое событие</h3>
+                                    <h3 className="text-xl font-bold mb-4">New Event</h3>
                                     <form onSubmit={createEvent} className="space-y-4">
                                         <div>
-                                            <label className="block text-xs text-slate-400 mb-1">Название</label>
+                                            <label className="block text-xs text-slate-400 mb-1">Title</label>
                                             <input
                                                 className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none"
                                                 value={newEventTitle}
                                                 onChange={e => setNewEventTitle(e.target.value)}
-                                                placeholder="СОР по Алгебре"
+                                                placeholder="Algebra Quiz"
                                                 required
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs text-slate-400 mb-1">Дата и время</label>
+                                            <label className="block text-xs text-slate-400 mb-1">Date and time</label>
                                             <input
                                                 type="datetime-local"
                                                 className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none scheme-dark text-slate-400"
@@ -1718,23 +1719,23 @@ ${studentsContext}
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs text-slate-400 mb-1">Тип</label>
+                                            <label className="block text-xs text-slate-400 mb-1">Type</label>
                                             <select
                                                 className="w-full bg-black border border-white/10 rounded-lg p-3 focus:border-purple-500 outline-none text-slate-300"
                                                 value={newEventType}
                                                 onChange={e => setNewEventType(e.target.value)}
                                             >
-                                                <option value="sor">СОР</option>
-                                                <option value="soch">СОЧ</option>
-                                                <option value="control_work">Контрольная</option>
-                                                <option value="homework">ДЗ</option>
-                                                <option value="other">Другое</option>
+                                                <option value="sor">Quiz</option>
+                                                <option value="soch">Summative</option>
+                                                <option value="control_work">Test</option>
+                                                <option value="homework">Homework</option>
+                                                <option value="other">Other</option>
                                             </select>
                                         </div>
                                         <div className="flex gap-3 pt-2">
-                                            <button type="button" onClick={() => setShowEventModal(false)} className="flex-1 py-3 bg-white/5 rounded-lg text-slate-400 hover:text-white">Отмена</button>
+                                            <button type="button" onClick={() => setShowEventModal(false)} className="flex-1 py-3 bg-white/5 rounded-lg text-slate-400 hover:text-white">Cancel</button>
                                             <button type="submit" disabled={creatingEvent} className="flex-1 py-3 bg-purple-600 rounded-lg hover:bg-purple-500 font-bold">
-                                                {creatingEvent ? '...' : 'Создать'}
+                                                {creatingEvent ? '...' : 'Create'}
                                             </button>
                                         </div>
                                     </form>
@@ -1744,13 +1745,20 @@ ${studentsContext}
                     </div>
                 ) : null}
 
-                {/* AI Assistant */}
-
-
+                {/* Floating teacher assistant */}
+                {selectedClass && (
+                    <TeacherMentorChat
+                        teacherName={
+                            classTeachers.find((teacher) => teacher.id === currentTeacherId)?.fullName ||
+                            'Psychologist'
+                        }
+                        classStats={stats}
+                        events={events}
+                        studentsData={students}
+                    />
+                )}
 
             </main>
-
-            {/* AI Assistant - Removed TeacherMentorChat component */}
 
             {/* Logout Confirmation Modal */}
             {showLogoutModal && (
@@ -1764,21 +1772,21 @@ ${studentsContext}
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
                                 <LogOut className="w-8 h-8 text-red-400" />
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Выйти из аккаунта?</h3>
-                            <p className="text-slate-400 text-sm mb-6">Вы уверены, что хотите выйти из своего аккаунта?</p>
+                            <h3 className="text-xl font-bold text-white mb-2">Sign Out?</h3>
+                            <p className="text-slate-400 text-sm mb-6">Are you sure you want to sign out of your account?</p>
 
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => setShowLogoutModal(false)}
                                     className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 font-medium hover:bg-white/10 transition-colors"
                                 >
-                                    Отмена
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleLogout}
                                     className="flex-1 px-4 py-3 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
                                 >
-                                    Выйти
+                                    Sign Out
                                 </button>
                             </div>
                         </div>

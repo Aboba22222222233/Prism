@@ -14,9 +14,11 @@
       "backgroundColor": "#14120B"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "app.prism.mobile"
     },
     "android": {
+      "package": "app.prism.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#14120B"
@@ -29,6 +31,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
       "expo-secure-store"
     ]
   }

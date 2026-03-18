@@ -59,17 +59,17 @@ export default function StudentClassesScreen() {
     const joinClass = async () => {
         setJoinError(null);
         try {
-            if (!user) throw new Error('Не авторизован');
+            if (!user) throw new Error('Not authenticated');
 
             const { data: joinedClassId, error: joinRpcError } = await supabase
                 .rpc('join_class_by_code', { input_code: classCode.trim().toUpperCase() });
 
             if (joinRpcError || !joinedClassId) {
-                throw new Error('Класс с таким кодом не найден');
+                throw new Error('No class was found with that code');
             }
 
             if (classes.find(c => c.id === joinedClassId)) {
-                Alert.alert('Внимание', 'Вы уже состоите в этом классе');
+                Alert.alert('Notice', 'You are already enrolled in this class');
                 setShowJoin(false);
                 return;
             }
@@ -80,9 +80,9 @@ export default function StudentClassesScreen() {
                 .eq('id', joinedClassId)
                 .single();
 
-            if (classError || !foundClass) throw new Error('Не удалось получить данные класса');
+            if (classError || !foundClass) throw new Error('Failed to load class details');
 
-            Alert.alert('Готово', `Вы присоединились к классу "${foundClass.name}"!`);
+            Alert.alert('Done', `You joined "${foundClass.name}" successfully.`);
             setClasses(prev => [...prev, foundClass]);
             setShowJoin(false);
             setClassCode('');
@@ -92,16 +92,16 @@ export default function StudentClassesScreen() {
     };
 
     const leaveClass = (classId: string, className: string) => {
-        Alert.alert('Покинуть курс?', `Вы выйдете из "${className}".`, [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Leave class?', `You will leave "${className}".`, [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Покинуть', style: 'destructive', onPress: async () => {
+                text: 'Leave', style: 'destructive', onPress: async () => {
                     try {
                         await supabase.from('class_enrollments')
                             .delete().eq('user_id', user!.id).eq('class_id', classId);
                         setClasses(prev => prev.filter(c => c.id !== classId));
                     } catch (err) {
-                        Alert.alert('Ошибка', 'Не удалось покинуть курс');
+                        Alert.alert('Error', 'Failed to leave the class');
                     }
                 },
             },
@@ -120,12 +120,12 @@ export default function StudentClassesScreen() {
 
     return (
         <ScreenWrapper>
-            {/* Заголовок */}
+            {/* Header */}
             <View style={styles.header}>
                 <View>
-                    <Text style={[styles.greeting, { color: colors.subtext }]}>Привет,</Text>
+                    <Text style={[styles.greeting, { color: colors.subtext }]}>Hello,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {profile?.full_name || 'Ученик'} 👋
+                        {profile?.full_name || 'Student'} 👋
                     </Text>
                 </View>
                 <TouchableOpacity
@@ -136,16 +136,16 @@ export default function StudentClassesScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Список классов */}
+            {/* Class list */}
             {classes.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <BookOpen size={48} color={colors.subtext} />
-                    <Text style={[styles.emptyTitle, { color: colors.text }]}>Здесь пока пусто</Text>
+                    <Text style={[styles.emptyTitle, { color: colors.text }]}>Nothing here yet</Text>
                     <Text style={[styles.emptySubtitle, { color: colors.subtext }]}>
-                        Присоединитесь к классу,{'\n'}чтобы начать обучение.
+                        Join a class{'\n'}to get started.
                     </Text>
                     <Button
-                        title="Присоединиться к курсу"
+                        title="Join a class"
                         variant="accent"
                         onPress={() => setShowJoin(true)}
                         style={{ marginTop: 24 }}
@@ -171,7 +171,7 @@ export default function StudentClassesScreen() {
                                     </View>
                                     <View style={{ flex: 1 }}>
                                         <Text style={[styles.className, { color: colors.text }]}>{item.name}</Text>
-                                        <Text style={[styles.classCode, { color: colors.subtext }]}>Код: {item.code}</Text>
+                                        <Text style={[styles.classCode, { color: colors.subtext }]}>Code: {item.code}</Text>
                                     </View>
                                     <ChevronRight size={18} color={colors.subtext} />
                                 </View>
@@ -180,7 +180,7 @@ export default function StudentClassesScreen() {
                                     style={styles.leaveBtn}
                                 >
                                     <LogOut size={12} color={colors.subtext} />
-                                    <Text style={[styles.leaveText, { color: colors.subtext }]}>Покинуть</Text>
+                                    <Text style={[styles.leaveText, { color: colors.subtext }]}>Leave</Text>
                                 </TouchableOpacity>
                             </Card>
                         </TouchableOpacity>
@@ -188,16 +188,16 @@ export default function StudentClassesScreen() {
                 />
             )}
 
-            {/* Модалка "Присоединиться" */}
+            {/* Join modal */}
             <Modal visible={showJoin} transparent animationType="fade">
                 <View style={[styles.modalOverlay, { backgroundColor: colors.overlay }]}>
                     <Card style={styles.modalCard}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>Присоединиться к курсу</Text>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>Join a Class</Text>
                         <Text style={[styles.modalDesc, { color: colors.subtext }]}>
-                            Попросите код курса у психолога.
+                            Ask your counselor for the class code.
                         </Text>
                         <Input
-                            placeholder="Код курса"
+                            placeholder="Class code"
                             value={classCode}
                             onChangeText={setClassCode}
                             autoCapitalize="characters"
@@ -206,13 +206,13 @@ export default function StudentClassesScreen() {
                         />
                         <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
                             <Button
-                                title="Отмена"
+                                title="Cancel"
                                 variant="secondary"
                                 onPress={() => { setShowJoin(false); setJoinError(null); }}
                                 style={{ flex: 1 }}
                             />
                             <Button
-                                title="Войти"
+                                title="Join"
                                 variant="accent"
                                 onPress={joinClass}
                                 style={{ flex: 1 }}

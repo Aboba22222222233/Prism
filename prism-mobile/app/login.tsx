@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -12,9 +12,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { makeRedirectUri } from 'expo-auth-session';
 import { supabase } from '../src/lib/supabase';
+import { completeMobileOAuthSession } from '../src/lib/oauth';
 import { useTheme } from '../src/context/ThemeContext';
+import { useAuth } from '../src/context/AuthContext';
 import { ScreenWrapper } from '../src/components/ui/ScreenWrapper';
 import { Button } from '../src/components/ui/Button';
 import { Input } from '../src/components/ui/Input';
@@ -24,6 +27,8 @@ import { Lock, Mail, ChevronRight, AlertCircle } from 'lucide-react-native';
 export default function LoginScreen() {
     const { colors, mode } = useTheme();
     const router = useRouter();
+    const { session, profile, loading: authLoading } = useAuth();
+    const handledAuthUrlRef = useRef<string | null>(null);
 
     const [isTeacher, setIsTeacher] = useState(false);
     const [teacherVerified, setTeacherVerified] = useState(false);
@@ -36,6 +41,67 @@ export default function LoginScreen() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const redirectAuthenticatedUser = useCallback(() => {
+        if (!profile) return;
+
+        if (profile.role === 'teacher') {
+            router.replace('/(teacher)/classes');
+        } else {
+            router.replace('/(student)/classes');
+        }
+    }, [profile, router]);
+
+    const completeOAuthSignIn = useCallback(async (callbackUrl: string) => {
+        if (!callbackUrl || handledAuthUrlRef.current === callbackUrl) {
+            return;
+        }
+
+        const containsAuthPayload =
+            callbackUrl.includes('access_token=') ||
+            callbackUrl.includes('refresh_token=') ||
+            callbackUrl.includes('error=');
+
+        if (!containsAuthPayload) {
+            return;
+        }
+
+        handledAuthUrlRef.current = callbackUrl;
+        setLoading(true);
+        setError(null);
+
+        try {
+            await completeMobileOAuthSession(callbackUrl);
+            router.replace('/');
+        } catch (err: any) {
+            handledAuthUrlRef.current = null;
+            setError(err.message || 'Google sign-in failed');
+        } finally {
+            setLoading(false);
+        }
+    }, [router]);
+
+    useEffect(() => {
+        if (authLoading) return;
+
+        if (session && profile) {
+            redirectAuthenticatedUser();
+        }
+    }, [authLoading, session, profile, redirectAuthenticatedUser]);
+
+    useEffect(() => {
+        Linking.getInitialURL().then((initialUrl) => {
+            if (initialUrl) {
+                completeOAuthSignIn(initialUrl);
+            }
+        });
+
+        const subscription = Linking.addEventListener('url', ({ url }) => {
+            completeOAuthSignIn(url);
+        });
+
+        return () => subscription.remove();
+    }, [completeOAuthSignIn]);
 
     const handleRoleChange = (role: boolean) => {
         setIsTeacher(role);
@@ -53,15 +119,15 @@ export default function LoginScreen() {
             });
 
             if (rpcError) {
-                setError('Ошибка проверки кода: ' + rpcError.message);
+                setError('Failed to verify access code: ' + rpcError.message);
             } else if (data === true) {
                 setTeacherVerified(true);
                 setError(null);
             } else {
-                setError('Неверный код доступа психолога');
+                setError('Invalid counselor access code');
             }
         } catch {
-            setError('Ошибка проверки кода');
+            setError('Failed to verify access code');
         } finally {
             setLoading(false);
         }
@@ -95,7 +161,7 @@ export default function LoginScreen() {
                 }
             }
         } catch (err: any) {
-            setError(err.message || 'Ошибка входа');
+            setError(err.message || 'Sign-in failed');
         } finally {
             setLoading(false);
         }
@@ -105,8 +171,8 @@ export default function LoginScreen() {
         setLoading(true);
         setError(null);
         try {
-            if (!email || !password) throw new Error('Заполните все поля');
-            if (password.length < 6) throw new Error('Пароль должен быть не менее 6 символов');
+            if (!email || !password) throw new Error('Please fill in all fields');
+            if (password.length < 6) throw new Error('Password must be at least 6 characters long');
 
 
 
@@ -133,7 +199,7 @@ export default function LoginScreen() {
                 }
             }
         } catch (err: any) {
-            setError(err.message || 'Ошибка регистрации');
+            setError(err.message || 'Sign-up failed');
         } finally {
             setLoading(false);
         }
@@ -143,6 +209,10 @@ export default function LoginScreen() {
         try {
             setLoading(true);
             const siteCallbackUrl = 'https://prism-psi-seven.vercel.app/auth/mobile-callback';
+            const returnUrl = makeRedirectUri({
+                scheme: 'prism-mobile',
+                path: 'google-auth',
+            });
 
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -153,41 +223,26 @@ export default function LoginScreen() {
             });
 
             if (oauthError) throw oauthError;
-            if (!data?.url) throw new Error('Не удалось получить URL авторизации');
+            if (!data?.url) throw new Error('Failed to get the authorization URL');
 
             const result = await WebBrowser.openAuthSessionAsync(
                 data.url,
-                'prism-mobile://',
+                returnUrl,
             );
 
-
-
             if (result.type === 'success' && (result as any).url) {
-                const resultUrl = (result as any).url;
-
-                const url = new URL(resultUrl);
-                const params = new URLSearchParams(url.hash.substring(1));
-                const accessToken = params.get('access_token');
-                const refreshToken = params.get('refresh_token');
-
-                if (accessToken && refreshToken) {
-                    const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession({
-                        refresh_token: refreshToken,
-                    });
-                    if (sessionError) throw sessionError;
-                    router.replace('/');
-                } else {
-                    setError('Не удалось получить токены авторизации');
-                }
+                await completeOAuthSignIn((result as any).url);
+            } else if (result.type !== 'cancel') {
+                setError('Google sign-in was interrupted');
             }
         } catch (err: any) {
-            setError(err.message || 'Ошибка входа через Google');
+            setError(err.message || 'Google sign-in failed');
         } finally {
             setLoading(false);
         }
     };
 
-    // --- ЭКРАН ПОДТВЕРЖДЕНИЯ EMAIL ---
+    // --- EMAIL VERIFICATION SCREEN ---
     if (verificationSent) {
         return (
             <ScreenWrapper>
@@ -196,12 +251,12 @@ export default function LoginScreen() {
                         <View style={[styles.iconCircle, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
                             <Mail size={28} color="rgb(34,197,94)" />
                         </View>
-                        <Text style={[styles.title, { color: colors.text }]}>Подтвердите Email</Text>
+                        <Text style={[styles.title, { color: colors.text }]}>Verify Your Email</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
-                            Ссылка для подтверждения отправлена на {email}. Проверьте почту.
+                            A verification link has been sent to {email}. Please check your inbox.
                         </Text>
                         <Button
-                            title="Вернуться ко входу"
+                            title="Back to Sign In"
                             onPress={() => { setVerificationSent(false); setAuthMode('login'); }}
                             style={{ marginTop: 24, width: '100%' }}
                         />
@@ -211,7 +266,7 @@ export default function LoginScreen() {
         );
     }
 
-    // --- ЭКРАН КОДА ПСИХОЛОГА ---
+    // --- COUNSELOR ACCESS CODE SCREEN ---
     if (isTeacher && !teacherVerified) {
         return (
             <ScreenWrapper>
@@ -223,15 +278,15 @@ export default function LoginScreen() {
                         <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.15)' }]}>
                             <Lock size={24} color="rgb(245,158,11)" />
                         </View>
-                        <Text style={[styles.title, { color: colors.text }]}>Доступ ограничен</Text>
+                        <Text style={[styles.title, { color: colors.text }]}>Restricted Access</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
-                            Введите корпоративный код доступа для входа в панель психолога.
+                            Enter your organization access code to open the counselor panel.
                         </Text>
 
                         <Input
                             value={secretCode}
                             onChangeText={setSecretCode}
-                            placeholder="КОД"
+                            placeholder="CODE"
                             secureTextEntry
                             autoFocus
                             style={{ textAlign: 'center', letterSpacing: 6, fontSize: 18, marginTop: 20, width: '100%' }}
@@ -245,7 +300,7 @@ export default function LoginScreen() {
                         )}
 
                         <Button
-                            title="Подтвердить"
+                            title="Confirm"
                             variant="accent"
                             onPress={verifyTeacherCode}
                             loading={loading}
@@ -253,7 +308,7 @@ export default function LoginScreen() {
                         />
 
                         <TouchableOpacity onPress={() => handleRoleChange(false)} style={{ marginTop: 16 }}>
-                            <Text style={{ color: colors.subtext, fontSize: 14 }}>Войти как ученик</Text>
+                            <Text style={{ color: colors.subtext, fontSize: 14 }}>Continue as Student</Text>
                         </TouchableOpacity>
                     </Card>
                 </KeyboardAvoidingView>
@@ -261,7 +316,7 @@ export default function LoginScreen() {
         );
     }
 
-    // --- ГЛАВНЫЙ ЭКРАН ЛОГИНА ---
+    // --- MAIN LOGIN SCREEN ---
     return (
         <ScreenWrapper>
             <KeyboardAvoidingView
@@ -273,7 +328,7 @@ export default function LoginScreen() {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* Лого */}
+                    {/* Logo */}
                     <View style={styles.logoSection}>
                         <Image
                             source={require('../assets/logo.png')}
@@ -283,7 +338,7 @@ export default function LoginScreen() {
                         <Text style={[styles.appName, { color: colors.text }]}>Prism</Text>
                     </View>
 
-                    {/* Переключатель ролей */}
+                    {/* Role toggle */}
                     <View style={[styles.roleToggle, { backgroundColor: colors.surface }]}>
                         <TouchableOpacity
                             onPress={() => handleRoleChange(true)}
@@ -296,7 +351,7 @@ export default function LoginScreen() {
                                 styles.roleText,
                                 { color: isTeacher ? colors.background : colors.subtext },
                             ]}>
-                                Психолог
+                                Counselor
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -310,31 +365,31 @@ export default function LoginScreen() {
                                 styles.roleText,
                                 { color: !isTeacher ? colors.background : colors.subtext },
                             ]}>
-                                Ученик
+                                Student
                             </Text>
                         </TouchableOpacity>
                     </View>
 
-                    {/* Форма */}
+                    {/* Form */}
                     <Card>
                         <Text style={[styles.title, { color: colors.text }]}>
-                            {authMode === 'login' ? 'С возвращением!' : 'Создать аккаунт'}
+                            {authMode === 'login' ? 'Welcome Back' : 'Create an Account'}
                         </Text>
                         <Text style={[styles.subtitle, { color: colors.subtext }]}>
-                            {isTeacher ? 'Вход в панель психолога' : 'Вход в личный кабинет ученика'}
+                            {isTeacher ? 'Sign in to the counselor panel' : 'Sign in to the student account'}
                         </Text>
 
-                        {/* Google кнопка (только для учеников) */}
+                        {/* Google button (students only) */}
                         {!isTeacher && (
                             <View style={{ marginTop: 20 }}>
                                 <Button
-                                    title="Войти через Google"
+                                    title="Continue with Google"
                                     variant="secondary"
                                     onPress={handleGoogleLogin}
                                 />
                                 <View style={styles.divider}>
                                     <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-                                    <Text style={[styles.dividerText, { color: colors.subtext }]}>ИЛИ</Text>
+                                    <Text style={[styles.dividerText, { color: colors.subtext }]}>OR</Text>
                                     <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
                                 </View>
                             </View>
@@ -350,7 +405,7 @@ export default function LoginScreen() {
                                 autoCapitalize="none"
                             />
                             <Input
-                                label="Пароль"
+                                label="Password"
                                 value={password}
                                 onChangeText={setPassword}
                                 placeholder="••••••••"
@@ -366,7 +421,7 @@ export default function LoginScreen() {
                         )}
 
                         <Button
-                            title={loading ? 'Загрузка...' : (authMode === 'login' ? 'Войти' : 'Создать аккаунт')}
+                            title={loading ? 'Loading...' : (authMode === 'login' ? 'Sign In' : 'Create Account')}
                             onPress={authMode === 'login' ? handleLogin : handleRegister}
                             loading={loading}
                             style={{ marginTop: 20 }}
@@ -378,7 +433,7 @@ export default function LoginScreen() {
                             style={{ marginTop: 16, alignItems: 'center' }}
                         >
                             <Text style={{ color: colors.subtext, fontSize: 14 }}>
-                                {authMode === 'login' ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+                                {authMode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
                             </Text>
                         </TouchableOpacity>
                     </Card>

@@ -32,16 +32,16 @@ export default function StudentSettingsScreen() {
 
     const handleLogout = async () => {
         if (Platform.OS === 'web') {
-            const confirmed = window.confirm('Вы уверены, что хотите выйти?');
+            const confirmed = window.confirm('Are you sure you want to sign out?');
             if (confirmed) {
                 await signOut();
                 router.replace('/login');
             }
         } else {
-            Alert.alert('Выход', 'Вы уверены?', [
-                { text: 'Отмена', style: 'cancel' },
+            Alert.alert('Sign Out', 'Are you sure?', [
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Выйти', style: 'destructive', onPress: async () => {
+                    text: 'Sign Out', style: 'destructive', onPress: async () => {
                         await signOut();
                         router.replace('/login');
                     },
@@ -64,9 +64,9 @@ export default function StudentSettingsScreen() {
 
             if (error) throw error;
             await refreshProfile();
-            Alert.alert('Готово', 'Профиль обновлён ✓');
+            Alert.alert('Done', 'Profile updated ✓');
         } catch (e: any) {
-            Alert.alert('Ошибка', e.message);
+            Alert.alert('Error', e.message);
         } finally {
             setSaving(false);
         }
@@ -75,31 +75,31 @@ export default function StudentSettingsScreen() {
     return (
         <ScreenWrapper>
             <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-                <Text style={[styles.title, { color: colors.text }]}>Настройки</Text>
+                <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
 
-                {/* Профиль */}
+                {/* Profile */}
                 <Card style={{ marginBottom: 16 }}>
-                    <Text style={[styles.sectionTitle, { color: colors.text }]}>Профиль</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.text }]}>Profile</Text>
 
-                    {/* Профиль иконка */}
+                    {/* Profile icon */}
                     <View style={styles.avatarSection}>
                         <View style={[styles.avatarCircle, { backgroundColor: colors.accent + '20' }]}>
                             <User size={32} color={colors.accent} />
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.fieldLabel, { color: colors.subtext }]}>Профиль</Text>
+                            <Text style={[styles.fieldLabel, { color: colors.subtext }]}>Profile</Text>
                             <Text style={[styles.fieldHint, { color: colors.subtext }]}>
                                 {profile?.email}
                             </Text>
                         </View>
                     </View>
 
-                    {/* Имя */}
-                    <Text style={[styles.fieldLabel, { color: colors.subtext, marginTop: 20 }]}>Имя</Text>
+                    {/* Name */}
+                    <Text style={[styles.fieldLabel, { color: colors.subtext, marginTop: 20 }]}>Name</Text>
                     <TextInput
                         value={editName}
                         onChangeText={setEditName}
-                        placeholder="Ваше имя"
+                        placeholder="Your name"
                         placeholderTextColor={colors.subtext + '80'}
                         style={[styles.input, {
                             color: colors.text,
@@ -108,12 +108,12 @@ export default function StudentSettingsScreen() {
                         }]}
                     />
 
-                    {/* О себе */}
-                    <Text style={[styles.fieldLabel, { color: colors.subtext, marginTop: 20 }]}>О себе</Text>
+                    {/* About you */}
+                    <Text style={[styles.fieldLabel, { color: colors.subtext, marginTop: 20 }]}>About you</Text>
                     <TextInput
                         value={editBio}
                         onChangeText={setEditBio}
-                        placeholder="Расскажите немного о себе..."
+                        placeholder="Tell us a little about yourself..."
                         placeholderTextColor={colors.subtext + '80'}
                         multiline
                         style={[styles.input, styles.bioInput, {
@@ -135,7 +135,7 @@ export default function StudentSettingsScreen() {
                         </Text>
                     </View>
 
-                    {/* Сохранить */}
+                    {/* Save */}
                     <TouchableOpacity
                         onPress={saveProfile}
                         disabled={saving}
@@ -144,22 +144,22 @@ export default function StudentSettingsScreen() {
                         {saving ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.saveBtnText}>Сохранить изменения</Text>
+                            <Text style={styles.saveBtnText}>Save Changes</Text>
                         )}
                     </TouchableOpacity>
                 </Card>
 
-                {/* Тема */}
+                {/* Theme */}
                 <Card style={{ marginBottom: 16 }}>
                     <View style={styles.settingRow}>
                         <View style={{ flex: 1 }}>
-                            <Text style={[styles.settingTitle, { color: colors.text }]}>Тема</Text>
+                            <Text style={[styles.settingTitle, { color: colors.text }]}>Theme</Text>
                             <Text style={[styles.settingDesc, { color: colors.subtext }]}>
-                                {mode === 'dark' ? 'Тёмная тема' : 'Светлая тема'}
+                                {mode === 'dark' ? 'Dark theme' : 'Light theme'}
                             </Text>
                         </View>
                         <Button
-                            title={mode === 'dark' ? '☀️ Светлая' : '🌙 Тёмная'}
+                            title={mode === 'dark' ? '☀️ Light' : '🌙 Dark'}
                             variant="secondary"
                             onPress={toggleTheme}
                             style={{ paddingVertical: 10, paddingHorizontal: 16 }}
@@ -168,9 +168,9 @@ export default function StudentSettingsScreen() {
                     </View>
                 </Card>
 
-                {/* Выход */}
+                {/* Sign out */}
                 <Button
-                    title="Выйти из аккаунта"
+                    title="Sign Out"
                     variant="danger"
                     onPress={handleLogout}
                     icon={<LogOut size={16} color="#ef4444" />}

@@ -57,7 +57,7 @@ export default function AssignmentsScreen() {
     return (
         <ScreenWrapper>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: colors.text }]}>Все задания</Text>
+                <Text style={[styles.title, { color: colors.text }]}>All Assignments</Text>
             </View>
 
             <FlatList
@@ -67,7 +67,7 @@ export default function AssignmentsScreen() {
                 ListEmptyComponent={
                     <View style={styles.centered}>
                         <FileText size={48} color={colors.subtext} />
-                        <Text style={{ color: colors.subtext, marginTop: 16 }}>Нет активных заданий</Text>
+                        <Text style={{ color: colors.subtext, marginTop: 16 }}>No active assignments</Text>
                     </View>
                 }
                 renderItem={({ item }) => (

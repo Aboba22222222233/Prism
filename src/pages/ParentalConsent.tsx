@@ -17,8 +17,8 @@ const ParentalConsent = () => {
                         <ArrowLeft className="w-5 h-5 text-slate-600" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900">Родительское согласие</h1>
-                        <p className="text-sm text-slate-500">Платформа Prism</p>
+                        <h1 className="text-2xl font-bold text-slate-900">Parental Consent</h1>
+                        <p className="text-sm text-slate-500">Prism Platform</p>
                     </div>
                 </div>
             </div>
@@ -31,21 +31,21 @@ const ParentalConsent = () => {
 
                     <div className="space-y-8">
                         <div className="border-b border-slate-200 pb-8">
-                            <h3 className="text-lg font-semibold mb-4">Вариант 1: Если регистрируется родитель (для ребенка)</h3>
+                            <h3 className="text-lg font-semibold mb-4">Option 1: If a parent is registering on behalf of a child</h3>
                             <div className="flex items-start gap-3">
                                 <div className="w-5 h-5 border-2 border-slate-400 rounded mt-0.5 flex-shrink-0"></div>
                                 <p className="text-slate-700">
-                                    Я подтверждаю, что являюсь законным представителем (родителем/опекуном) ребенка и даю полное согласие на сбор и обработку его данных в рамках платформы Prism. Я ознакомлен и принимаю Условия использования, Политику конфиденциальности и Этический регламент.
+                                    I confirm that I am the child’s legal representative (parent or guardian) and give full consent to the collection and processing of the child’s data within the Prism platform. I have reviewed and accept the Terms of Use, Privacy Policy, and Ethical Guidelines.
                                 </p>
                             </div>
                         </div>
 
                         <div>
-                            <h3 className="text-lg font-semibold mb-4">Вариант 2: Если регистрируется ученик (самый частый случай)</h3>
+                            <h3 className="text-lg font-semibold mb-4">Option 2: If a student is registering directly</h3>
                             <div className="flex items-start gap-3">
                                 <div className="w-5 h-5 border-2 border-slate-400 rounded mt-0.5 flex-shrink-0"></div>
                                 <p className="text-slate-700">
-                                    Я подтверждаю, что получил разрешение от своих родителей (законных представителей) на использование платформы Prism. Я принимаю Условия использования и понимаю, что мои данные защищены принципом анонимности.
+                                    I confirm that I have received permission from my parents or legal guardians to use the Prism platform. I accept the Terms of Use and understand that my data is protected by the platform’s anonymity principles.
                                 </p>
                             </div>
                         </div>
@@ -57,7 +57,7 @@ const ParentalConsent = () => {
             {/* Footer */}
             <div className="bg-white border-t border-slate-200 py-8">
                 <div className="max-w-4xl mx-auto px-8 text-center text-slate-400 text-sm">
-                    © 2026 Prism. Все права защищены.
+                    © 2026 Prism. All rights reserved.
                 </div>
             </div>
         </div>

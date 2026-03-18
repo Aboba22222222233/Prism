@@ -27,7 +27,7 @@ export default function TeacherLayout() {
             <Tabs.Screen
                 name="classes"
                 options={{
-                    title: 'Главная',
+                    title: 'Home',
                     tabBarIcon: ({ color }) => <Home color={color} size={24} />,
                 }}
             />
@@ -41,7 +41,7 @@ export default function TeacherLayout() {
             <Tabs.Screen
                 name="assignments"
                 options={{
-                    title: 'Задания',
+                    title: 'Assignments',
                     href: null, // Hidden from tab bar
                 }}
             />
@@ -67,7 +67,7 @@ export default function TeacherLayout() {
             <Tabs.Screen
                 name="settings"
                 options={{
-                    title: 'Профиль',
+                    title: 'Profile',
                     tabBarIcon: ({ color }) => <User color={color} size={24} />,
                 }}
             />

@@ -77,7 +77,7 @@ export default function ClassDetailScreen() {
 
             setClassTeachers((teacherMemberships || []).map((teacher: any) => ({
                 id: teacher.profiles.id,
-                fullName: teacher.profiles.full_name || teacher.profiles.email?.split('@')[0] || 'Психолог',
+                fullName: teacher.profiles.full_name || teacher.profiles.email?.split('@')[0] || 'Counselor',
                 email: teacher.profiles.email,
                 isOwner: ownerId === teacher.profiles.id,
             })));
@@ -112,16 +112,16 @@ export default function ClassDetailScreen() {
                 const riskStatus = riskEntry ? riskEntry.status : 'normal';
 
                 let statusColor = 'rgb(34,197,94)'; // Green (normal)
-                let statusText = 'Норма';
+                let statusText = 'Normal';
 
-                if (riskStatus === 'critical') { statusColor = 'rgb(239,68,68)'; statusText = 'Крит.'; }
-                else if (riskStatus === 'warning') { statusColor = '#F97316'; statusText = 'Риск'; }
-                else if (riskStatus === 'attention') { statusColor = '#EAB308'; statusText = 'Внимание'; }
+                if (riskStatus === 'critical') { statusColor = 'rgb(239,68,68)'; statusText = 'Critical'; }
+                else if (riskStatus === 'warning') { statusColor = '#F97316'; statusText = 'Risk'; }
+                else if (riskStatus === 'attention') { statusColor = '#EAB308'; statusText = 'Attention'; }
 
                 return {
                     id: e.profiles.id,
                     realName: e.profiles.full_name || e.profiles.email?.split('@')[0],
-                    anonName: `Ученик ${i + 1}`,
+                    anonName: `Student ${i + 1}`,
                     avgMood: avg,
                     riskLevel,
                     statusColor,
@@ -178,15 +178,15 @@ export default function ClassDetailScreen() {
         if (analyzing) return;
 
         Alert.alert(
-            'Массовый анализ',
-            'Запустить ИИ-анализ всех учеников в этой группе? Это может занять некоторое время и обновит статусы рисков у всех.',
+            'Bulk Analysis',
+            'Run the AI analysis for all students in this group? This may take some time and will update every risk status.',
             [
-                { text: 'Отмена', style: 'cancel' },
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Начать',
+                    text: 'Start',
                     onPress: async () => {
                         setAnalyzing(true);
-                        setAnalysisProgress(`Начало...`);
+                        setAnalysisProgress(`Starting...`);
                         try {
                             let processed = 0;
                             for (const student of students) {
@@ -218,10 +218,10 @@ export default function ClassDetailScreen() {
                                 processed++;
                                 await new Promise(r => setTimeout(r, 500));
                             }
-                            Alert.alert('Готово', 'Анализ всех учеников завершен.');
+                            Alert.alert('Done', 'The analysis for all students is complete.');
                             fetchClassData();
                         } catch (e) {
-                            Alert.alert('Ошибка');
+                            Alert.alert('Error');
                         } finally {
                             setAnalyzing(false);
                             setAnalysisProgress('');
@@ -241,12 +241,12 @@ export default function ClassDetailScreen() {
         if (insightLoading) return;
 
         Alert.alert(
-            'Анализ состояния группы',
-            'Сформировать ИИ-отчет по состоянию всей группы? Это проанализирует последние чекины всех учеников.',
+            'Class Wellbeing Analysis',
+            'Generate an AI report for the whole class? This will analyze the latest check-ins for every student.',
             [
-                { text: 'Отмена', style: 'cancel' },
+                { text: 'Cancel', style: 'cancel' },
                 {
-                    text: 'Сформировать',
+                    text: 'Generate',
                     onPress: async () => {
                         setInsightLoading(true);
                         try {
@@ -262,9 +262,9 @@ export default function ClassDetailScreen() {
                                 };
                             });
 
-                            const prompt = `Проанализируй состояние класса. Данные: ${JSON.stringify(dataForAI)}. Дай ОЧЕНЬ КРАТКОЕ резюме в простом тексте. 
-ВАЖНО: НЕ используй Markdown, звездочки (**), таблицы, решетки (#) или любое форматирование. Пиши только простой текст (буквы, цифры, точки).
-Выдели только ключевые тренды и проблемы. Максимум 3-4 предложения.`;
+                            const prompt = `Analyze the class wellbeing. Data: ${JSON.stringify(dataForAI)}. Give a VERY SHORT summary in plain text. 
+IMPORTANT: Do NOT use Markdown, asterisks (**), tables, hashtags (#), or any other formatting. Use plain text only.
+Highlight only the key trends and issues. Maximum 3-4 sentences.`;
 
                             const response = await getChatResponse([{ role: 'user', content: prompt }]);
                             const insightTextContent = typeof response === 'string' ? response : (response.content || JSON.stringify(response));
@@ -283,7 +283,7 @@ export default function ClassDetailScreen() {
                             }
 
                         } catch (e) {
-                            setInsightText('Не удалось получить анализ. Проверьте соединение.');
+                            setInsightText('The analysis could not be loaded. Check your connection.');
                         } finally {
                             setInsightLoading(false);
                         }
@@ -309,24 +309,24 @@ export default function ClassDetailScreen() {
         try {
             const studentsContext = students.slice(0, 10).map((s, i) => {
                 const sCheckins = allCheckins.filter(c => c.user_id === s.id).slice(-20);
-                const checkinsInfo = sCheckins.map(c => `Настр: ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`).join('; ') || 'Нет записей';
-                return `${i + 1}. ${s.anonName} (Ср: ${s.avgMood}, Статус: ${s.statusText}): ${checkinsInfo}`;
+                const checkinsInfo = sCheckins.map(c => `Mood: ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`).join('; ') || 'No entries';
+                return `${i + 1}. ${s.anonName} (Avg: ${s.avgMood}, Status: ${s.statusText}): ${checkinsInfo}`;
             }).join('\n');
 
-            const context = `Ты — профессиональный ассистент для ШКОЛЬНОГО ПСИХОЛОГА (не ученика). Ты общаешься с психологом, который курирует группу/класс "${classInfo?.name}".
-Твои задачи:
-- Помогать в интерпретации психологических рисков
-- Обращаться к собеседнику на "Вы" как к коллеге-специалисту
-- НЕ путай психолога с учеником
-- Давать рекомендации по поддержке ментального здоровья на основе данных
-- Отвечай кратко, 2-4 предложения
-- Пиши простым текстом без Markdown
+            const context = `You are a professional assistant for a SCHOOL COUNSELOR, not a student. You are speaking with the counselor responsible for the group/class "${classInfo?.name}".
+Your tasks:
+- Help interpret psychological risks
+- Address the counselor as a professional colleague
+- Do not confuse the counselor with the student
+- Give recommendations for mental health support based on the data
+- Keep answers brief, 2-4 sentences
+- Use plain text without Markdown
 
-СТАТИСТИКА КЛАССА:
-Всего учеников: ${stats.total}, Среднее настроение: ${stats.avgMood}/5, В зоне риска: ${stats.riskCount}
+CLASS STATISTICS:
+Total students: ${stats.total}, Average mood: ${stats.avgMood}/5, At risk: ${stats.riskCount}
 
-ДАННЫЕ УЧЕНИКОВ:
-${studentsContext || 'Нет данных'}`;
+STUDENT DATA:
+${studentsContext || 'No data'}`;
 
 
             // Format for API: properly map roles
@@ -343,7 +343,7 @@ ${studentsContext || 'Нет данных'}`;
             setChatMessages(prev => [...prev, { role: 'model', content: typeof response === 'string' ? response : response.content }]);
         } catch (e) {
             console.error(e);
-            setChatMessages(prev => [...prev, { role: 'model', content: 'Ошибка сети. Попробуйте позже.' }]);
+            setChatMessages(prev => [...prev, { role: 'model', content: 'Network error. Please try again later.' }]);
         } finally {
             setChatLoading(false);
         }
@@ -352,14 +352,14 @@ ${studentsContext || 'Нет данных'}`;
     // ... delete functions ...
     const removeStudent = async (studentId: string) => {
         if (!isOwner) {
-            Alert.alert('Недоступно', 'Только создатель класса может удалять учеников.');
+            Alert.alert('Unavailable', 'Only the class owner can remove students.');
             return;
         }
 
-        Alert.alert('Удалить?', 'Ученик будет удалён.', [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Delete?', 'The student will be removed.', [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Удалить', style: 'destructive', onPress: async () => {
+                text: 'Delete', style: 'destructive', onPress: async () => {
                     await supabase.from('class_enrollments').delete().eq('user_id', studentId).eq('class_id', id);
                     fetchClassData();
                 },
@@ -369,14 +369,14 @@ ${studentsContext || 'Нет данных'}`;
 
     const leaveCurrentClass = () => {
         if (isOwner) {
-            Alert.alert('Недоступно', 'Создатель класса не может выйти из собственного класса.');
+            Alert.alert('Unavailable', 'The class owner cannot leave their own class.');
             return;
         }
 
-        Alert.alert('Выйти из класса?', 'Вы потеряете доступ к этому классу.', [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Leave class?', 'You will lose access to this class.', [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Выйти',
+                text: 'Leave',
                 style: 'destructive',
                 onPress: async () => {
                     try {
@@ -389,7 +389,7 @@ ${studentsContext || 'Нет данных'}`;
                         router.replace('/(teacher)/classes');
                     } catch (error: any) {
                         console.error(error);
-                        Alert.alert('Ошибка', error?.message || 'Не удалось выйти из класса.');
+                        Alert.alert('Error', error?.message || 'Failed to leave the class.');
                     }
                 }
             }
@@ -398,14 +398,14 @@ ${studentsContext || 'Нет данных'}`;
 
     const removeTeacherAccess = (teacherId: string, teacherName: string) => {
         if (!isOwner) {
-            Alert.alert('Недоступно', 'Только создатель класса может управлять психологами.');
+            Alert.alert('Unavailable', 'Only the class owner can manage counselors.');
             return;
         }
 
-        Alert.alert('Удалить психолога?', `${teacherName} потеряет доступ к этому классу.`, [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Remove counselor?', `${teacherName} will lose access to this class.`, [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Удалить',
+                text: 'Delete',
                 style: 'destructive',
                 onPress: async () => {
                     try {
@@ -420,7 +420,7 @@ ${studentsContext || 'Нет данных'}`;
                         fetchClassData();
                     } catch (error: any) {
                         console.error(error);
-                        Alert.alert('Ошибка', error?.message || 'Не удалось удалить психолога.');
+                        Alert.alert('Error', error?.message || 'Failed to remove counselor.');
                     }
                 }
             }
@@ -428,7 +428,7 @@ ${studentsContext || 'Нет данных'}`;
     };
 
     const createAssignment = async () => {
-        if (!newAssignment.title) return Alert.alert('Ошибка', 'Введите название');
+        if (!newAssignment.title) return Alert.alert('Error', 'Enter a title');
         try {
             const { error } = await supabase.from('tasks').insert({
                 class_id: id,
@@ -440,14 +440,14 @@ ${studentsContext || 'Нет данных'}`;
             setModalVisible(false);
             setNewAssignment({ title: '', description: '' });
             fetchClassData();
-        } catch (e) { Alert.alert('Ошибка'); }
+        } catch (e) { Alert.alert('Error'); }
     };
 
     const deleteTask = async (taskId: string) => {
-        Alert.alert('Удалить?', 'Задание будет удалено.', [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Delete?', 'The assignment will be deleted.', [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Удалить', style: 'destructive', onPress: async () => {
+                text: 'Delete', style: 'destructive', onPress: async () => {
                     await supabase.from('tasks').delete().eq('id', taskId);
                     fetchClassData();
                 }
@@ -456,10 +456,10 @@ ${studentsContext || 'Нет данных'}`;
     };
 
     const deleteClass = () => {
-        Alert.alert('Удалить класс?', 'Это действие нельзя отменить. Все данные класса, ученики и история будут удалены.', [
-            { text: 'Отмена', style: 'cancel' },
+        Alert.alert('Delete class?', 'This action cannot be undone. All class data, students, and history will be deleted.', [
+            { text: 'Cancel', style: 'cancel' },
             {
-                text: 'Удалить', style: 'destructive', onPress: async () => {
+                text: 'Delete', style: 'destructive', onPress: async () => {
                     setLoading(true);
                     try {
                         // Manual Cascade Delete (Database might not have CASCADE set up for all tables)
@@ -477,11 +477,11 @@ ${studentsContext || 'Нет данных'}`;
 
                         if (error) throw error;
 
-                        Alert.alert('Успешно', 'Класс удален.');
+                        Alert.alert('Success', 'Class deleted.');
                         router.replace('/(teacher)/classes');
                     } catch (error: any) {
                         console.error('Delete Error:', error);
-                        Alert.alert('Ошибка', 'Не удалось удалить класс: ' + (error.message || JSON.stringify(error)));
+                        Alert.alert('Error', 'Failed to delete class: ' + (error.message || JSON.stringify(error)));
                     } finally {
                         setLoading(false);
                     }
@@ -505,7 +505,7 @@ ${studentsContext || 'Нет данных'}`;
                 </TouchableOpacity>
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.className, { color: colors.text }]}>{classInfo?.name}</Text>
-                    <Text style={[styles.code, { color: colors.subtext }]}>Код: {classInfo?.code}</Text>
+                    <Text style={[styles.code, { color: colors.subtext }]}>Code: {classInfo?.code}</Text>
                 </View>
                 {isOwner ? (
                     <TouchableOpacity onPress={deleteClass}>
@@ -517,26 +517,26 @@ ${studentsContext || 'Нет данных'}`;
                         style={[styles.headerAction, { backgroundColor: 'rgba(245,158,11,0.14)', borderColor: 'rgba(245,158,11,0.25)' }]}
                     >
                         <LogOut size={16} color="#F59E0B" />
-                        <Text style={[styles.headerActionText, { color: '#FCD34D' }]}>Выйти</Text>
+                        <Text style={[styles.headerActionText, { color: '#FCD34D' }]}>Leave</Text>
                     </TouchableOpacity>
                 )}
             </View>
 
             <View style={styles.tabs}>
                 <TouchableOpacity style={[styles.tab, activeTab === 'students' && { borderBottomColor: colors.accent }]} onPress={() => setActiveTab('students')}>
-                    <Text style={[styles.tabText, { color: activeTab === 'students' ? colors.accent : colors.subtext }]}>Ученики</Text>
+                    <Text style={[styles.tabText, { color: activeTab === 'students' ? colors.accent : colors.subtext }]}>Students</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.tab, activeTab === 'assignments' && { borderBottomColor: colors.accent }]} onPress={() => setActiveTab('assignments')}>
-                    <Text style={[styles.tabText, { color: activeTab === 'assignments' ? colors.accent : colors.subtext }]}>Задания</Text>
+                    <Text style={[styles.tabText, { color: activeTab === 'assignments' ? colors.accent : colors.subtext }]}>Assignments</Text>
                 </TouchableOpacity>
             </View>
 
             {activeTab === 'students' ? (
                 <>
                     <View style={styles.statsRow}>
-                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text><Text style={styles.statLabel}>Учеников</Text></Card>
-                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: stats.avgMood >= 3 ? 'rgb(34,197,94)' : 'rgb(239,68,68)' }]}>{stats.avgMood}</Text><Text style={styles.statLabel}>Ср. балл</Text></Card>
-                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: stats.riskCount > 0 ? 'rgb(239,68,68)' : 'rgb(34,197,94)' }]}>{stats.riskCount}</Text><Text style={styles.statLabel}>В риске</Text></Card>
+                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text><Text style={styles.statLabel}>Students</Text></Card>
+                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: stats.avgMood >= 3 ? 'rgb(34,197,94)' : 'rgb(239,68,68)' }]}>{stats.avgMood}</Text><Text style={styles.statLabel}>Avg. score</Text></Card>
+                        <Card style={styles.statCard}><Text style={[styles.statValue, { color: stats.riskCount > 0 ? 'rgb(239,68,68)' : 'rgb(34,197,94)' }]}>{stats.riskCount}</Text><Text style={styles.statLabel}>At Risk</Text></Card>
                     </View>
 
                     <FlatList
@@ -549,7 +549,7 @@ ${studentsContext || 'Нет данных'}`;
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: classTeachers.length ? 12 : 0 }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                             <Users size={18} color={colors.accent} />
-                                            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Психологи класса</Text>
+                                            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Class Counselors</Text>
                                         </View>
                                         <Text style={{ fontSize: 12, color: colors.subtext }}>{classTeachers.length}</Text>
                                     </View>
@@ -561,7 +561,7 @@ ${studentsContext || 'Нет данных'}`;
                                                     <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{teacher.fullName}</Text>
                                                     <Text style={{ fontSize: 12, color: colors.subtext, marginTop: 2 }}>{teacher.email}</Text>
                                                     <Text style={styles.teacherRoleText}>
-                                                        {teacher.isOwner ? 'Создатель класса' : 'Подключённый психолог'}
+                                                        {teacher.isOwner ? 'Class owner' : 'Connected counselor'}
                                                     </Text>
                                                 </View>
                                                 {isOwner && !teacher.isOwner && (
@@ -576,15 +576,15 @@ ${studentsContext || 'Нет данных'}`;
                                         ))}
 
                                         {classTeachers.length === 0 && (
-                                            <Text style={{ fontSize: 13, color: colors.subtext }}>В этом классе пока нет психологов.</Text>
+                                            <Text style={{ fontSize: 13, color: colors.subtext }}>There are no counselors in this class yet.</Text>
                                         )}
                                     </View>
                                 </Card>
 
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.subtext }}>AI МОНИТОРИНГ</Text>
+                                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.subtext }}>AI MONITORING</Text>
                                     <TouchableOpacity onPress={() => setIsAnonymous(!isAnonymous)}>
-                                        <Text style={{ fontSize: 12, color: colors.accent }}>{isAnonymous ? 'Показать имена' : 'Скрыть'}</Text>
+                                        <Text style={{ fontSize: 12, color: colors.accent }}>{isAnonymous ? 'Show names' : 'Hide'}</Text>
                                     </TouchableOpacity>
                                 </View>
 
@@ -599,7 +599,7 @@ ${studentsContext || 'Нет данных'}`;
                                             >
                                                 {analyzing ? <ActivityIndicator size="small" color="#F97316" /> : <Sparkles size={24} color="#F97316" />}
                                                 <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, textAlign: 'center' }}>
-                                                    {analyzing ? analysisProgress : 'Анализ учеников'}
+                                                    {analyzing ? analysisProgress : 'Analyze Students'}
                                                 </Text>
                                             </TouchableOpacity>
                                         </Card>
@@ -610,7 +610,7 @@ ${studentsContext || 'Нет данных'}`;
                                         <Card style={{ padding: 16, height: 80, justifyContent: 'center' }}>
                                             <TouchableOpacity onPress={openInsight} style={{ alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                                                 {insightLoading ? <ActivityIndicator size="small" color="#F97316" /> : <FileText size={24} color="#F97316" />}
-                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, textAlign: 'center' }}>Анализ класса</Text>
+                                                <Text style={{ fontSize: 14, fontWeight: '700', color: colors.text, textAlign: 'center' }}>Class Analysis</Text>
                                             </TouchableOpacity>
                                         </Card>
                                     </View>
@@ -624,7 +624,7 @@ ${studentsContext || 'Нет данных'}`;
                                         <View style={[styles.moodDot, { backgroundColor: item.statusColor }]} />
                                         <View style={{ flex: 1 }}>
                                             <Text style={[styles.studentName, { color: colors.text }]}>{isAnonymous ? item.anonName : item.realName}</Text>
-                                            <Text style={{ fontSize: 12, color: colors.subtext }}>Ср: {item.avgMood} • <Text style={{ color: item.statusColor }}>{item.statusText}</Text></Text>
+                                            <Text style={{ fontSize: 12, color: colors.subtext }}>Avg: {item.avgMood} • <Text style={{ color: item.statusColor }}>{item.statusText}</Text></Text>
                                         </View>
                                         {item.riskLevel >= 5 ? <AlertTriangle size={18} color={item.statusColor} /> : <CheckCircle size={18} color={item.statusColor} />}
                                         {isOwner && (
@@ -660,7 +660,7 @@ ${studentsContext || 'Нет данных'}`;
                                                 {item.description && <Text style={{ fontSize: 14, color: colors.subtext, marginTop: 4 }}>{item.description}</Text>}
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 }}>
                                                     <CheckCircle size={14} color={completedCount > 0 ? "rgb(34,197,94)" : colors.subtext} />
-                                                    <Text style={{ fontSize: 12, color: colors.subtext }}>Сдано: {completedCount} учеников</Text>
+                                                    <Text style={{ fontSize: 12, color: colors.subtext }}>Completed: {completedCount} students</Text>
                                                 </View>
                                             </View>
                                             <TouchableOpacity onPress={() => deleteTask(item.id)}><Trash2 size={18} color={colors.subtext} /></TouchableOpacity>
@@ -679,12 +679,12 @@ ${studentsContext || 'Нет данных'}`;
                 <View style={styles.modalOverlay}>
                     {/* ... Same ... */}
                     <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
-                        <Text style={[styles.modalTitle, { color: colors.text }]}>Новое задание</Text>
-                        <TextInput placeholder="Название" placeholderTextColor={colors.subtext} style={[styles.input, { backgroundColor: colors.background, color: colors.text }]} value={newAssignment.title} onChangeText={t => setNewAssignment({ ...newAssignment, title: t })} />
-                        <TextInput placeholder="Описание" placeholderTextColor={colors.subtext} style={[styles.input, { backgroundColor: colors.background, color: colors.text, height: 80 }]} multiline value={newAssignment.description} onChangeText={t => setNewAssignment({ ...newAssignment, description: t })} />
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>New Assignment</Text>
+                        <TextInput placeholder="Title" placeholderTextColor={colors.subtext} style={[styles.input, { backgroundColor: colors.background, color: colors.text }]} value={newAssignment.title} onChangeText={t => setNewAssignment({ ...newAssignment, title: t })} />
+                        <TextInput placeholder="Description" placeholderTextColor={colors.subtext} style={[styles.input, { backgroundColor: colors.background, color: colors.text, height: 80 }]} multiline value={newAssignment.description} onChangeText={t => setNewAssignment({ ...newAssignment, description: t })} />
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}><Text style={{ color: colors.subtext, padding: 10 }}>Отмена</Text></TouchableOpacity>
-                            <TouchableOpacity onPress={createAssignment} style={{ backgroundColor: colors.accent, padding: 10, borderRadius: 8 }}><Text style={{ color: '#fff', fontWeight: '700' }}>Создать</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={() => setModalVisible(false)}><Text style={{ color: colors.subtext, padding: 10 }}>Cancel</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={createAssignment} style={{ backgroundColor: colors.accent, padding: 10, borderRadius: 8 }}><Text style={{ color: '#fff', fontWeight: '700' }}>Create</Text></TouchableOpacity>
                         </View>
                     </View>
                 </View>
@@ -696,7 +696,7 @@ ${studentsContext || 'Нет данных'}`;
                 <View style={[styles.fullModal, { backgroundColor: colors.background }]}>
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => setViewTaskModalVisible(false)} style={styles.backBtn}><ArrowLeft size={24} color={colors.text} /></TouchableOpacity>
-                        <Text style={[styles.className, { color: colors.text, fontSize: 18 }]}>Ответы: {viewTask?.title}</Text>
+                        <Text style={[styles.className, { color: colors.text, fontSize: 18 }]}>Responses: {viewTask?.title}</Text>
                     </View>
                     <ScrollView contentContainerStyle={{ padding: 20 }}>
                         {students.map(student => {
@@ -705,7 +705,7 @@ ${studentsContext || 'Нет данных'}`;
                                 <Card key={student.id} style={{ marginBottom: 10, padding: 16 }}>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                         <Text style={{ fontWeight: '700', color: colors.text }}>{isAnonymous ? student.anonName : student.realName}</Text>
-                                        <Text style={{ color: response?.completed ? 'rgb(34,197,94)' : 'rgb(239,68,68)' }}>{response?.completed ? 'Сдано' : 'Не сдано'}</Text>
+                                        <Text style={{ color: response?.completed ? 'rgb(34,197,94)' : 'rgb(239,68,68)' }}>{response?.completed ? 'Submitted' : 'Not submitted'}</Text>
                                     </View>
                                     {response?.completed && <Text style={{ marginTop: 8, color: colors.text }}>{response.response}</Text>}
                                 </Card>
@@ -720,17 +720,17 @@ ${studentsContext || 'Нет данных'}`;
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalCard, { backgroundColor: colors.surface, maxHeight: '80%' }]}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                            <Text style={[styles.modalTitle, { marginBottom: 0, color: colors.text }]}>Анализ класса</Text>
+                            <Text style={[styles.modalTitle, { marginBottom: 0, color: colors.text }]}>Class Analysis</Text>
                             <TouchableOpacity onPress={generateInsight} disabled={insightLoading} style={{ padding: 4 }}>
                                 {insightLoading ? <ActivityIndicator size="small" color={colors.accent} /> : <RefreshCw size={20} color={colors.accent} />}
                             </TouchableOpacity>
                         </View>
                         <ScrollView>
                             {insightLoading && !insightText ? <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 20 }} /> : (
-                                <Text style={{ color: colors.text, fontSize: 16, lineHeight: 24 }}>{insightText || 'Нет данных для анализа.'}</Text>
+                                <Text style={{ color: colors.text, fontSize: 16, lineHeight: 24 }}>{insightText || 'No data available for analysis.'}</Text>
                             )}
                         </ScrollView>
-                        <TouchableOpacity onPress={() => setInsightVisible(false)} style={{ alignSelf: 'flex-end', marginTop: 10 }}><Text style={{ color: colors.accent, fontSize: 16 }}>Закрыть</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => setInsightVisible(false)} style={{ alignSelf: 'flex-end', marginTop: 10 }}><Text style={{ color: colors.accent, fontSize: 16 }}>Close</Text></TouchableOpacity>
                     </View>
                 </View>
             </Modal>
@@ -740,11 +740,11 @@ ${studentsContext || 'Нет данных'}`;
                 <View style={[styles.fullModal, { backgroundColor: colors.background }]}>
                     <View style={styles.header}>
                         <TouchableOpacity onPress={() => setChatVisible(false)} style={styles.backBtn}><ArrowLeft size={24} color={colors.text} /></TouchableOpacity>
-                        <Text style={[styles.className, { color: colors.text, fontSize: 18 }]}>AI Ассистент</Text>
+                        <Text style={[styles.className, { color: colors.text, fontSize: 18 }]}>AI Assistant</Text>
                     </View>
                     <ScrollView contentContainerStyle={{ padding: 20, flexGrow: 1, paddingBottom: 100 }}>
                         {chatMessages.length === 0 && (
-                            <Text style={{ color: colors.subtext, textAlign: 'center', marginTop: 50 }}>Задайте вопрос о классе или учениках...</Text>
+                            <Text style={{ color: colors.subtext, textAlign: 'center', marginTop: 50 }}>Ask a question about the class or its students...</Text>
                         )}
                         {chatMessages.map((msg, i) => (
                             <View key={i} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', backgroundColor: msg.role === 'user' ? colors.accent : colors.surface, padding: 12, borderRadius: 12, marginBottom: 8, maxWidth: '80%' }}>
@@ -759,7 +759,7 @@ ${studentsContext || 'Нет данных'}`;
                         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                     >
                         <View style={{ flexDirection: 'row', padding: 16, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', backgroundColor: colors.background, paddingBottom: Platform.OS === 'ios' ? 40 : 16 }}>
-                            <TextInput value={chatInput} onChangeText={setChatInput} placeholder="Написать сообщение..." placeholderTextColor={colors.subtext} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, color: colors.text, marginRight: 10 }} />
+                            <TextInput value={chatInput} onChangeText={setChatInput} placeholder="Write a message..." placeholderTextColor={colors.subtext} style={{ flex: 1, backgroundColor: colors.surface, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, color: colors.text, marginRight: 10 }} />
                             <TouchableOpacity onPress={sendMessage} disabled={chatLoading} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: colors.accent, width: 44, height: 44, borderRadius: 22 }}>
                                 <Send color="#fff" size={20} />
                             </TouchableOpacity>
@@ -800,3 +800,4 @@ const styles = StyleSheet.create({
     input: { borderRadius: 12, padding: 12, marginBottom: 12, fontSize: 16 },
     fullModal: { flex: 1, paddingTop: 60, backgroundColor: '#000' } // Ensure background is black
 });
+

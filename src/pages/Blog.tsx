@@ -111,7 +111,7 @@ const Blog = () => {
         });
 
         if (error) {
-            setLoginError('Неверный email или пароль');
+            setLoginError('Invalid email or password');
         } else {
             // Check if this user is in blog_admins
             const { data: adminData } = await supabase
@@ -128,7 +128,7 @@ const Blog = () => {
                 setPassword('');
             } else {
                 await supabase.auth.signOut();
-                setLoginError('У вас нет прав администратора');
+                setLoginError('You do not have admin access');
             }
         }
         setLoginLoading(false);
@@ -146,11 +146,11 @@ const Blog = () => {
         const file = e.target.files?.[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
-                alert('Файл слишком большой. Максимум 5MB.');
+                alert('The file is too large. Maximum size is 5MB.');
                 return;
             }
             if (!file.type.startsWith('image/')) {
-                alert('Можно загружать только изображения.');
+                alert('Only image files can be uploaded.');
                 return;
             }
             setCoverImage(file);
@@ -207,7 +207,7 @@ const Blog = () => {
         if (coverImage) {
             coverImageUrl = await uploadImage(coverImage);
             if (!coverImageUrl) {
-                alert('Ошибка загрузки изображения');
+                alert('Image upload failed');
                 setSaving(false);
                 return;
             }
@@ -226,9 +226,9 @@ const Blog = () => {
         if (error) {
             console.error('Error adding post:', error);
             if (error.code === '42501') {
-                alert('Нет прав на добавление поста');
+                alert('You do not have permission to add a post');
             } else {
-                alert('Ошибка при добавлении поста');
+                alert('Failed to add the post');
             }
         } else {
             await fetchPosts();
@@ -244,7 +244,7 @@ const Blog = () => {
 
     // Delete post
     const handleDeletePost = async (id: string) => {
-        if (!confirm('Удалить пост?')) return;
+        if (!confirm('Delete this post?')) return;
 
         const { error } = await supabase
             .from('blog_posts')
@@ -254,9 +254,9 @@ const Blog = () => {
         if (error) {
             console.error('Error deleting post:', error);
             if (error.code === '42501') {
-                alert('Нет прав на удаление поста');
+                alert('You do not have permission to delete this post');
             } else {
-                alert('Ошибка при удалении поста');
+                alert('Failed to delete the post');
             }
         } else {
             await fetchPosts();
@@ -264,7 +264,7 @@ const Blog = () => {
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('ru-RU', {
+        return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -285,7 +285,7 @@ const Blog = () => {
                         </button>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900">Blog</h1>
-                            <p className="text-sm text-slate-500">Новости и обновления платформы Prism</p>
+                            <p className="text-sm text-slate-500">News and updates from the Prism platform</p>
                         </div>
                     </div>
                     {isAdmin && (
@@ -296,13 +296,13 @@ const Blog = () => {
                                 className="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
                             >
                                 <Plus className="w-4 h-4" />
-                                Новый пост
+                                New Post
                             </button>
                             <button
                                 onClick={handleLogout}
                                 className="text-slate-500 hover:text-slate-700 text-sm transition-colors"
                             >
-                                Выйти
+                                Sign Out
                             </button>
                         </div>
                     )}
@@ -318,8 +318,8 @@ const Blog = () => {
                 ) : posts.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
                         <FileText className="w-16 h-16 text-slate-300 mx-auto mb-6" />
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Скоро здесь появятся статьи</h2>
-                        <p className="text-slate-500">Мы работаем над интересным контентом для вас</p>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Articles are coming soon</h2>
+                        <p className="text-slate-500">We are working on thoughtful content for you</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -358,7 +358,7 @@ const Blog = () => {
             {/* Footer */}
             <div className="bg-white border-t border-slate-200 py-8">
                 <div className="max-w-4xl mx-auto px-8 text-center text-slate-400 text-sm">
-                    © <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. Все права защищены.
+                    © <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
                 </div>
             </div>
 
@@ -366,7 +366,7 @@ const Blog = () => {
             {showLoginModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-4">
-                        <h3 className="text-xl font-bold text-slate-900 mb-4">Вход в админ-панель</h3>
+                        <h3 className="text-xl font-bold text-slate-900 mb-4">Admin Login</h3>
 
                         {loginError && (
                             <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -387,7 +387,7 @@ const Blog = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                            placeholder="Пароль"
+                            placeholder="Password"
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 bg-white"
                         />
                         <div className="flex gap-3">
@@ -398,7 +398,7 @@ const Blog = () => {
                                 }}
                                 className="flex-1 px-4 py-3 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors"
                             >
-                                Отмена
+                                Cancel
                             </button>
                             <button
                                 onClick={handleLogin}
@@ -406,7 +406,7 @@ const Blog = () => {
                                 className="flex-1 px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                             >
                                 {loginLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Войти
+                                Sign In
                             </button>
                         </div>
                     </div>
@@ -418,7 +418,7 @@ const Blog = () => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-2xl p-8 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-slate-900">Новый пост</h3>
+                            <h3 className="text-xl font-bold text-slate-900">New Post</h3>
                             <button
                                 onClick={() => {
                                     setShowAddModal(false);
@@ -433,7 +433,7 @@ const Blog = () => {
                         {/* Cover Image Upload */}
                         <div className="mb-4">
                             <label className="block text-sm font-medium text-slate-700 mb-2">
-                                Обложка (опционально)
+                                Cover image (optional)
                             </label>
                             {coverPreview ? (
                                 <div className="relative rounded-lg overflow-hidden">
@@ -455,8 +455,8 @@ const Blog = () => {
                                     className="border-2 border-dashed border-slate-200 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-300 transition-colors"
                                 >
                                     <Image className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                                    <p className="text-sm text-slate-500">Нажмите, чтобы загрузить обложку</p>
-                                    <p className="text-xs text-slate-400 mt-1">PNG, JPG до 5MB</p>
+                                    <p className="text-sm text-slate-500">Click to upload a cover image</p>
+                                    <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
                                 </div>
                             )}
                             <input
@@ -472,13 +472,13 @@ const Blog = () => {
                             type="text"
                             value={newTitle}
                             onChange={(e) => setNewTitle(e.target.value)}
-                            placeholder="Заголовок"
+                            placeholder="Title"
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg font-semibold text-slate-900"
                         />
                         <textarea
                             value={newContent}
                             onChange={(e) => setNewContent(e.target.value)}
-                            placeholder="Содержание поста..."
+                            placeholder="Post content..."
                             rows={10}
                             className="w-full px-4 py-3 border border-slate-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-slate-900"
                         />
@@ -492,7 +492,7 @@ const Blog = () => {
                                         style={{ width: `${uploadProgress}%` }}
                                     />
                                 </div>
-                                <p className="text-xs text-slate-500 mt-1">Загрузка изображения...</p>
+                                <p className="text-xs text-slate-500 mt-1">Uploading image...</p>
                             </div>
                         )}
 
@@ -502,7 +502,7 @@ const Blog = () => {
                             className="w-full px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                            {saving ? 'Публикация...' : 'Опубликовать'}
+                            {saving ? 'Publishing...' : 'Publish'}
                         </button>
                     </div>
                 </div>
@@ -512,3 +512,4 @@ const Blog = () => {
 };
 
 export default Blog;
+

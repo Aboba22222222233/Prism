@@ -30,14 +30,14 @@ export default function StudentLayout() {
             <Tabs.Screen
                 name="classes"
                 options={{
-                    title: 'Мои курсы',
+                    title: 'My Classes',
                     tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="dashboard"
                 options={{
-                    title: 'Дашборд',
+                    title: 'Dashboard',
                     href: null,
                     tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
                 }}
@@ -45,21 +45,21 @@ export default function StudentLayout() {
             <Tabs.Screen
                 name="checkin"
                 options={{
-                    title: 'Чекин',
+                    title: 'Check-in',
                     href: null,
                 }}
             />
             <Tabs.Screen
                 name="resources"
                 options={{
-                    title: 'Ресурсы',
+                    title: 'Resources',
                     tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
                 }}
             />
             <Tabs.Screen
                 name="settings"
                 options={{
-                    title: 'Настройки',
+                    title: 'Settings',
                     tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
                 }}
             />
