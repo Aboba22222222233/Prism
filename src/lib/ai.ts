@@ -2,9 +2,27 @@ import { supabase } from './supabase';
 
 const DEFAULT_MODEL = "openai/gpt-oss-120b";
 
+async function getAuthHeaders() {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+        throw new Error(`Failed to get session: ${error.message}`);
+    }
+
+    const accessToken = data.session?.access_token;
+    if (!accessToken) {
+        throw new Error("No active session");
+    }
+
+    return {
+        Authorization: `Bearer ${accessToken}`,
+    };
+}
+
 export async function getGeminiInsight(prompt: string, model: string = DEFAULT_MODEL) {
     try {
+        const headers = await getAuthHeaders();
         const { data, error } = await supabase.functions.invoke('chat-ai', {
+            headers,
             body: {
                 model,
                 messages: [{ role: "user", content: prompt }],
@@ -21,7 +39,9 @@ export async function getGeminiInsight(prompt: string, model: string = DEFAULT_M
 }
 
 export async function getChatResponse(messages: any[], model?: string) {
+    const headers = await getAuthHeaders();
     const { data, error } = await supabase.functions.invoke('chat-ai', {
+        headers,
         body: {
             model: model || DEFAULT_MODEL,
             messages,
