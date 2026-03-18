@@ -32,7 +32,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'assistant',
-            content: `Привет, ${userProfile?.full_name?.split(' ')[0] || 'друг'}! Я Клаудик, твой ментор. Готов помочь советом или объяснить сложную тему. Что тебя волнует?`
+            content: `Hi, ${userProfile?.full_name?.split(' ')[0] || 'friend'}! I'm Cloudik, your AI mentor. I can give advice, explain something difficult, or help you think through how you're feeling. What's on your mind?`
         }
     ]);
 
@@ -54,29 +54,28 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
 
         try {
             const checkinsContext = recentCheckins.slice(0, 5).map((c, i) =>
-                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Сон ${c.sleep_hours || '?'}ч, Энергия ${c.energy_level || '?'}/10${c.comment ? `, Заметка: "${c.comment}"` : ''}${c.factors?.length ? `, Факторы: ${c.factors.join(', ')}` : ''}`
-            ).join('\n') || 'Нет записей';
+                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5, Sleep ${c.sleep_hours || '?'}h, Energy ${c.energy_level || '?'}/10${c.comment ? `, Note: "${c.comment}"` : ''}${c.factors?.length ? `, Factors: ${c.factors.join(', ')}` : ''}`
+            ).join('\n') || 'No entries';
 
             const contextSystemMsg = {
                 role: 'system' as const,
-                content: `Ты - Клаудик, поддерживающий ментор для студента.
-                
-                СТРОГИЕ ПРАВИЛА ФОРМАТИРОВАНИЯ:
-                - Отвечай ТОЛЬКО на русском языке
-                - НЕ используй Markdown: никаких **, ##, |, таблиц
-                - НЕ используй китайские/японские символы и странные скобки
-                - Пиши простым текстом без форматирования
-                - Максимум 2-3 предложения на ответ
-                - Будь кратким, тёплым и дружелюбным
-                
-                Ученик: ${userProfile?.full_name || 'Студент'}.
-                
-                Последние записи:
+                content: `You are Cloudik, a supportive mentor for a student.
+
+                STRICT RESPONSE RULES:
+                - Respond only in English
+                - Do not use Markdown, tables, or bullet lists
+                - Write in plain text only
+                - Keep each answer to 2-3 sentences maximum
+                - Be warm, supportive, and concise
+
+                Student: ${userProfile?.full_name || 'Student'}.
+
+                Recent entries:
                 ${checkinsContext}
-                
-                Текущее состояние: Настроение ${studentStats?.avgMood || '?'}/5, Энергия ${studentStats?.energyAvg || '?'}, Сон ${studentStats?.sleepAvg || '?'}.
-                
-                Давай короткие персонализированные советы на основе данных.`
+
+                Current state: Mood ${studentStats?.avgMood || '?'}/5, Energy ${studentStats?.energyAvg || '?'}, Sleep ${studentStats?.sleepAvg || '?'}.
+
+                Give short personalized advice based on the data.`
             };
 
             const history = messages.slice(-10).map(m => ({
@@ -90,12 +89,12 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
 
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: typeof response === 'string' ? response : response?.content || 'Нет ответа',
+                content: typeof response === 'string' ? response : response?.content || 'No response',
             }]);
         } catch (error) {
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: 'Извини, произошла ошибка связи. Попробуй еще раз.',
+                content: 'A connection error occurred. Please try again.',
                 isError: true,
             }]);
         } finally {
@@ -157,8 +156,8 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                                 <Bot size={22} color={colors.accent} />
                             </View>
                             <View style={{ flex: 1 }}>
-                                <Text style={[styles.headerTitle, { color: colors.text }]}>Клаудик</Text>
-                                <Text style={[styles.headerSub, { color: colors.subtext }]}>твой AI-ментор</Text>
+                                <Text style={[styles.headerTitle, { color: colors.text }]}>Cloudik</Text>
+                                <Text style={[styles.headerSub, { color: colors.subtext }]}>your AI mentor</Text>
                             </View>
                             {onClose && (
                                 <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
@@ -199,7 +198,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                             <TextInput
                                 value={input}
                                 onChangeText={setInput}
-                                placeholder="Спроси Клаудика..."
+                                placeholder="Ask Cloudik..."
                                 placeholderTextColor={colors.subtext}
                                 onSubmitEditing={handleSend}
                                 returnKeyType="send"
@@ -225,7 +224,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                         </View>
 
                         <Text style={[styles.disclaimer, { color: colors.subtext }]}>
-                            AI может совершать ошибки. Проверяйте важную информацию.
+                            AI can make mistakes. Verify important information.
                         </Text>
                     </KeyboardAvoidingView>
                 </SafeAreaView>

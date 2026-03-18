@@ -5,7 +5,7 @@ import { getChatResponse } from '../lib/ai';
 interface MentorChatProps {
     userProfile: any;
     studentStats: any;
-    recentCheckins?: any[]; // Последние 5 записей для контекста AI
+    recentCheckins?: any[]; // Last 5 entries for AI context
 }
 
 const MODELS = [
@@ -21,7 +21,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
     const [messages, setMessages] = useState<any[]>([
         {
             role: 'assistant',
-            content: `Привет, ${userProfile?.full_name?.split(' ')[0] || 'друг'}! Я Клаудик, твой ментор. Готов помочь советом или объяснить сложную тему. Что тебя волнует?`
+            content: `Hi, ${userProfile?.full_name?.split(' ')[0] || 'friend'}! I'm Cloudik, your AI mentor. I can help with advice, explain difficult topics, or support you when something feels off. What's on your mind?`
         }
     ]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,31 +43,30 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
         setLoading(true);
 
         try {
-            // Prepare context prompt with recent checkins
+            // Prepare context prompt with recent check-ins
             const checkinsContext = recentCheckins.slice(0, 5).map((c, i) =>
-                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5, Сон ${c.sleep_hours || '?'}ч, Энергия ${c.energy_level || '?'}/10${c.comment ? `, Заметка: "${c.comment}"` : ''}${c.factors?.length ? `, Факторы: ${c.factors.join(', ')}` : ''}`
-            ).join('\n') || 'Нет записей';
+                `${i + 1}. ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5, Sleep ${c.sleep_hours || '?'}h, Energy ${c.energy_level || '?'}/10${c.comment ? `, Note: "${c.comment}"` : ''}${c.factors?.length ? `, Factors: ${c.factors.join(', ')}` : ''}`
+            ).join('\n') || 'No entries';
 
             const contextSystemMsg = {
                 role: 'system',
-                content: `Ты - Клаудик, поддерживающий ментор для студента.
-                
-                СТРОГИЕ ПРАВИЛА ФОРМАТИРОВАНИЯ:
-                - Отвечай ТОЛЬКО на русском языке
-                - НЕ используй Markdown: никаких **, ##, |, таблиц
-                - НЕ используй китайские/японские символы и странные скобки
-                - Пиши простым текстом без форматирования
-                - Максимум 2-3 предложения на ответ
-                - Будь кратким, тёплым и дружелюбным
-                
-                Ученик: ${userProfile?.full_name || 'Студент'}.
-                
-                Последние записи:
+                content: `You are Cloudik, a supportive mentor for a student.
+
+                STRICT RESPONSE RULES:
+                - Respond only in English
+                - Do not use Markdown, tables, or bullet lists
+                - Write in plain text only
+                - Keep each answer to 2-3 sentences maximum
+                - Be warm, supportive, and concise
+
+                Student: ${userProfile?.full_name || 'Student'}.
+
+                Recent entries:
                 ${checkinsContext}
-                
-                Текущее состояние: Настроение ${studentStats?.mood || '?'}/5, Энергия ${studentStats?.energy || '?'}, Сон ${studentStats?.sleep || '?'}ч.
-                
-                Давай короткие персонализированные советы на основе данных.`
+
+                Current state: Mood ${studentStats?.mood || '?'}/5, Energy ${studentStats?.energy || '?'}, Sleep ${studentStats?.sleep || '?'}h.
+
+                Give short personalized advice based on the data.`
             };
 
             // Combine history (limit last 10 messages to save tokens)
@@ -90,7 +89,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
             console.error(error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: "Извини, произошла ошибка связи. Попробуй еще раз или смени модель.",
+                content: "A connection error occurred. Please try again or switch the model.",
                 isError: true
             }]);
         } finally {
@@ -120,7 +119,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
             {!isOpen && (
                 <div className="fixed bottom-8 right-8 z-50 flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 group">
                     <div className="bg-black text-white px-4 py-2 rounded-xl rounded-br-none shadow-lg mb-2 mr-4 text-sm font-bold transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border border-white/10">
-                        Совет от ментора 👈
+                        Advice from Cloudik
                     </div>
                     <button
                         onClick={() => setIsOpen(true)}
@@ -149,7 +148,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
                                 />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">Клаудик (твой ментор)</h3>
+                                <h3 className="font-bold text-white">Cloudik (your mentor)</h3>
                             </div>
                         </div>
                         <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
@@ -231,7 +230,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Спроси Клаудика..."
+                                placeholder="Ask Cloudik..."
                                 className="w-full bg-[#111] border border-white/10 rounded-xl py-3 pl-4 pr-12 text-white placeholder-slate-600 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500 transition-all"
                             />
                             <button
@@ -243,7 +242,7 @@ export const MentorChat: React.FC<MentorChatProps> = ({ userProfile, studentStat
                             </button>
                         </div>
                         <p className="text-center text-[10px] text-slate-600 mt-2">
-                            AI может совершать ошибки. Проверяйте важную информацию.
+                            AI can make mistakes. Verify important information.
                         </p>
                     </div>
                 </div>

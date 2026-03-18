@@ -11,7 +11,7 @@ interface TeacherMentorChatProps {
         totalStudents: number;
     };
     events?: any[];
-    studentsData?: any[]; // Данные учеников с их последними записями
+    studentsData?: any[]; // Student data with recent check-ins
 }
 
 const MODELS = [
@@ -27,7 +27,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
     const [messages, setMessages] = useState<any[]>([
         {
             role: 'assistant',
-            content: `Здравствуйте, коллега! Я ваш педагогический ассистент. Готов помочь с анализом класса, идеями для уроков или составлением плана. Чем могу быть полезен?`
+            content: `Hello. I am your AI assistant for class wellbeing support. I can help analyze the class, identify concerns, and suggest practical next steps. How can I help?`
         }
     ]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -49,36 +49,35 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
         setLoading(true);
 
         try {
-            // Prepare students context (last 3 checkins per student)
+            // Prepare students context (last 3 check-ins per student)
             const studentsContext = studentsData.slice(0, 10).map((s, i) => {
                 const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
-                    `  - ${new Date(c.created_at).toLocaleDateString('ru-RU')}: Настр. ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`
-                ).join('\n') || '  Нет записей';
-                return `${i + 1}. ${s.anonName} ${s.isRisk ? '⚠️ РИСК' : '✓'}:\n${recentCheckins}`;
-            }).join('\n\n') || 'Нет данных об учениках';
+                    `  - ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`
+                ).join('\n') || '  No entries';
+                return `${i + 1}. ${s.anonName} ${s.isRisk ? 'AT RISK' : 'OK'}:\n${recentCheckins}`;
+            }).join('\n\n') || 'No student data available';
 
             // Prepare context prompt
             const contextSystemMsg = {
                 role: 'system',
-                content: `Ты - опытный педагогический ассистент для учителя.
-                
-                СТРОГИЕ ПРАВИЛА ФОРМАТИРОВАНИЯ:
-                - Отвечай ТОЛЬКО на русском языке
-                - НЕ используй Markdown: никаких **, ##, |, таблиц, списков с дефисами
-                - НЕ используй китайские/японские символы
-                - Пиши простым текстом без форматирования
-                - Максимум 3-4 предложения на ответ
-                - Будь кратким и конкретным
-                
-                Твой коллега: ${teacherName || 'Учитель'}.
-                
-                СТАТИСТИКА КЛАССА:
-                Среднее настроение: ${classStats.avgMood}/5, В зоне риска: ${classStats.riskCount}, Всего: ${classStats.totalStudents}
-                
-                ДАННЫЕ УЧЕНИКОВ:
+                content: `You are an experienced support assistant for a school psychologist.
+
+                STRICT RESPONSE RULES:
+                - Respond only in English
+                - Do not use Markdown, tables, or bullet lists
+                - Write in plain text only
+                - Keep each answer to 3-4 sentences maximum
+                - Be concise, practical, and specific
+
+                Your colleague: ${teacherName || 'Psychologist'}.
+
+                CLASS STATISTICS:
+                Average mood: ${classStats.avgMood}/5, At risk: ${classStats.riskCount}, Total students: ${classStats.totalStudents}
+
+                STUDENT DATA:
                 ${studentsContext}
-                
-                Помогай анализировать класс и давай короткие практичные советы.`
+
+                Help analyze the class, explain possible concerns, and suggest short practical next steps.`
             };
 
             // Combine history (limit last 10 messages)
@@ -100,7 +99,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
             console.error(error);
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: "Извините, коллега, возникла ошибка связи. Попробуйте еще раз.",
+                content: "A connection error occurred. Please try again.",
                 isError: true
             }]);
         } finally {
@@ -130,7 +129,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
             {!isOpen && (
                 <div className="fixed bottom-8 right-8 z-[9999] flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 group">
                     <div className="bg-purple-600 text-white px-4 py-2 rounded-xl rounded-br-none shadow-lg mb-2 mr-4 text-sm font-bold transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none border border-white/10">
-                        Ассистент учителя 🎓
+                        Psychologist Assistant
                     </div>
                     <button
                         onClick={() => setIsOpen(true)}
@@ -151,8 +150,8 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                                 <Bot className="w-6 h-6 text-purple-400" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white">Пед. Ассистент</h3>
-                                <p className="text-xs text-slate-400">На базе AI</p>
+                                <h3 className="font-bold text-white">Psychologist Assistant</h3>
+                                <p className="text-xs text-slate-400">AI-powered</p>
                             </div>
                         </div>
                         <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors">
@@ -225,7 +224,7 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Спросите об успеваемости или методиках..."
+                                placeholder="Ask about class wellbeing, risks, or support strategies..."
                                 className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl py-3 pl-4 pr-12 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
                             />
                             <button

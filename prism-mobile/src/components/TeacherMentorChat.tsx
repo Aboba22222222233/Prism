@@ -27,7 +27,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
     const [messages, setMessages] = useState<any[]>([
         {
             role: 'assistant',
-            content: `Здравствуйте, коллега! Я ваш ассистент-психолог. Готов помочь с анализом эмоционального состояния учеников, интерпретацией рисков или планированием консультаций. Чем могу быть полезен?`
+            content: `Hello. I am your psychologist assistant. I can help analyze student wellbeing, interpret risk signals, and suggest support steps. How can I help?`
         }
     ]);
     const flatListRef = useRef<FlatList>(null);
@@ -49,11 +49,12 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
         try {
             const contextSystemMsg = {
                 role: 'system',
-                content: `Ты - опытный ассистент для школьного психолога. 
-                Твой коллега: ${psychologistName || 'Психолог'}. 
-                Твоя цель: помогать психологу интерпретировать данные о ментальном состоянии учеников и давать рекомендации по поддержке.
-                Отвечай кратко, по делу и на русском языке.
-                Не используй markdown таблицы, пиши простым текстом.`
+                content: `You are an experienced assistant for a school psychologist.
+                Your colleague: ${psychologistName || 'Psychologist'}.
+                Your goal is to help interpret student mental health data and suggest support actions.
+                Respond only in English.
+                Keep answers short, practical, and direct.
+                Do not use Markdown tables. Use plain text only.`
             };
 
             const history = messages.slice(-10).map(m => ({ role: m.role, content: m.content }));
@@ -69,7 +70,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
         } catch (error) {
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: "Извините, коллега, возникла ошибка связи.",
+                content: "A connection error occurred.",
                 isError: true
             }]);
         } finally {
@@ -92,7 +93,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                                     <Bot size={20} color={colors.accent} />
                                 </View>
                                 <View>
-                                    <Text style={[styles.title, { color: colors.text }]}>Ассистент Психолога</Text>
+                                    <Text style={[styles.title, { color: colors.text }]}>Psychologist Assistant</Text>
                                     <Text style={[styles.subtitle, { color: colors.subtext }]}>{MODELS.find(m => m.id === selectedModel)?.name}</Text>
                                 </View>
                             </View>
@@ -141,7 +142,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                                 style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
                                 value={input}
                                 onChangeText={setInput}
-                                placeholder="Спросите совет..."
+                                placeholder="Ask for guidance..."
                                 placeholderTextColor={colors.subtext}
                                 onSubmitEditing={handleSend}
                             />
