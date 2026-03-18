@@ -1,29 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
-
-function getAuthToken(req: Request) {
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader) {
-        throw new Error('Missing authorization header')
-    }
-
-    const [bearer, token] = authHeader.split(' ')
-    if (bearer !== 'Bearer' || !token) {
-        throw new Error("Authorization header must be in the format 'Bearer <token>'")
-    }
-
-    return token
-}
-
-const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SB_PUBLISHABLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-)
 
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
@@ -31,16 +11,6 @@ serve(async (req) => {
     }
 
     try {
-        const token = getAuthToken(req)
-        const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token)
-
-        if (claimsError || !claimsData?.claims?.sub) {
-            return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token' }), {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 401,
-            })
-        }
-
         const { messages, model, temperature } = await req.json()
         const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 
