@@ -6,30 +6,35 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function getAuthToken(req: Request) {
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader) {
+        throw new Error('Missing authorization header')
+    }
+
+    const [bearer, token] = authHeader.split(' ')
+    if (bearer !== 'Bearer' || !token) {
+        throw new Error("Authorization header must be in the format 'Bearer <token>'")
+    }
+
+    return token
+}
+
+const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SB_PUBLISHABLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+)
+
 serve(async (req) => {
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
 
     try {
-        // Real JWT validation: verify token with Supabase Auth
-        const authHeader = req.headers.get('Authorization')
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return new Response(JSON.stringify({ error: 'Unauthorized: Missing token' }), {
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 401,
-            })
-        }
+        const token = getAuthToken(req)
+        const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token)
 
-        const token = authHeader.replace('Bearer ', '')
-        const supabaseClient = createClient(
-            Deno.env.get('SUPABASE_URL') ?? '',
-            Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-            { global: { headers: { Authorization: authHeader } } }
-        )
-
-        const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token)
-        if (authError || !user) {
+        if (claimsError || !claimsData?.claims?.sub) {
             return new Response(JSON.stringify({ error: 'Unauthorized: Invalid token' }), {
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 status: 401,
@@ -56,7 +61,7 @@ serve(async (req) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openai/gpt-oss-120b",
+                model: model || "openai/gpt-oss-120b",
                 messages: messages,
                 temperature: temperature || 0.7,
             })
