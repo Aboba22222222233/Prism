@@ -1,102 +1,186 @@
-# 🌟 Prism — Цифровая поддержка ментального здоровья школьников
+# Prism
 
-<div align="center">
+AI-assisted school wellbeing platform with a web dashboard for psychologists and a mobile app for students and psychologists.
 
-**Интеллектуальная экосистема (Web + Mobile) для профессиональных психологов и учеников.**
+## Demo
 
-[![React](https://img.shields.io/badge/React-18.x-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
-[![Expo](https://img.shields.io/badge/Expo-50.x-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Groq API](https://img.shields.io/badge/Groq-AI_Fast-f55036?style=for-the-badge)](https://groq.com/)
+- Product video: [https://youtu.be/O-wGndqLzEQ](https://youtu.be/O-wGndqLzEQ)
+- Web app: [https://prism-psi-seven.vercel.app](https://prism-psi-seven.vercel.app)
 
-*Превращаем "невидимые" проблемы в своевременную помощь.* ❤️
+## What Prism does
 
-</div>
+Prism is built for school wellbeing monitoring, not for clinical diagnosis.
 
----
+- Students complete short check-ins about mood, sleep, energy, and optional notes.
+- Psychologists review class-level and student-level trends in a structured dashboard.
+- The AI layer summarizes repeated data, highlights patterns, and supports follow-up decisions.
+- Access is controlled through authenticated roles and database-level policies.
 
-## ✨ Ссылка на демо проекта - https://youtu.be/O-wGndqLzEQ
+The core idea is simple: move schools from isolated observation to repeated, structured, and earlier support.
 
----
+## Main product areas
 
-## 📖 О проекте
+### Web
 
-**Prism** — это профессиональный инструмент для школьных психологов, созданный для раннего выявления эмоционального неблагополучия у подростков. 
+- Landing and product pages
+- Student dashboard
+- Psychologist dashboard
+- Resource hub
+- AI mentor / psychologist assistant
 
-В отличие от традиционных методов, Prism работает **проактивно**: система анализирует "цифровой след" настроения учеников и подсвечивает риски до того, как они перерастут в глубокий кризис.
+### Mobile
 
----
+- Student check-ins
+- Student classes and dashboard
+- Psychologist classes and student review
+- AI mentor / psychologist assistant
 
-## 📱 Экосистема Prism
+### Backend
 
-Проект объединяет две ключевые роли в единое безопасное пространство:
+- Supabase Auth
+- PostgreSQL database
+- Row Level Security policies
+- Edge Functions for AI requests
 
-### 1. 🌐 Web Платформа (Центр Управления)
-*   **Для Психолога:** Глубокая аналитика классов, тепловые карты рисков, генерация AI-инсайтов по состоянию групп и управление психологическими заданиями.
-*   **Для Ученика:** Полноценный кабинет с историей чекинов, базой знаний по самопомощи и личным AI-ассистентом.
+## Tech stack
 
-### 2. 📱 Мобильное Приложение (Поддержка 24/7)
-*   **Ученикам:** Быстрые ежедневные чек-ины (настроение, сон, энергия) и анонимный чат с AI-ментором "Клаудиком".
-*   **Психологам:** Полноценная панель мониторинга в кармане — возможность видеть алерты о критических состояниях учеников в реальном времени.
+### Web
 
----
+- React 19
+- Vite 6
+- TypeScript
+- Tailwind CSS
+- Recharts
+- Framer Motion
+- Phosphor Icons
 
-## ✨ Ключевые возможности
+### Mobile
 
-### 🧑‍⚕️ Для Психологов
-| Функция | Технология | Описание |
-|---------|------------|----------|
-| **Аналитика Класса** | Recharts | Визуализация "Эмоционального пульса" школы. |
-| **AI Risk Assessment** | LLM (Llama 3.3) | Автоматическое выявление признаков депрессии и стресса по шкале 0-10. |
-| **Human-in-the-Loop** | **Confirmation Alerts** | Защита от ошибок: психолог лично подтверждает запуск любого AI-анализа. |
-| **CRM и Инсайты** | AI Integration | Генерация персональных рекомендаций по поддержке каждого ученика. |
+- Expo 54
+- React Native 0.81
+- Expo Router 6
+- TypeScript
+- phosphor-react-native
 
-### 🎓 Для Учеников
-| Функция | Описание |
-|---------|----------|
-| **Daily Check-in** | Секундная фиксация настроения и физических показателей (сон, энергия). |
-| **AI Ментор (Клаудик)** | Психологическая поддержка в формате 24/7 (не заменяет психолога, но помогает в моменте). |
-| **Библиотека Ресурсов** | Медитации, дыхательные практики и советы по управлению стрессом. |
+### Backend and AI
 
----
+- Supabase
+- PostgreSQL
+- Supabase Edge Functions
+- OpenRouter-compatible model routing through the `chat-ai` function
+- Current default model in app logic: `openai/gpt-oss-120b`
 
-## 🔐 Безопасность: Privacy by Design
-
-Проект спроектирован с учетом высочайших требований к конфиденциальности:
-
-- 🛡️ **Ролевая модель:** Доступ к чувствительным данным имеют **только специалисты со статусом "Психолог"**. Учителя и администрация не имеют доступа к личным записям учеников.
-- 🔒 **Supabase RLS:** Row Level Security гарантирует, что на уровне базы данных никто не может увидеть чужой дневник.
-- 🛑 **Защита от привилегий:** Повышение роли до "Психолога" возможно только по специальному корпоративному коду школы.
-- 🤖 **Этика ИИ:** Информация обрабатывается конфиденциально. AI используется как ассистент, помогающий психологу приоритизировать тех, кто нуждается в помощи.
-
----
-
-## 🛠 Технологии
-
-- **Frontend:** React 18, Vite, TailwindCSS, Framer Motion.
-- **Mobile:** React Native, Expo 50, NativeWind.
-- **Backend:** Supabase (PostgreSQL, Auth, Edge Functions).
-- **AI:** Groq Cloud API, OpenAI SDK (Llama 3.3 / GPT-OSS).
-
----
-
-## 📂 Структура проекта
+## Repository structure
 
 ```text
 /
-├── src/                    # 🌐 Web-платформа
-│   ├── components/         # UI-компоненты (Чаты, Графики)
-│   ├── lib/                # ai.ts (ИИ-логика), supabase.ts
-│   └── pages/              # Аналитические дашборды
+├── src/                    # Web application
+│   ├── components/         # Shared UI and chat components
+│   ├── lib/                # Web Supabase and AI helpers
+│   └── pages/              # Landing, dashboards, auth, resources
 │
-├── prism-mobile/           # 📱 Мобильное приложение
-│   ├── app/                # (teacher) & (student) разделы
-│   ├── components/         # Нативные UI-элементы
-│   └── lib/                # ai.ts и утилиты
+├── prism-mobile/           # Expo mobile application
+│   ├── app/                # Student and teacher routes
+│   ├── src/components/     # Native chat and UI components
+│   ├── src/context/        # Theme and auth state
+│   └── src/lib/            # Mobile Supabase and OAuth helpers
 │
-└── supabase/               # ⚙️ Облачный бэкенд
-    ├── functions/          # Edge Functions для чата и аналитики
-    └── migrations/         # Архитектура базы данных (RLS политики)
+└── supabase/               # Backend logic
+    ├── functions/          # Edge Functions
+    └── migrations/         # Schema and RLS changes
 ```
+
+## Local development
+
+### 1. Web
+
+```powershell
+npm install
+npm run dev
+```
+
+Build check:
+
+```powershell
+npm run build
+```
+
+### 2. Mobile
+
+```powershell
+cd prism-mobile
+npm install
+npx expo start
+```
+
+Type check:
+
+```powershell
+npx tsc --noEmit
+```
+
+## Environment and configuration
+
+### Web env
+
+The web app expects:
+
+```env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+### Mobile config
+
+The mobile app currently uses a demo Supabase configuration in code. If you want to move it to a different Supabase project, update:
+
+- `prism-mobile/src/lib/supabase.ts`
+- related OAuth redirect settings in Supabase and Expo
+
+## Authentication
+
+### Supported flows
+
+- Email/password sign-in
+- Student Google OAuth
+- Role-based access for student and psychologist flows
+
+### Known limitation
+
+Google OAuth on mobile is sensitive to the runtime environment.
+
+- Web auth works normally.
+- Mobile Google auth is not reliable in plain Expo Go.
+- For stable mobile OAuth testing, use a dev build instead of relying on Expo Go callback behavior.
+
+This is an environment limitation around deep linking and OAuth return flow, not just a UI issue.
+
+## Security model
+
+- Supabase authentication is required for protected flows.
+- Row Level Security is used to restrict access to class and student data.
+- AI requests are sent through the backend instead of exposing provider keys in the client.
+- Prism is intended as a decision-support tool for psychologists, not as an autonomous diagnostic system.
+
+## Current status
+
+The repository currently contains:
+
+- working web build
+- working mobile TypeScript build
+- Phosphor icon migration for web and mobile
+- AI assistant flow through Supabase Edge Functions
+- class management, check-ins, dashboard analytics, and resource features
+
+## Notes for contributors / second machine setup
+
+After pulling updates on another machine:
+
+```powershell
+git pull origin main
+npm install
+cd prism-mobile
+npm install
+```
+
+If local env files are not present, restore them manually before running the apps.
