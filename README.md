@@ -1,11 +1,19 @@
 # Prism
 
-AI-assisted school wellbeing platform with a web dashboard for psychologists and a mobile app for students and psychologists.
+<div align="center">
 
-## Demo
+**AI-assisted school wellbeing platform** for psychologists and students.
 
-- Product video: [https://youtu.be/O-wGndqLzEQ](https://youtu.be/O-wGndqLzEQ)
-- Web app: [https://prism-psi-seven.vercel.app](https://prism-psi-seven.vercel.app)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Expo 54](https://img.shields.io/badge/Expo-54-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Vite 6](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
+[![Phosphor Icons](https://img.shields.io/badge/Icons-Phosphor-111111?style=for-the-badge)](https://phosphoricons.com/)
+
+[Product Video](https://youtu.be/O-wGndqLzEQ) • [Web Demo](https://prism-psi-seven.vercel.app)
+
+</div>
 
 ## What Prism does
 
@@ -46,29 +54,33 @@ The core idea is simple: move schools from isolated observation to repeated, str
 
 ### Web
 
-- React 19
-- Vite 6
-- TypeScript
-- Tailwind CSS
-- Recharts
-- Framer Motion
-- Phosphor Icons
+| Area | Stack |
+|---|---|
+| Framework | React 19 |
+| Build | Vite 6 |
+| Language | TypeScript |
+| UI | Tailwind CSS, Framer Motion |
+| Charts | Recharts |
+| Icons | `@phosphor-icons/react` |
 
 ### Mobile
 
-- Expo 54
-- React Native 0.81
-- Expo Router 6
-- TypeScript
-- phosphor-react-native
+| Area | Stack |
+|---|---|
+| Runtime | Expo 54 |
+| Framework | React Native 0.81 |
+| Routing | Expo Router 6 |
+| Language | TypeScript |
+| Icons | `phosphor-react-native` |
 
 ### Backend and AI
 
-- Supabase
-- PostgreSQL
-- Supabase Edge Functions
-- OpenRouter-compatible model routing through the `chat-ai` function
-- Current default model in app logic: `openai/gpt-oss-120b`
+| Area | Stack |
+|---|---|
+| Auth / DB | Supabase + PostgreSQL |
+| Server logic | Supabase Edge Functions |
+| AI transport | `chat-ai` function |
+| Default app model | `openai/gpt-oss-120b` |
 
 ## Repository structure
 
