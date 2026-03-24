@@ -6,7 +6,7 @@ import { supabase } from '../../../src/lib/supabase';
 import { useTheme } from '../../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../../src/components/ui/ScreenWrapper';
 import { Card } from '../../../src/components/ui/Card';
-import { ArrowLeft, Moon, Zap, CheckCircle, AlertTriangle, Play, RefreshCw, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, Moon, Lightning as Zap, CheckCircle, Warning as AlertTriangle, Play, ArrowClockwise as RefreshCw, Sparkle as Sparkles } from 'phosphor-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { assessStudentRisk } from '../../../src/lib/ai';
 

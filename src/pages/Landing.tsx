@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-    Users, Activity, FileText, Menu, X, ChevronRight, Smile, Zap, Lock, Bot
-} from 'lucide-react';
+    Users, Pulse as Activity, FileText, List as Menu, X, CaretRight as ChevronRight, Smiley as Smile, Lightning as Zap, Lock, Robot as Bot
+} from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { EvervaultCard, Icon } from '../components/ui/evervault-card';
 import { PricingSection } from '../components/ui/pricing';
@@ -88,7 +88,7 @@ const EvervaultFeatureCard: React.FC<FeatureProps> = ({ title, description, icon
         {/* Title row */}
         <div className="flex items-center justify-center gap-1.5 mb-4">
             <div className="p-2 rounded-xl bg-slate-100">
-                <IconComponent className="w-6 h-6 text-slate-600" />
+                <IconComponent className="w-6 h-6 text-slate-600" weight="regular" />
             </div>
             <h3 className="text-slate-900 text-lg font-semibold">
                 {title}
@@ -253,7 +253,7 @@ const Navbar = () => {
                     className="md:hidden text-white z-10"
                     onClick={() => setIsOpen(!isOpen)}
                 >
-                    {isOpen ? <X /> : <Menu />}
+                    {isOpen ? <X size={24} weight="bold" /> : <Menu size={24} weight="bold" />}
                 </button>
             </div>
 

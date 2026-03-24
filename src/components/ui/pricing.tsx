@@ -8,7 +8,7 @@ import {
     TooltipTrigger,
 } from './tooltip';
 import { cn } from '../../lib/utils';
-import { CheckCircleIcon, StarIcon } from 'lucide-react';
+import { CheckCircle as CheckCircleIcon, Star as StarIcon } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
 import { motion, Transition } from 'framer-motion';
 

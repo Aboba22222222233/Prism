@@ -7,9 +7,9 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
 import {
-    Wind, BookOpen, Music, Play, Pause, RotateCcw,
-    ChevronRight, ArrowLeft,
-} from 'lucide-react-native';
+    Wind, BookOpen, MusicNote as Music, Play, Pause, ArrowCounterClockwise as RotateCcw,
+    CaretRight as ChevronRight, ArrowLeft,
+} from 'phosphor-react-native';
 
 // ============ BREATHING WIDGET ============
 const BreathingWidget = () => {

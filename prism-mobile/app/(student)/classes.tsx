@@ -11,7 +11,7 @@ import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
-import { BookOpen, Plus, LogOut, ChevronRight } from 'lucide-react-native';
+import { BookOpen, Plus, SignOut as LogOut, CaretRight as ChevronRight } from 'phosphor-react-native';
 
 export default function StudentClassesScreen() {
     const { colors } = useTheme();

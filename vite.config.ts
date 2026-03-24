@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             recharts: ['recharts'],
             three: ['three', 'ogl'],
-            vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion', 'lucide-react']
+            vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion', '@phosphor-icons/react']
           }
         }
       }

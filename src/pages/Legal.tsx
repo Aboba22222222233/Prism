@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from '@phosphor-icons/react';
 
 const Legal = () => {
     const navigate = useNavigate();

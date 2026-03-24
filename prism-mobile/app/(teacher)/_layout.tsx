@@ -1,7 +1,7 @@
 
 import { Tabs } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
-import { Home, Calendar, Settings, FileText, User } from 'lucide-react-native';
+import { House as Home, CalendarBlank as Calendar, Gear as Settings, FileText, User } from 'phosphor-react-native';
 import { View } from 'react-native';
 
 export default function TeacherLayout() {
@@ -28,7 +28,7 @@ export default function TeacherLayout() {
                 name="classes"
                 options={{
                     title: 'Home',
-                    tabBarIcon: ({ color }) => <Home color={color} size={24} />,
+                    tabBarIcon: ({ color, focused }) => <Home color={color} size={24} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
             {/* Hidden screens / Internal routing */}
@@ -68,7 +68,7 @@ export default function TeacherLayout() {
                 name="settings"
                 options={{
                     title: 'Profile',
-                    tabBarIcon: ({ color }) => <User color={color} size={24} />,
+                    tabBarIcon: ({ color, focused }) => <User color={color} size={24} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
         </Tabs>

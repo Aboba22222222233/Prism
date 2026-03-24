@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, ChevronRight, AlertCircle, Mail, ArrowLeft, Chrome, User } from 'lucide-react';
+import { Lock, CaretRight as ChevronRight, WarningCircle as AlertCircle, Envelope as Mail, ArrowLeft, GoogleChromeLogo as Chrome, User } from '@phosphor-icons/react';
 import ColorBends from '../components/ColorBends';
 import { supabase } from '../lib/supabase';
 

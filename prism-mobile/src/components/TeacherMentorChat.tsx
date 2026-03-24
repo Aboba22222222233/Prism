@@ -3,7 +3,7 @@ import {
     View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bot, X, Send } from 'lucide-react-native';
+import { Robot as Bot, X, PaperPlaneTilt as Send } from 'phosphor-react-native';
 import { getChatResponse } from '../lib/ai';
 import { useTheme } from '../context/ThemeContext';
 
@@ -90,7 +90,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                         <View style={[styles.header, { borderBottomColor: colors.surface }]}>
                             <View style={styles.headerTitle}>
                                 <View style={[styles.avatar, { borderColor: colors.accent }]}>
-                                    <Bot size={20} color={colors.accent} />
+                                    <Bot size={20} color={colors.accent} weight="fill" />
                                 </View>
                                 <View>
                                     <Text style={[styles.title, { color: colors.text }]}>Psychologist Assistant</Text>
@@ -98,7 +98,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                                 </View>
                             </View>
                             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                                <X size={24} color={colors.text} />
+                                <X size={24} color={colors.text} weight="bold" />
                             </TouchableOpacity>
                         </View>
 
@@ -115,7 +115,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                                 ]}>
                                     {item.role !== 'user' && (
                                         <View style={[styles.msgAvatar, { backgroundColor: colors.surface }]}>
-                                            <Bot size={16} color={colors.accent} />
+                                            <Bot size={16} color={colors.accent} weight="fill" />
                                         </View>
                                     )}
                                     <View style={[
@@ -151,7 +151,7 @@ export const PsychologistMentorChat: React.FC<PsychologistMentorChatProps> = ({ 
                                 disabled={loading || !input.trim()}
                                 style={[styles.sendBtn, { backgroundColor: input.trim() ? colors.accent : colors.surface }]}
                             >
-                                {loading ? <ActivityIndicator color="#fff" size="small" /> : <Send size={20} color={input.trim() ? '#fff' : colors.subtext} />}
+                                {loading ? <ActivityIndicator color="#fff" size="small" /> : <Send size={20} color={input.trim() ? '#fff' : colors.subtext} weight="bold" />}
                             </TouchableOpacity>
                         </View>
                     </KeyboardAvoidingView>

@@ -10,7 +10,7 @@ import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { supabase } from '../../src/lib/supabase';
 import { useRouter } from 'expo-router';
-import { User, LogOut, Mail } from 'lucide-react-native';
+import { User, SignOut as LogOut, Envelope as Mail } from 'phosphor-react-native';
 
 export default function StudentSettingsScreen() {
     const { colors, mode, toggleTheme } = useTheme();

@@ -6,7 +6,7 @@ import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { useRouter } from 'expo-router';
-import { Moon, Sun, LogOut, User } from 'lucide-react-native';
+import { Moon, Sun, SignOut as LogOut, User } from 'phosphor-react-native';
 
 export default function TeacherSettingsScreen() {
     const { colors, mode, toggleTheme } = useTheme();

@@ -6,7 +6,7 @@ import { supabase } from '../../src/lib/supabase';
 import { useTheme } from '../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
-import { FileText, Clock, ChevronRight } from 'lucide-react-native';
+import { FileText, Clock, CaretRight as ChevronRight } from 'phosphor-react-native';
 
 export default function AssignmentsScreen() {
     const { colors } = useTheme();

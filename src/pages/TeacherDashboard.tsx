@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Users, Activity, Bell, Search, Settings,
-    TrendingUp, TrendingDown, AlertTriangle, CheckCircle, AlertCircle,
-    BrainCircuit, ChevronDown, Plus, Copy, Eye, EyeOff, Bot, X, Trash2, FileText, Calendar as CalendarIcon, Clock, LogOut
-} from 'lucide-react';
+    Users, Pulse as Activity, Bell, MagnifyingGlass as Search, Gear as Settings,
+    TrendUp as TrendingUp, TrendDown as TrendingDown, Warning as AlertTriangle, CheckCircle, WarningCircle as AlertCircle,
+    Brain as BrainCircuit, CaretDown as ChevronDown, Plus, Copy, Eye, EyeSlash as EyeOff, Robot as Bot, X, Trash as Trash2, FileText, CalendarBlank as CalendarIcon, Clock, SignOut as LogOut
+} from '@phosphor-icons/react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Cell
 } from 'recharts';
@@ -942,7 +942,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                 onClick={() => setSelectedStudent(null)}
                                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
                             >
-                                <X className="w-5 h-5 text-slate-400" />
+                                <X className="w-5 h-5 text-slate-400" weight="bold" />
                             </button>
                         </div>
 
@@ -992,7 +992,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                 return (
                                                     <div>
                                                         <span className={`${statusColors[aiAssessment.status]} flex items-center gap-2`}>
-                                                            <StatusIcon className="w-5 h-5" />
+                                                            <StatusIcon className="w-5 h-5" weight={aiAssessment.status === 'normal' ? 'fill' : 'regular'} />
                                                             {statusLabels[aiAssessment.status]} ({aiAssessment.riskLevel}/10)
                                                         </span>
                                                         <p className="text-xs text-slate-400 mt-1 font-normal">{aiAssessment.reason}</p>
@@ -1003,11 +1003,11 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                             // Fallback to rule-based
                                             return selectedStudent.isRisk ? (
                                                 <span className="text-red-400 flex items-center gap-2">
-                                                    <AlertTriangle className="w-5 h-5" /> Risk
+                                                    <AlertTriangle className="w-5 h-5" weight="regular" /> Risk
                                                 </span>
                                             ) : (
                                                 <span className="text-emerald-400 flex items-center gap-2">
-                                                    <CheckCircle className="w-5 h-5" /> Normal
+                                                    <CheckCircle className="w-5 h-5" weight="fill" /> Normal
                                                 </span>
                                             );
                                         })()}
@@ -1100,7 +1100,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             }}
                             className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
                         >
-                            <Plus className="w-4 h-4" /> New
+                            <Plus className="w-4 h-4" weight="bold" /> New
                         </button>
                         <button
                             onClick={() => {
@@ -1109,7 +1109,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             }}
                             className="py-3 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center gap-2 hover:bg-white/10 transition-colors text-sm font-bold"
                         >
-                            <Users className="w-4 h-4" /> Join
+                            <Users className="w-4 h-4" weight="regular" /> Join
                         </button>
                     </div>
                     {showCreateClassForm && (
@@ -1179,8 +1179,8 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             onClick={() => { if (selectedClass) navigator.clipboard.writeText(selectedClass.code); }}
                         >
                             <span className="bg-white/10 px-2 py-0.5 rounded text-white font-mono">{selectedClass?.code}</span>
-                            <Copy className="w-3 h-3" />
-                    <span>Join code</span>
+                            <Copy className="w-3 h-3" weight="regular" />
+                            <span>Join code</span>
                         </div>
                     </div>
 
@@ -1228,7 +1228,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                 className="p-2 bg-white/5 border border-white/10 rounded-full hover:bg-red-500/20 hover:text-red-500 hover:border-red-500/50 transition-colors text-slate-400"
                                 title="Delete class"
                             >
-                                <Trash2 className="w-5 h-5" />
+                                <Trash2 className="w-5 h-5" weight="regular" />
                             </button>
                         )}
 
@@ -1237,7 +1237,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-colors`}
                             title="Download report"
                         >
-                            <FileText className="w-4 h-4" />
+                            <FileText className="w-4 h-4" weight="regular" />
                             <span>Export CSV</span>
                         </button>
 
@@ -1245,7 +1245,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             onClick={() => setIsAnonymous(!isAnonymous)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-colors ${isAnonymous ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}
                         >
-                            {isAnonymous ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {isAnonymous ? <EyeOff className="w-4 h-4" weight="regular" /> : <Eye className="w-4 h-4" weight="regular" />}
                             <span className="text-sm font-bold">{isAnonymous ? 'Names hidden' : 'Names visible'}</span>
                         </button>
                         <button
@@ -1253,7 +1253,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             className="flex items-center gap-2 px-4 py-2 rounded-full border bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
                             title="Sign out"
                         >
-                            <LogOut className="w-4 h-4" />
+                            <LogOut className="w-4 h-4" weight="bold" />
                             <span className="text-sm font-bold">Sign Out</span>
                         </button>
                         {selectedClass?.teacher_id !== currentTeacherId && (
@@ -1262,7 +1262,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                 className="flex items-center gap-2 px-4 py-2 rounded-full border bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 transition-colors"
                                 title="Leave class"
                             >
-                                <LogOut className="w-4 h-4" />
+                                <LogOut className="w-4 h-4" weight="bold" />
                                 <span className="text-sm font-bold">Leave Class</span>
                             </button>
                         )}
@@ -1449,7 +1449,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                                 if (isAssessing) {
                                                                     return (
                                                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border bg-purple-500/10 text-purple-400 border-purple-500/20 animate-pulse">
-                                                                            <BrainCircuit className="w-3 h-3 animate-spin" />
+                                                                            <BrainCircuit className="w-3 h-3 animate-spin" weight="regular" />
                                                                             Analyzing...
                                                                         </span>
                                                                     );
@@ -1475,10 +1475,10 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[aiAssessment.status]}`}
                                                                                 title={aiAssessment.reason}
                                                                             >
-                                                                                {aiAssessment.status === 'critical' && <AlertCircle className="w-3 h-3" />}
-                                                                                {aiAssessment.status === 'warning' && <AlertTriangle className="w-3 h-3" />}
-                                                                                {aiAssessment.status === 'attention' && <Activity className="w-3 h-3" />}
-                                                                                {aiAssessment.status === 'normal' && <CheckCircle className="w-3 h-3" />}
+                                                                                {aiAssessment.status === 'critical' && <AlertCircle className="w-3 h-3" weight="regular" />}
+                                                                                {aiAssessment.status === 'warning' && <AlertTriangle className="w-3 h-3" weight="regular" />}
+                                                                                {aiAssessment.status === 'attention' && <Activity className="w-3 h-3" weight="regular" />}
+                                                                                {aiAssessment.status === 'normal' && <CheckCircle className="w-3 h-3" weight="fill" />}
                                                                                 {statusLabels[aiAssessment.status]} ({aiAssessment.riskLevel}/10)
                                                                             </span>
                                                                             <span className="text-[10px] text-slate-500 max-w-[150px] truncate" title={aiAssessment.reason}>
@@ -1494,7 +1494,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                                         ? 'bg-red-500/10 text-red-400 border-red-500/20'
                                                                         : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                                                         }`}>
-                                                                        {s.isRisk ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                                                                        {s.isRisk ? <AlertTriangle className="w-3 h-3" weight="regular" /> : <CheckCircle className="w-3 h-3" weight="fill" />}
                                                                         {s.isRisk ? 'Risk' : 'Normal'}
                                                                     </span>
                                                                 );
@@ -1539,7 +1539,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                                     className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
                                                                     title="Remove from class"
                                                                 >
-                                                                    <Trash2 className="w-4 h-4 pointer-events-none" />
+                                                                    <Trash2 className="w-4 h-4 pointer-events-none" weight="regular" />
                                                                 </button>
                                                             )}
                                                         </td>
@@ -1556,7 +1556,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                 <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl p-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
-                                            <Users className="w-5 h-5 text-cyan-400" />
+                                            <Users className="w-5 h-5 text-cyan-400" weight="regular" />
                                             <h3 className="font-bold text-lg">Class Counselors</h3>
                                         </div>
                                         <span className="text-xs text-slate-500">{classTeachers.length}</span>
@@ -1582,7 +1582,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                         className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
                                                         title="Remove counselor"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <Trash2 className="w-4 h-4" weight="regular" />
                                                     </button>
                                                 )}
                                             </div>
@@ -1598,7 +1598,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                     <div className="flex justify-between items-start mb-4 relative z-10">
                                         <div className="flex items-center gap-2">
                                             <div className="p-2 bg-indigo-500/10 rounded-lg">
-                                                <BrainCircuit className="w-5 h-5 text-indigo-400" />
+                                                <BrainCircuit className="w-5 h-5 text-indigo-400" weight="regular" />
                                             </div>
                                             <h3 className="font-bold text-indigo-100">AI Analyst</h3>
                                         </div>
@@ -1652,7 +1652,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                 onClick={() => setShowEventModal(true)}
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold transition-colors"
                             >
-                                <Plus className="w-4 h-4" /> Add
+                                <Plus className="w-4 h-4" weight="bold" /> Add
                             </button>
                         </div>
 
@@ -1665,13 +1665,13 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                             ev.type === 'soch' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
                                                 'bg-purple-500/10 border-purple-500/20 text-purple-400'
                                             }`}>
-                                            <CalendarIcon className="w-6 h-6" />
+                                            <CalendarIcon className="w-6 h-6" weight="regular" />
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-lg">{ev.title}</h4>
                                             <div className="flex items-center gap-4 text-sm text-slate-400 mt-1">
                                                 <span className="flex items-center gap-1">
-                                                    <Clock className="w-4 h-4" />
+                                                    <Clock className="w-4 h-4" weight="regular" />
                                                     {new Date(ev.date).toLocaleDateString()} {new Date(ev.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                                 <span className="capitalize px-2 py-0.5 rounded bg-white/5 border border-white/10 text-xs">
@@ -1681,7 +1681,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                         </div>
                                     </div>
                                     <button className="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
-                                        <Trash2 className="w-5 h-5" />
+                                        <Trash2 className="w-5 h-5" weight="regular" />
                                     </button>
                                 </div>
                             ))}
@@ -1770,7 +1770,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                     <div className="relative bg-[#1a1a1a] border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
                         <div className="text-center">
                             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
-                                <LogOut className="w-8 h-8 text-red-400" />
+                                <LogOut className="w-8 h-8 text-red-400" weight="bold" />
                             </div>
                             <h3 className="text-xl font-bold text-white mb-2">Sign Out?</h3>
                             <p className="text-slate-400 text-sm mb-6">Are you sure you want to sign out of your account?</p>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { useTheme } from '../../src/context/ThemeContext';
-import { Home, BookOpen, Settings, MessageSquare, Heart } from 'lucide-react-native';
+import { House as Home, BookOpen, Gear as Settings, ChatCircleText as MessageSquare, Heart } from 'phosphor-react-native';
 
 export default function StudentLayout() {
     const { colors } = useTheme();
@@ -31,7 +31,7 @@ export default function StudentLayout() {
                 name="classes"
                 options={{
                     title: 'My Classes',
-                    tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => <BookOpen size={size} color={color} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
             <Tabs.Screen
@@ -39,7 +39,7 @@ export default function StudentLayout() {
                 options={{
                     title: 'Dashboard',
                     href: null,
-                    tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => <Home size={size} color={color} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
             <Tabs.Screen
@@ -53,14 +53,14 @@ export default function StudentLayout() {
                 name="resources"
                 options={{
                     title: 'Resources',
-                    tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => <Heart size={size} color={color} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
             <Tabs.Screen
                 name="settings"
                 options={{
                     title: 'Settings',
-                    tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => <Settings size={size} color={color} weight={focused ? 'fill' : 'regular'} />,
                 }}
             />
         </Tabs>

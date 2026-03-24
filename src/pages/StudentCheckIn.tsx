@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Heart, ArrowRight, Smile, Frown, Meh, Sun, CloudRain, Zap, Moon } from 'lucide-react';
+import { Heart, ArrowRight, Smiley as Smile, SmileySad as Frown, SmileyMeh as Meh, Sun, CloudRain, Lightning as Zap, Moon } from '@phosphor-icons/react';
 import { supabase } from '../lib/supabase';
 import ColorBends from '../components/ColorBends';
 

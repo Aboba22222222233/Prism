@@ -9,9 +9,9 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import {
-    ArrowLeft, ArrowRight, Smile, Frown, Meh, Sun,
-    CloudRain, Moon, Zap, Check,
-} from 'lucide-react-native';
+    ArrowLeft, ArrowRight, Smiley as Smile, SmileySad as Frown, SmileyMeh as Meh, Sun,
+    CloudRain, Moon, Lightning as Zap, Check,
+} from 'phosphor-react-native';
 
 const emotionsList = [
     '😌 Calm', '😊 Joy', '😰 Anxiety', '😴 Tiredness',
@@ -128,7 +128,7 @@ export default function CheckInScreen() {
                                 opacity: 0.15,
                                 transform: [{ scale: 0.8 + mood * 0.15 }]
                             }]} />
-                            <currentMood.Icon size={80} color={currentMood.color} strokeWidth={1.5} />
+                            <currentMood.Icon size={80} color={currentMood.color} />
                         </View>
 
                         <Text style={[styles.moodLabel, { color: currentMood.color }]}>

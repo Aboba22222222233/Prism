@@ -9,7 +9,7 @@ import { useTheme } from '../../../src/context/ThemeContext';
 import { useAuth } from '../../../src/context/AuthContext';
 import { ScreenWrapper } from '../../../src/components/ui/ScreenWrapper';
 import { Card } from '../../../src/components/ui/Card';
-import { ArrowLeft, Users, AlertTriangle, CheckCircle, Trash2, Sparkles, ChevronDown, ChevronUp, FileText, Plus, Clock, X, Eye, MessageSquare, Send, RefreshCw, LogOut } from 'lucide-react-native';
+import { ArrowLeft, Users, Warning as AlertTriangle, CheckCircle, Trash as Trash2, Sparkle as Sparkles, CaretDown as ChevronDown, CaretUp as ChevronUp, FileText, Plus, Clock, X, Eye, ChatCircleText as MessageSquare, PaperPlaneTilt as Send, ArrowClockwise as RefreshCw, SignOut as LogOut } from 'phosphor-react-native';
 import { assessStudentRisk, getGeminiInsight, getChatResponse } from '../../../src/lib/ai';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {

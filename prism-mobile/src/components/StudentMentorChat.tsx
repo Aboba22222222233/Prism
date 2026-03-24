@@ -6,7 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { getChatResponse } from '../lib/ai';
-import { Send, User, Bot, X } from 'lucide-react-native';
+import { PaperPlaneTilt as Send, User, Robot as Bot, X } from 'phosphor-react-native';
 
 interface Message {
     role: 'user' | 'assistant' | 'system';
@@ -114,9 +114,9 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                     }
                 ]}>
                     {isUser ? (
-                        <User size={16} color={colors.text} />
+                        <User size={16} color={colors.text} weight="regular" />
                     ) : (
-                        <Bot size={16} color={colors.accent} />
+                        <Bot size={16} color={colors.accent} weight="fill" />
                     )}
                 </View>
                 <View style={[
@@ -153,7 +153,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                         {/* Header */}
                         <View style={[styles.header, { borderBottomColor: colors.border }]}>
                             <View style={[styles.headerAvatar, { backgroundColor: colors.accent + '20' }]}>
-                                <Bot size={22} color={colors.accent} />
+                                <Bot size={22} color={colors.accent} weight="fill" />
                             </View>
                             <View style={{ flex: 1 }}>
                                 <Text style={[styles.headerTitle, { color: colors.text }]}>Cloudik</Text>
@@ -161,7 +161,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                             </View>
                             {onClose && (
                                 <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                                    <X size={22} color={colors.subtext} />
+                                    <X size={22} color={colors.subtext} weight="bold" />
                                 </TouchableOpacity>
                             )}
                         </View>
@@ -181,7 +181,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                         {loading && (
                             <View style={[styles.typingRow]}>
                                 <View style={[styles.avatar, { backgroundColor: colors.accent + '20', borderColor: colors.border }]}>
-                                    <Bot size={16} color={colors.accent} />
+                                    <Bot size={16} color={colors.accent} weight="fill" />
                                 </View>
                                 <View style={[styles.typingBubble, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                                     <View style={styles.dotsRow}>
@@ -219,7 +219,7 @@ export const StudentMentorChat: React.FC<StudentMentorChatProps> = ({
                                     }
                                 ]}
                             >
-                                <Send size={18} color={input.trim() ? '#fff' : colors.subtext} />
+                                <Send size={18} color={input.trim() ? '#fff' : colors.subtext} weight="bold" />
                             </TouchableOpacity>
                         </View>
 

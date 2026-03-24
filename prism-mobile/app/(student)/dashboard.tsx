@@ -13,10 +13,10 @@ import { Card } from '../../src/components/ui/Card';
 import { getGeminiInsight } from '../../src/lib/ai';
 import { StudentMentorChat } from '../../src/components/StudentMentorChat';
 import {
-    ArrowLeft, Flame, TrendingUp, BookOpen, Moon, Zap,
-    Smile, Frown, Meh, Plus, Trash2, Send, MessageSquare,
-    BarChart3, ClipboardList, Home, Brain, Sparkles,
-} from 'lucide-react-native';
+    ArrowLeft, Fire as Flame, TrendUp as TrendingUp, BookOpen, Moon, Lightning as Zap,
+    Smiley as Smile, SmileySad as Frown, SmileyMeh as Meh, Plus, Trash as Trash2, PaperPlaneTilt as Send, ChatCircleText as MessageSquare,
+    ChartBar as BarChart3, ClipboardText as ClipboardList, House as Home, Brain, Sparkle as Sparkles,
+} from 'phosphor-react-native';
 
 type DashTab = 'home' | 'diary' | 'tasks' | 'stats';
 

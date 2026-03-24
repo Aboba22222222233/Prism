@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, GitCommit, Plus, Trash2, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, GitCommit, Plus, Trash as Trash2, X, SpinnerGap as Loader2 } from '@phosphor-icons/react';
 import { supabase } from '../lib/supabase';
 
 // Static commits that are always shown

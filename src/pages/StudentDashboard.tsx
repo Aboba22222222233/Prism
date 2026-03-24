@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Home, Book, BarChart2, Settings, User, LogOut,
-    Zap, Moon, TrendingUp, Activity, Flame, ChevronRight,
-    Smile, Frown, Meh, Trash2, Brain, FileText, CheckCircle, CheckCircle2, XCircle, Menu, MessageSquare, Send, Bot, Sparkles
-} from 'lucide-react';
+    House as Home, Book, ChartBar as BarChart2, Gear as Settings, User, SignOut as LogOut,
+    Lightning as Zap, Moon, TrendUp as TrendingUp, Pulse as Activity, Fire as Flame, CaretRight as ChevronRight,
+    Smiley as Smile, SmileySad as Frown, SmileyMeh as Meh, Trash as Trash2, Brain, FileText, CheckCircle, Checks as CheckCircle2, XCircle, List as Menu, ChatCircleText as MessageSquare, PaperPlaneTilt as Send, Robot as Bot, Sparkle as Sparkles
+} from '@phosphor-icons/react';
 import {
     AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
@@ -1085,7 +1085,7 @@ const NavItem = ({ icon: Icon, label, active, onClick }: any) => (
         flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all
         ${active ? 'bg-purple-600/10 text-purple-400 border border-purple-600/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}
     `}>
-        <Icon className="w-5 h-5" />
+        <Icon className="w-5 h-5" weight={active ? 'fill' : 'regular'} />
         <span className="hidden lg:block font-medium">{label}</span>
         {active && <div className="hidden lg:block ml-auto w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.8)]"></div>}
     </div>
@@ -1106,7 +1106,7 @@ const StatCard = ({ label, value, icon: Icon, color }: any) => {
                 <h3 className="text-2xl font-bold text-white">{value}</h3>
             </div>
             <div className={`p-3 rounded-xl ${colors[color as keyof typeof colors]} group-hover:scale-110 transition-transform`}>
-                <Icon className="w-5 h-5" />
+                <Icon className="w-5 h-5" weight="regular" />
             </div>
         </div>
     );

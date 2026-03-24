@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wind, BookOpen, Music, Play, Pause, RotateCcw, ChevronRight, X } from 'lucide-react';
+import { Wind, BookOpen, MusicNote as Music, Play, Pause, ArrowCounterClockwise as RotateCcw, CaretRight as ChevronRight, X } from '@phosphor-icons/react';
 import DOMPurify from 'dompurify';
 
 const BreathingWidget = () => {

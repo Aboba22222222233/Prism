@@ -11,7 +11,7 @@ import { ScreenWrapper } from '../../src/components/ui/ScreenWrapper';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
-import { Plus, Users, Copy, ChevronRight } from 'lucide-react-native';
+import { Plus, Users, Copy, CaretRight as ChevronRight } from 'phosphor-react-native';
 
 export default function TeacherClassesScreen() {
     const { colors } = useTheme();

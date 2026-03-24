@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Plus, Trash2, X, Loader2, Image, Upload } from 'lucide-react';
+import { ArrowLeft, FileText, Plus, Trash as Trash2, X, SpinnerGap as Loader2, Image, Upload } from '@phosphor-icons/react';
 import { supabase } from '../lib/supabase';
 
 interface BlogPost {

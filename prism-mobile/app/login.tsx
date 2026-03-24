@@ -22,7 +22,7 @@ import { ScreenWrapper } from '../src/components/ui/ScreenWrapper';
 import { Button } from '../src/components/ui/Button';
 import { Input } from '../src/components/ui/Input';
 import { Card } from '../src/components/ui/Card';
-import { Lock, Mail, ChevronRight, AlertCircle } from 'lucide-react-native';
+import { Lock, Envelope as Mail, CaretRight as ChevronRight, WarningCircle as AlertCircle } from 'phosphor-react-native';
 
 export default function LoginScreen() {
     const { colors, mode } = useTheme();
@@ -249,7 +249,7 @@ export default function LoginScreen() {
                 <View style={styles.centered}>
                     <Card style={{ alignItems: 'center' }}>
                         <View style={[styles.iconCircle, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
-                            <Mail size={28} color="rgb(34,197,94)" />
+                            <Mail size={28} color="rgb(34,197,94)" weight="regular" />
                         </View>
                         <Text style={[styles.title, { color: colors.text }]}>Verify Your Email</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
@@ -276,7 +276,7 @@ export default function LoginScreen() {
                 >
                     <Card style={{ alignItems: 'center', width: '100%' }}>
                         <View style={[styles.iconCircle, { backgroundColor: 'rgba(245,158,11,0.15)' }]}>
-                            <Lock size={24} color="rgb(245,158,11)" />
+                            <Lock size={24} color="rgb(245,158,11)" weight="regular" />
                         </View>
                         <Text style={[styles.title, { color: colors.text }]}>Restricted Access</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
@@ -425,7 +425,7 @@ export default function LoginScreen() {
                             onPress={authMode === 'login' ? handleLogin : handleRegister}
                             loading={loading}
                             style={{ marginTop: 20 }}
-                            icon={<ChevronRight size={16} color={colors.background} />}
+                            icon={<ChevronRight size={16} color={colors.background} weight="bold" />}
                         />
 
                         <TouchableOpacity

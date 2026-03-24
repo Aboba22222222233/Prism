@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, MessageSquare, ChevronDown, User, Bot, Brain, Sparkles, AlertCircle } from 'lucide-react';
+import { X, PaperPlaneTilt as Send, ChatCircleText as MessageSquare, CaretDown as ChevronDown, User, Robot as Bot, Brain, Sparkle as Sparkles, WarningCircle as AlertCircle } from '@phosphor-icons/react';
 import { getChatResponse } from '../lib/ai';
 
 interface MentorChatProps {
