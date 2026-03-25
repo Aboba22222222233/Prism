@@ -842,6 +842,48 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
     if (loading && !selectedClass) return <div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>;
     if (accessDenied) return <div className="text-white bg-black h-screen flex items-center justify-center">Access denied</div>;
 
+    const eventTypeLabels: Record<string, string> = {
+        sor: 'Quiz',
+        soch: 'Summative',
+        control_work: 'Test',
+        homework: 'Homework',
+        other: 'Other'
+    };
+
+    const upcomingEventsSummary = events.length > 0
+        ? events.slice(0, 8).map((event: any, index: number) => {
+            const eventDate = new Date(event.date);
+            const formattedDate = Number.isNaN(eventDate.getTime())
+                ? event.date
+                : eventDate.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+
+            return `${index + 1}. ${formattedDate} - ${event.title} (${eventTypeLabels[event.type] || 'Event'})`;
+        }).join('\n')
+        : 'No scheduled events in the current dashboard.';
+
+    const assignmentsSummary = tasks.length > 0
+        ? tasks.slice(0, 6).map((task: any, index: number) => {
+            const responseCount = Array.isArray(task.student_tasks) ? task.student_tasks.length : 0;
+            return `${index + 1}. ${task.title} (${responseCount} submissions)`;
+        }).join('\n')
+        : 'No active assignments in the current dashboard.';
+
+    const riskStudentsSummary = students.filter((student) => student.isRisk).slice(0, 5);
+    const dashboardSummary = [
+        `Class: ${selectedClass?.name || 'Unknown class'}`,
+        `Current dashboard snapshot: ${stats.totalStudents} students, ${stats.activeCount} active check-ins, average mood ${stats.avgMood}/5, ${stats.riskCount} students flagged at risk.`,
+        `Latest AI class summary: ${insightText || 'No saved AI class summary yet.'}`,
+        `At-risk students in the current snapshot: ${riskStudentsSummary.length > 0 ? riskStudentsSummary.map((student) => student.anonName).join(', ') : 'No at-risk students flagged right now.'}`,
+        `Upcoming schedule and assessments:\n${upcomingEventsSummary}`,
+        `Assignments:\n${assignmentsSummary}`
+    ].join('\n\n');
+
     // NO CLASSES VIEW
     if (classes.length === 0 && !loading) {
         return (
@@ -1753,6 +1795,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                             'Psychologist'
                         }
                         classStats={stats}
+                        dashboardSummary={dashboardSummary}
                         events={events}
                         studentsData={students}
                     />

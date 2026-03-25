@@ -10,6 +10,7 @@ interface TeacherMentorChatProps {
         activeCount: number;
         totalStudents: number;
     };
+    dashboardSummary?: string;
     events?: any[];
     studentsData?: any[]; // Student data with recent check-ins
 }
@@ -19,7 +20,7 @@ const MODELS = [
     { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B" },
 ];
 
-export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, classStats, events = [], studentsData = [] }) => {
+export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherName, classStats, dashboardSummary = '', events = [], studentsData = [] }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -51,11 +52,13 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
         try {
             // Prepare students context (last 3 check-ins per student)
             const studentsContext = studentsData.slice(0, 10).map((s, i) => {
-                const recentCheckins = (s.rawCheckins || []).slice(0, 3).map((c: any) =>
+                const recentCheckins = (s.rawCheckins || []).slice(-3).map((c: any) =>
                     `  - ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5${c.comment ? `, "${c.comment}"` : ''}`
                 ).join('\n') || '  No entries';
                 return `${i + 1}. ${s.anonName} ${s.isRisk ? 'AT RISK' : 'OK'}:\n${recentCheckins}`;
             }).join('\n\n') || 'No student data available';
+
+            const teacherDashboardContext = dashboardSummary.trim() || 'No teacher dashboard summary is available.';
 
             // Prepare context prompt
             const contextSystemMsg = {
@@ -74,8 +77,17 @@ export const TeacherMentorChat: React.FC<TeacherMentorChatProps> = ({ teacherNam
                 CLASS STATISTICS:
                 Average mood: ${classStats.avgMood}/5, At risk: ${classStats.riskCount}, Total students: ${classStats.totalStudents}
 
+                TEACHER DASHBOARD SUMMARY:
+                ${teacherDashboardContext}
+
                 STUDENT DATA:
                 ${studentsContext}
+
+                CONTEXT USAGE RULES:
+                - Use the teacher dashboard summary as the source of truth for schedule, quizzes, summatives, tests, homework, and assignments
+                - If the requested event or task is present in the dashboard summary, answer directly with the exact title and date
+                - Keep original event or assignment names exactly as they appear in the dashboard data
+                - Only say the data is unavailable if it is not present in the provided dashboard summary
 
                 Help analyze the class, explain possible concerns, and suggest short practical next steps.`
             };
