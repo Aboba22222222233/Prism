@@ -210,14 +210,14 @@ export default function LoginScreen() {
             setLoading(true);
             const siteCallbackUrl = 'https://prism-psi-seven.vercel.app/auth/mobile-callback';
             const returnUrl = makeRedirectUri({
-                scheme: 'prism-mobile',
                 path: 'google-auth',
             });
+            const redirectTo = `${siteCallbackUrl}?returnTo=${encodeURIComponent(returnUrl)}`;
 
             const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: siteCallbackUrl,
+                    redirectTo,
                     skipBrowserRedirect: true,
                 },
             });

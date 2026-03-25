@@ -2,12 +2,19 @@ import React, { useEffect } from 'react';
 
 const MobileAuthCallback: React.FC = () => {
     useEffect(() => {
-        const search = window.location.search;
-        const hash = window.location.hash;
+        const currentUrl = new URL(window.location.href);
+        const hash = currentUrl.hash;
+        const passthroughParams = new URLSearchParams(currentUrl.search);
+        const returnTo = passthroughParams.get('returnTo') || 'prism-mobile://google-auth';
 
-        if (hash || search) {
-            const deepLink = `prism-mobile://google-auth${search}${hash}`;
-            window.location.href = deepLink;
+        passthroughParams.delete('returnTo');
+        const passthroughSearch = passthroughParams.toString();
+
+        if (hash || passthroughSearch) {
+            const separator = returnTo.includes('?') ? '&' : '?';
+            const searchSuffix = passthroughSearch ? `${separator}${passthroughSearch}` : '';
+            const deepLink = `${returnTo}${searchSuffix}${hash}`;
+            window.location.replace(deepLink);
         }
     }, []);
 
