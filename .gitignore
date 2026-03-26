@@ -28,3 +28,8 @@ dist-ssr
 
 # Supabase temp files
 supabase/.temp/
+
+# Local generated artifacts
+output/
+tmp/
+mobile-callback-live.png
