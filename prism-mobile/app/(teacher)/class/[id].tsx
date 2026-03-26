@@ -77,7 +77,7 @@ export default function ClassDetailScreen() {
 
             setClassTeachers((teacherMemberships || []).map((teacher: any) => ({
                 id: teacher.profiles.id,
-                fullName: teacher.profiles.full_name || teacher.profiles.email?.split('@')[0] || 'Counselor',
+                fullName: teacher.profiles.full_name || teacher.profiles.email?.split('@')[0] || 'Psychologist',
                 email: teacher.profiles.email,
                 isOwner: ownerId === teacher.profiles.id,
             })));
@@ -313,11 +313,11 @@ Highlight only the key trends and issues. Maximum 3-4 sentences.`;
                 return `${i + 1}. ${s.anonName} (Avg: ${s.avgMood}, Status: ${s.statusText}): ${checkinsInfo}`;
             }).join('\n');
 
-            const context = `You are a professional assistant for a SCHOOL COUNSELOR, not a student. You are speaking with the counselor responsible for the group/class "${classInfo?.name}".
+            const context = `You are a professional assistant for a SCHOOL PSYCHOLOGIST, not a student. You are speaking with the psychologist responsible for the group/class "${classInfo?.name}".
 Your tasks:
 - Help interpret psychological risks
-- Address the counselor as a professional colleague
-- Do not confuse the counselor with the student
+- Address the psychologist as a professional colleague
+- Do not confuse the psychologist with the student
 - Give recommendations for mental health support based on the data
 - Keep answers brief, 2-4 sentences
 - Use plain text without Markdown
@@ -398,11 +398,11 @@ ${studentsContext || 'No data'}`;
 
     const removeTeacherAccess = (teacherId: string, teacherName: string) => {
         if (!isOwner) {
-            Alert.alert('Unavailable', 'Only the class owner can manage counselors.');
+            Alert.alert('Unavailable', 'Only the class owner can manage psychologists.');
             return;
         }
 
-        Alert.alert('Remove counselor?', `${teacherName} will lose access to this class.`, [
+        Alert.alert('Remove psychologist?', `${teacherName} will lose access to this class.`, [
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Delete',
@@ -420,7 +420,7 @@ ${studentsContext || 'No data'}`;
                         fetchClassData();
                     } catch (error: any) {
                         console.error(error);
-                        Alert.alert('Error', error?.message || 'Failed to remove counselor.');
+                        Alert.alert('Error', error?.message || 'Failed to remove psychologist.');
                     }
                 }
             }
@@ -549,7 +549,7 @@ ${studentsContext || 'No data'}`;
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: classTeachers.length ? 12 : 0 }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                             <Users size={18} color={colors.accent} />
-                                            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Class Counselors</Text>
+                                            <Text style={{ fontSize: 15, fontWeight: '700', color: colors.text }}>Class Psychologists</Text>
                                         </View>
                                         <Text style={{ fontSize: 12, color: colors.subtext }}>{classTeachers.length}</Text>
                                     </View>
@@ -561,7 +561,7 @@ ${studentsContext || 'No data'}`;
                                                     <Text style={{ fontSize: 14, fontWeight: '600', color: colors.text }}>{teacher.fullName}</Text>
                                                     <Text style={{ fontSize: 12, color: colors.subtext, marginTop: 2 }}>{teacher.email}</Text>
                                                     <Text style={styles.teacherRoleText}>
-                                                        {teacher.isOwner ? 'Class owner' : 'Connected counselor'}
+                                                        {teacher.isOwner ? 'Class owner' : 'Connected psychologist'}
                                                     </Text>
                                                 </View>
                                                 {isOwner && !teacher.isOwner && (
@@ -576,7 +576,7 @@ ${studentsContext || 'No data'}`;
                                         ))}
 
                                         {classTeachers.length === 0 && (
-                                            <Text style={{ fontSize: 13, color: colors.subtext }}>There are no counselors in this class yet.</Text>
+                                            <Text style={{ fontSize: 13, color: colors.subtext }}>There are no psychologists in this class yet.</Text>
                                         )}
                                     </View>
                                 </Card>

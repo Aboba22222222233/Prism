@@ -38,7 +38,7 @@ const PLANS = [
             { text: 'Full AI monitoring' },
             { text: 'Advanced analytics' },
             { text: 'Priority support', tooltip: 'Reply within 24 hours' },
-            { text: 'Cost: 750₸ per student' },
+            { text: 'Cost: 750в‚ё per student' },
         ],
         btn: {
             text: 'Choose Plan',
@@ -176,11 +176,11 @@ const PricingWithToggle = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Standard</h3>
                     <div className="mb-5">
-                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.standard)} ₸</span>
+                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.standard)} в‚ё</span>
                         <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
-                        Coverage for up to 100 students: one grade level or 3-4 classes. Cost: just 750₸ per student.
+                        Coverage for up to 100 students: one grade level or 3-4 classes. Cost: just 750в‚ё per student.
                     </p>
                     <a
                         href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Standard plan request"
@@ -197,7 +197,7 @@ const PricingWithToggle = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Ultra</h3>
                     <div className="mb-5">
-                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.ultra)} ₸</span>
+                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.ultra)} в‚ё</span>
                         <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
@@ -239,7 +239,7 @@ const Navbar = () => {
                         onClick={() => navigate('/login')}
                         className="px-6 py-2.5 rounded-full border border-white/30 hover:bg-white/10 transition-all text-white text-sm font-medium backdrop-blur-sm"
                     >
-                        Counselor Sign In
+                        Psychologist Sign In
                     </button>
                     <button
                         onClick={() => navigate('/login')}
@@ -263,7 +263,7 @@ const Navbar = () => {
                         Student Sign In
                     </button>
                     <button onClick={() => navigate('/login')} className="w-full px-6 py-3 rounded-full border border-slate-200 text-slate-700 font-medium">
-                        Counselor Sign In
+                        Psychologist Sign In
                     </button>
                 </div>
             )}
@@ -297,7 +297,7 @@ const HeroSection = () => {
                             className="px-10 py-5 bg-white text-slate-900 rounded-full text-lg font-medium hover:bg-slate-100 transition-all flex items-center gap-2 group shadow-xl border border-slate-200"
                         >
                             Join Prism
-                            <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform">в†’</span>
                         </button>
                     </div>
                 </div>
@@ -311,7 +311,7 @@ const ForTeachersSection = () => {
         <section className="py-40 bg-white relative">
             <div className="max-w-[90rem] mx-auto px-8">
                 <div className="mb-24">
-                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">For Counselors</span>
+                    <span className="text-slate-400 font-medium tracking-wider uppercase text-sm">For Psychologists</span>
                     <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mt-5 mb-10">
                         Manage the climate <br />
                         in your class
@@ -376,7 +376,7 @@ const ForStudentsSection = () => {
                     />
                     <EvervaultFeatureCard
                         title="My Assignments"
-                        description="Complete assignments from your counselor and reflect inside the app. Track your progress and achievements."
+                        description="Complete assignments from your psychologist and reflect inside the app. Track your progress and achievements."
                         icon={Lock}
                     />
                     <EvervaultFeatureCard
@@ -485,7 +485,7 @@ const Footer = () => {
                 {/* Copyright */}
                 <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-white font-medium text-sm drop-shadow">
-                        © 2026 Prism. All rights reserved.
+                        В© 2026 Prism. All rights reserved.
                     </p>
                     <p className="text-white font-medium text-xs drop-shadow">
                         Built at RFMS, Astana
@@ -506,7 +506,7 @@ const testimonials = [
     {
         quote: "The project stands out as a timely product with strong psychological and educational value. With thoughtful implementation, it can improve the emotional climate of a school.",
         name: "D.T. Ikimova",
-        role: "School Counselor",
+        role: "School Psychologist",
         type: "professional"
     },
     {
@@ -546,7 +546,7 @@ const TestimonialsSection = () => {
                         See what people are saying about <span className="text-slate-900" style={{ fontFamily: '"Press Start 2P", monospace', fontSize: '0.7em' }}>Prism</span>
                     </h2>
                     <p className="text-lg text-slate-500 mt-4 max-w-xl">
-                        Real feedback from educators, counselors, and students at RFMS in Astana.
+                        Real feedback from educators, psychologists, and students at RFMS in Astana.
                     </p>
                 </div>
 

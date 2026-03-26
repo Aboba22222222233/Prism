@@ -124,7 +124,7 @@ export default function LoginScreen() {
                 setTeacherVerified(true);
                 setError(null);
             } else {
-                setError('Invalid counselor access code');
+                setError('Invalid psychologist access code');
             }
         } catch {
             setError('Failed to verify access code');
@@ -266,7 +266,7 @@ export default function LoginScreen() {
         );
     }
 
-    // --- COUNSELOR ACCESS CODE SCREEN ---
+    // --- PSYCHOLOGIST ACCESS CODE SCREEN ---
     if (isTeacher && !teacherVerified) {
         return (
             <ScreenWrapper>
@@ -280,7 +280,7 @@ export default function LoginScreen() {
                         </View>
                         <Text style={[styles.title, { color: colors.text }]}>Restricted Access</Text>
                         <Text style={[styles.subtitle, { color: colors.subtext, textAlign: 'center' }]}>
-                            Enter your organization access code to open the counselor panel.
+                            Enter your organization access code to open the psychologist panel.
                         </Text>
 
                         <Input
@@ -351,7 +351,7 @@ export default function LoginScreen() {
                                 styles.roleText,
                                 { color: isTeacher ? colors.background : colors.subtext },
                             ]}>
-                                Counselor
+                                Psychologist
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -376,7 +376,7 @@ export default function LoginScreen() {
                             {authMode === 'login' ? 'Welcome Back' : 'Create an Account'}
                         </Text>
                         <Text style={[styles.subtitle, { color: colors.subtext }]}>
-                            {isTeacher ? 'Sign in to the counselor panel' : 'Sign in to the student account'}
+                            {isTeacher ? 'Sign in to the psychologist panel' : 'Sign in to the student account'}
                         </Text>
 
                         {/* Google button (students only) */}
@@ -408,7 +408,7 @@ export default function LoginScreen() {
                                 label="Password"
                                 value={password}
                                 onChangeText={setPassword}
-                                placeholder="••••••••"
+                                placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
                                 secureTextEntry
                             />
                         </View>

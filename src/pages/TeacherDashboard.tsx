@@ -511,10 +511,10 @@ const TeacherDashboard = () => {
                 const recentCheckins = (s.rawCheckins || []).slice(-20).map((c: any) =>
                     `  - ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5${c.factors?.length ? ', Factors: ' + c.factors.join(', ') : ''}`
                 ).join('\n') || '  No entries';
-                return `${s.anonName} ${s.isRisk ? '⚠️ AT RISK' : ''}:\n${recentCheckins}`;
+                return `${s.anonName} ${s.isRisk ? 'вљ пёЏ AT RISK' : ''}:\n${recentCheckins}`;
             }).join('\n\n');
 
-            const prompt = `You are a school counselor assistant. Review the class data and provide a short summary.
+            const prompt = `You are a school psychologist assistant. Review the class data and provide a short summary.
 
 RULES:
 - Respond only in English
@@ -527,7 +527,7 @@ Statistics: ${stats.totalStudents} students, average mood ${stats.avgMood}/5, at
 Student data:
 ${studentsContext}
 
-Give: 1) a summary of the class atmosphere. 2) one practical action for the counselor.`;
+Give: 1) a summary of the class atmosphere. 2) one practical action for the psychologist.`;
 
             const insight = await getGeminiInsight(prompt);
             setInsightText(insight);
@@ -667,7 +667,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
 
     const removeTeacherAccess = async (teacherId: string) => {
         if (!selectedClass || selectedClass.teacher_id !== currentTeacherId) {
-            return { success: false, error: new Error('Only the class owner can manage counselors') };
+            return { success: false, error: new Error('Only the class owner can manage psychologists') };
         }
 
         try {
@@ -1206,7 +1206,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                 </div>
 
                 <div className="pt-4 border-t border-white/10 text-xs text-slate-500">
-                    v2.1 • Teacher Dashboard
+                    v2.1 вЂў Teacher Dashboard
                 </div>
             </aside>
 
@@ -1599,7 +1599,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="flex items-center gap-2">
                                             <Users className="w-5 h-5 text-cyan-400" weight="regular" />
-                                            <h3 className="font-bold text-lg">Class Counselors</h3>
+                                            <h3 className="font-bold text-lg">Class Psychologists</h3>
                                         </div>
                                         <span className="text-xs text-slate-500">{classTeachers.length}</span>
                                     </div>
@@ -1610,7 +1610,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                     <div className="font-medium text-white">{teacher.fullName}</div>
                                                     <div className="text-xs text-slate-500">{teacher.email}</div>
                                                     <div className="text-[11px] text-slate-400 mt-1">
-                                                        {teacher.id === selectedClass?.teacher_id ? 'Class owner' : 'Connected counselor'}
+                                                        {teacher.id === selectedClass?.teacher_id ? 'Class owner' : 'Connected psychologist'}
                                                     </div>
                                                 </div>
                                                 {selectedClass?.teacher_id === currentTeacherId && teacher.id !== currentTeacherId && (
@@ -1618,11 +1618,11 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                                         onClick={async () => {
                                                             const result = await removeTeacherAccess(teacher.id);
                                                             if (!result.success) {
-                                                                alert("Error: " + ((result.error as any)?.message || 'Failed to remove counselor'));
+                                                                alert("Error: " + ((result.error as any)?.message || 'Failed to remove psychologist'));
                                                             }
                                                         }}
                                                         className="p-2 hover:bg-red-500/20 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
-                                                        title="Remove counselor"
+                                                        title="Remove psychologist"
                                                     >
                                                         <Trash2 className="w-4 h-4" weight="regular" />
                                                     </button>
@@ -1630,7 +1630,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the coun
                                             </div>
                                         ))}
                                         {classTeachers.length === 0 && (
-                                            <div className="text-sm text-slate-500">There are no connected counselors in this class yet.</div>
+                                            <div className="text-sm text-slate-500">There are no connected psychologists in this class yet.</div>
                                         )}
                                     </div>
                                 </div>

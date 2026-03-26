@@ -250,7 +250,7 @@ const StudentDashboard = () => {
             const checkinsText = recent.map(c =>
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');
-            const prompt = `You are a school counselor supporting a student.
+            const prompt = `You are a school psychologist supporting a student.
 Address the student directly as "you".
 In no more than 3 sentences, briefly assess their current state and give 1 practical suggestion.
 Data: ${checkinsText}`;
@@ -534,7 +534,7 @@ Data: ${checkinsText}`;
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                         <div className="bg-[#1a1a1a] border border-white/10 w-full max-w-md rounded-2xl p-6 shadow-2xl">
                             <h2 className="text-xl font-bold mb-4">Join a Class</h2>
-                            <p className="text-slate-400 text-sm mb-6">Ask your counselor for the class code and enter it here.</p>
+                            <p className="text-slate-400 text-sm mb-6">Ask your psychologist for the class code and enter it here.</p>
                             <form onSubmit={joinClass}>
                                 <input
                                     type="text"
@@ -616,7 +616,7 @@ Data: ${checkinsText}`;
                 <nav className="flex-1 px-4 space-y-2">
                     <NavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
                     <NavItem icon={Book} label="Journal" active={activeTab === 'diary'} onClick={() => setActiveTab('diary')} />
-                    <NavItem icon={FileText} label={`Assignments ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? '•' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
+                    <NavItem icon={FileText} label={`Assignments ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? 'вЂў' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
                     <NavItem icon={BarChart2} label="Stats" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
 
                     <button
@@ -758,11 +758,11 @@ Data: ${checkinsText}`;
 
                                     {/* Emoji Visuals */}
                                     <div className="flex gap-4 p-4 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-                                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">😫</div>
-                                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">😔</div>
-                                        <div className="w-12 h-12 rounded-full bg-slate-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">😐</div>
-                                        <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">🙂</div>
-                                        <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all shadow-[0_0_15px_rgba(236,72,153,0.5)] scale-110 cursor-default">🤩</div>
+                                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ«</div>
+                                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ”</div>
+                                        <div className="w-12 h-12 rounded-full bg-slate-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџђ</div>
+                                        <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ™‚</div>
+                                        <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all shadow-[0_0_15px_rgba(236,72,153,0.5)] scale-110 cursor-default">рџ¤©</div>
                                     </div>
                                 </div>
                             </div>
@@ -822,7 +822,7 @@ Data: ${checkinsText}`;
                             ) : checkins.map((entry) => (
                                 <div key={entry.id} className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-start gap-4 hover:bg-white/10 transition-colors group">
                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br ${entry.mood_score >= 4 ? 'from-green-500 to-emerald-700' : entry.mood_score <= 2 ? 'from-red-500 to-orange-700' : 'from-slate-500 to-slate-700'}`}>
-                                        {entry.mood_score >= 4 ? '😊' : entry.mood_score <= 2 ? '😔' : '😐'}
+                                        {entry.mood_score >= 4 ? 'рџЉ' : entry.mood_score <= 2 ? 'рџ”' : 'рџђ'}
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-2">
@@ -910,7 +910,7 @@ Data: ${checkinsText}`;
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <p className="text-center text-slate-500 text-sm mt-4">Purple: Mood • Yellow: Energy</p>
+                                <p className="text-center text-slate-500 text-sm mt-4">Purple: Mood вЂў Yellow: Energy</p>
                             </div>
 
                             {/* MOOD CALENDAR (PIXEL YEAR) */}

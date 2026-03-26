@@ -84,7 +84,7 @@ export async function assessStudentRisk(studentData: {
         `[${c.date}] Mood: ${c.mood}/5, Sleep: ${c.sleep}h, Energy: ${c.energy}/5, Factors: ${c.factors.join(', ') || 'none'}, Comment: "${c.comment || 'none'}"`
     ).join('\n');
 
-    const prompt = `Role: School counselor. Task: assess the student's risk level from 0 to 10.
+    const prompt = `Role: School psychologist. Task: assess the student's risk level from 0 to 10.
 Rules:
 - 0-4 (NORMAL): ordinary mood changes, tiredness, laziness, and study stress are normal.
 - 5-6 (ATTENTION): prolonged sadness for more than one week, apathy, withdrawal.

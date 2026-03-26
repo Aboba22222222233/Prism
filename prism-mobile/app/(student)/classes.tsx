@@ -125,7 +125,7 @@ export default function StudentClassesScreen() {
                 <View>
                     <Text style={[styles.greeting, { color: colors.subtext }]}>Hello,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {profile?.full_name || 'Student'} 👋
+                        {profile?.full_name || 'Student'} рџ‘‹
                     </Text>
                 </View>
                 <TouchableOpacity
@@ -194,7 +194,7 @@ export default function StudentClassesScreen() {
                     <Card style={styles.modalCard}>
                         <Text style={[styles.modalTitle, { color: colors.text }]}>Join a Class</Text>
                         <Text style={[styles.modalDesc, { color: colors.subtext }]}>
-                            Ask your counselor for the class code.
+                            Ask your psychologist for the class code.
                         </Text>
                         <Input
                             placeholder="Class code"

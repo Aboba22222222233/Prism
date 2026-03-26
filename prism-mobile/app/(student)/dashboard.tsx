@@ -120,9 +120,9 @@ export default function StudentDashboardScreen() {
     };
 
     const moodEmoji = (mood: number) => {
-        if (mood >= 4) return '😊';
-        if (mood <= 2) return '😔';
-        return '😐';
+        if (mood >= 4) return 'рџЉ';
+        if (mood <= 2) return 'рџ”';
+        return 'рџђ';
     };
 
     const loadAiAnalysis = async () => {
@@ -144,7 +144,7 @@ export default function StudentDashboardScreen() {
                 `[${new Date(c.created_at).toLocaleDateString()}] Mood:${c.mood_score}/5, Sleep:${c.sleep_hours}, Ene:${c.energy_level}/10, Tags:${c.factors?.join(',')}, Note:${c.comment}`
             ).join('\n');
 
-            const prompt = `You are a school counselor supporting a student.
+            const prompt = `You are a school psychologist supporting a student.
 Address the student directly as "you".
 In no more than 3 sentences, briefly assess their current state and give 1 practical suggestion.
 Data: ${checkinsText}`;
@@ -209,7 +209,7 @@ Data: ${checkinsText}`;
                 });
             }
 
-            Alert.alert('Done!', 'Response submitted ✓');
+            Alert.alert('Done!', 'Response submitted вњ“');
             fetchData();
         } catch (err) {
             Alert.alert('Error', 'Failed to submit the response');
@@ -357,7 +357,7 @@ Data: ${checkinsText}`;
                     <>
                         {/* Greeting */}
                         <Text style={[styles.hi, { color: colors.text }]}>
-                            Hello, {profile?.full_name?.split(' ')[0] || 'Student'} 👋
+                            Hello, {profile?.full_name?.split(' ')[0] || 'Student'} рџ‘‹
                         </Text>
                         <Text style={[styles.hiSub, { color: colors.subtext }]}>
                             Ready to track your progress?
@@ -492,10 +492,10 @@ Data: ${checkinsText}`;
                                             )}
                                             <View style={styles.miniStats}>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
-                                                    😴 {entry.sleep_hours || '?'}h
+                                                    рџґ {entry.sleep_hours || '?'}h
                                                 </Text>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
-                                                    ⚡ {entry.energy_level || '?'}/10
+                                                    вљЎ {entry.energy_level || '?'}/10
                                                 </Text>
 
                                             </View>
@@ -522,7 +522,7 @@ Data: ${checkinsText}`;
                     <>
                         <Text style={[styles.sectionTitle, { color: colors.text }]}>Assignments</Text>
                         {tasks.length === 0 ? (
-                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Your counselor has not added any assignments yet.</Text>
+                            <Text style={[styles.emptyText, { color: colors.subtext }]}>Your psychologist has not added any assignments yet.</Text>
                         ) : (
                             tasks.map(task => (
                                 <Card key={task.id} style={{ marginBottom: 14 }}>
@@ -535,7 +535,7 @@ Data: ${checkinsText}`;
                                         </View>
                                         {task.mySubmission?.completed ? (
                                             <View style={[styles.badge, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
-                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>✓ Submitted</Text>
+                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>вњ“ Submitted</Text>
                                             </View>
                                         ) : (
                                             <View style={[styles.badge, { backgroundColor: colors.accent + '20' }]}>
@@ -749,7 +749,7 @@ Data: ${checkinsText}`;
                                         backgroundColor: moodHeatColor(m),
                                     }} />
                                 ))}
-                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>Low → Great</Text>
+                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>Low в†’ Great</Text>
                             </View>
                         </Card>
 

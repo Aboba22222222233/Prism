@@ -46,7 +46,7 @@ const Login = () => {
       const { data, error } = await supabase.rpc('verify_teacher_code', { input_code: secretCode });
 
       if (error || !data) {
-        setError('Invalid counselor access code');
+        setError('Invalid psychologist access code');
       } else {
         setTeacherVerified(true);
         setError(null);
@@ -193,7 +193,7 @@ const Login = () => {
                 onClick={() => handleRoleChange(true)}
                 className={`relative z-10 px-6 py-2 rounded-full text-sm font-bold transition-colors ${isTeacher ? 'text-black' : 'text-slate-400'}`}
               >
-                Counselor
+                Psychologist
               </button>
               <button
                 onClick={() => handleRoleChange(false)}
@@ -232,7 +232,7 @@ const Login = () => {
                   <Lock className="w-6 h-6 text-amber-500" />
                 </div>
                 <h2 className="text-xl font-bold">Restricted Access</h2>
-                <p className="text-slate-400 text-sm mt-2">Enter your organization access code to open the counselor panel.</p>
+                <p className="text-slate-400 text-sm mt-2">Enter your organization access code to open the psychologist panel.</p>
               </div>
 
               <div className="space-y-2">
@@ -266,7 +266,7 @@ const Login = () => {
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold">{mode === 'login' ? 'Welcome Back' : 'Create an Account'}</h2>
                 <p className="text-slate-400 text-sm">
-                  {isTeacher ? 'Sign in to the counselor panel' : 'Sign in to the student account'}
+                  {isTeacher ? 'Sign in to the psychologist panel' : 'Sign in to the student account'}
                 </p>
               </div>
 
@@ -307,7 +307,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
-                    placeholder="••••••••"
+                    placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
                   />
                 </div>
 

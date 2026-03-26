@@ -9,7 +9,7 @@ const staticCommits = [
         date: "Jan 24, 2026",
         items: [
             "Added AI student risk analysis with database persistence, a sign-out confirmation dialog, and an improved student profile",
-            "Added counselor sign-out and fixed bugs"
+            "Added psychologist sign-out and fixed bugs"
         ]
     },
     {
@@ -333,7 +333,7 @@ const Changelog = () => {
             {/* Footer */}
             <div className="bg-white border-t border-slate-200 py-8">
                 <div className="max-w-4xl mx-auto px-8 text-center text-slate-400 text-sm">
-                    © <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
+                    В© <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
                 </div>
             </div>
 

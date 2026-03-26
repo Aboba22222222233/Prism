@@ -14,14 +14,14 @@ import {
 } from 'phosphor-react-native';
 
 const emotionsList = [
-    '😌 Calm', '😊 Joy', '😰 Anxiety', '😴 Tiredness',
-    '😠 Anger', '✨ Inspiration', '😢 Sadness', '😑 Boredom',
-    '🥰 Gratitude', '😤 Irritation', '😔 Disappointment', '🤩 Excitement',
-    '😟 Worry', '💪 Confidence', '🫣 Shyness', '😶 Indifference',
+    'рџЊ Calm', 'рџЉ Joy', 'рџ° Anxiety', 'рџґ Tiredness',
+    'рџ  Anger', 'вњЁ Inspiration', 'рџў Sadness', 'рџ‘ Boredom',
+    'рџҐ° Gratitude', 'рџ¤ Irritation', 'рџ” Disappointment', 'рџ¤© Excitement',
+    'рџџ Worry', 'рџ’Є Confidence', 'рџ«Ј Shyness', 'рџ¶ Indifference',
 ];
 
 const categorizedFactors: Record<string, string[]> = {
-    'School': ['Study', 'Exams', 'Counselors', 'Classmates', 'Homework'],
+    'School': ['Study', 'Exams', 'Psychologists', 'Classmates', 'Homework'],
     'Relationships': ['Friends', 'Family', 'Love', 'Conflict', 'Loneliness'],
     'Health': ['Sleep', 'Food', 'Illness', 'Sports', 'Fatigue'],
     'Personal': ['Future', 'Hobbies', 'Money', 'Weather', 'News'],
