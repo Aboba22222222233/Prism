@@ -38,7 +38,7 @@ const PLANS = [
             { text: 'Full AI monitoring' },
             { text: 'Advanced analytics' },
             { text: 'Priority support', tooltip: 'Reply within 24 hours' },
-            { text: 'Cost: 750в‚ё per student' },
+            { text: 'Cost: 750\u20B8 per student' },
         ],
         btn: {
             text: 'Choose Plan',
@@ -176,11 +176,11 @@ const PricingWithToggle = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Standard</h3>
                     <div className="mb-5">
-                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.standard)} в‚ё</span>
+                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.standard)} {"\u20B8"}</span>
                         <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
-                        Coverage for up to 100 students: one grade level or 3-4 classes. Cost: just 750в‚ё per student.
+                        Coverage for up to 100 students: one grade level or 3-4 classes. Cost: just 750{"\u20B8"} per student.
                     </p>
                     <a
                         href="https://mail.google.com/mail/?view=cm&to=Wifiskeleton300@gmail.com&su=Standard plan request"
@@ -197,7 +197,7 @@ const PricingWithToggle = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-3">Ultra</h3>
                     <div className="mb-5">
-                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.ultra)} в‚ё</span>
+                        <span className="text-5xl font-bold text-slate-900">{formatPrice(prices.ultra)} {"\u20B8"}</span>
                         <span className="text-slate-500 ml-2 text-lg">/ {isYearly ? 'year' : 'mo'}</span>
                     </div>
                     <p className="text-lg text-slate-600 mb-8 flex-grow leading-relaxed">
@@ -297,7 +297,7 @@ const HeroSection = () => {
                             className="px-10 py-5 bg-white text-slate-900 rounded-full text-lg font-medium hover:bg-slate-100 transition-all flex items-center gap-2 group shadow-xl border border-slate-200"
                         >
                             Join Prism
-                            <span className="group-hover:translate-x-0.5 transition-transform">в†’</span>
+                            <span className="group-hover:translate-x-0.5 transition-transform">{"\u2192"}</span>
                         </button>
                     </div>
                 </div>
@@ -485,7 +485,7 @@ const Footer = () => {
                 {/* Copyright */}
                 <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-white font-medium text-sm drop-shadow">
-                        В© 2026 Prism. All rights reserved.
+                        {"\u00A9 2026 Prism. All rights reserved."}
                     </p>
                     <p className="text-white font-medium text-xs drop-shadow">
                         Built at RFMS, Astana

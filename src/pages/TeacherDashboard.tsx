@@ -511,7 +511,7 @@ const TeacherDashboard = () => {
                 const recentCheckins = (s.rawCheckins || []).slice(-20).map((c: any) =>
                     `  - ${new Date(c.created_at).toLocaleDateString('en-US')}: Mood ${c.mood_score}/5${c.factors?.length ? ', Factors: ' + c.factors.join(', ') : ''}`
                 ).join('\n') || '  No entries';
-                return `${s.anonName} ${s.isRisk ? 'вљ пёЏ AT RISK' : ''}:\n${recentCheckins}`;
+                return `${s.anonName} ${s.isRisk ? '[AT RISK]' : ''}:\n${recentCheckins}`;
             }).join('\n\n');
 
             const prompt = `You are a school psychologist assistant. Review the class data and provide a short summary.
@@ -1206,7 +1206,7 @@ Give: 1) a summary of the class atmosphere. 2) one practical action for the psyc
                 </div>
 
                 <div className="pt-4 border-t border-white/10 text-xs text-slate-500">
-                    v2.1 вЂў Teacher Dashboard
+                    {"v2.1 \u2022 Teacher Dashboard"}
                 </div>
             </aside>
 

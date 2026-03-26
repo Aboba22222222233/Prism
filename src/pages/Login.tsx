@@ -307,7 +307,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
-                    placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
+                    placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
                   />
                 </div>
 

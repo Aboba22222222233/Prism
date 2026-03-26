@@ -408,7 +408,7 @@ export default function LoginScreen() {
                                 label="Password"
                                 value={password}
                                 onChangeText={setPassword}
-                                placeholder="вЂўвЂўвЂўвЂўвЂўвЂўвЂўвЂў"
+                                placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
                                 secureTextEntry
                             />
                         </View>

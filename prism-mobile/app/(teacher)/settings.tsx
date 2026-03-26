@@ -65,7 +65,7 @@ export default function TeacherSettingsScreen() {
                             </Text>
                         </View>
                         <Button
-                            title={mode === 'dark' ? 'вЂпёЏ Light' : 'рџЊ™ Dark'}
+                            title={mode === 'dark' ? '\u2600\uFE0F Light' : '\u{1F319} Dark'}
                             variant="secondary"
                             onPress={toggleTheme}
                             style={{ paddingVertical: 10, paddingHorizontal: 16 }}

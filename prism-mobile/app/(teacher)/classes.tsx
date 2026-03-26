@@ -128,7 +128,7 @@ export default function TeacherClassesScreen() {
                 <View>
                     <Text style={[styles.greeting, { color: colors.subtext }]}>Hello,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {(!profile?.full_name || profile.full_name === 'Teacher') ? 'Psychologist' : profile.full_name} рџ‘‹
+                        {(!profile?.full_name || profile.full_name === 'Teacher') ? 'Psychologist' : profile.full_name} {"\u{1F44B}"}
                     </Text>
                 </View>
                 <View style={styles.headerActions}>

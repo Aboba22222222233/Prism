@@ -616,7 +616,7 @@ Data: ${checkinsText}`;
                 <nav className="flex-1 px-4 space-y-2">
                     <NavItem icon={Home} label="Home" active={activeTab === 'home'} onClick={() => setActiveTab('home')} />
                     <NavItem icon={Book} label="Journal" active={activeTab === 'diary'} onClick={() => setActiveTab('diary')} />
-                    <NavItem icon={FileText} label={`Assignments ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? 'вЂў' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
+                    <NavItem icon={FileText} label={`Assignments ${tasks.filter(t => !t.mySubmission?.completed).length > 0 ? '\u2022' : ''}`} active={activeTab === 'tasks'} onClick={() => setActiveTab('tasks')} />
                     <NavItem icon={BarChart2} label="Stats" active={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
 
                     <button
@@ -758,11 +758,11 @@ Data: ${checkinsText}`;
 
                                     {/* Emoji Visuals */}
                                     <div className="flex gap-4 p-4 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-                                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ«</div>
-                                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ”</div>
-                                        <div className="w-12 h-12 rounded-full bg-slate-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџђ</div>
-                                        <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">рџ™‚</div>
-                                        <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all shadow-[0_0_15px_rgba(236,72,153,0.5)] scale-110 cursor-default">рџ¤©</div>
+                                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">{"\u{1F62B}"}</div>
+                                        <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">{"\u{1F614}"}</div>
+                                        <div className="w-12 h-12 rounded-full bg-slate-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">{"\u{1F610}"}</div>
+                                        <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all cursor-default">{"\u{1F642}"}</div>
+                                        <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center text-2xl grayscale group-hover:grayscale-0 transition-all shadow-[0_0_15px_rgba(236,72,153,0.5)] scale-110 cursor-default">{"\u{1F929}"}</div>
                                     </div>
                                 </div>
                             </div>
@@ -822,7 +822,7 @@ Data: ${checkinsText}`;
                             ) : checkins.map((entry) => (
                                 <div key={entry.id} className="bg-white/5 border border-white/10 p-6 rounded-2xl flex items-start gap-4 hover:bg-white/10 transition-colors group">
                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl bg-gradient-to-br ${entry.mood_score >= 4 ? 'from-green-500 to-emerald-700' : entry.mood_score <= 2 ? 'from-red-500 to-orange-700' : 'from-slate-500 to-slate-700'}`}>
-                                        {entry.mood_score >= 4 ? 'рџЉ' : entry.mood_score <= 2 ? 'рџ”' : 'рџђ'}
+                                        {entry.mood_score >= 4 ? "\u{1F60A}" : entry.mood_score <= 2 ? "\u{1F614}" : "\u{1F610}"}
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-2">
@@ -910,7 +910,7 @@ Data: ${checkinsText}`;
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <p className="text-center text-slate-500 text-sm mt-4">Purple: Mood вЂў Yellow: Energy</p>
+                                <p className="text-center text-slate-500 text-sm mt-4">{"Purple: Mood \u2022 Yellow: Energy"}</p>
                             </div>
 
                             {/* MOOD CALENDAR (PIXEL YEAR) */}

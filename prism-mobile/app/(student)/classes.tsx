@@ -125,7 +125,7 @@ export default function StudentClassesScreen() {
                 <View>
                     <Text style={[styles.greeting, { color: colors.subtext }]}>Hello,</Text>
                     <Text style={[styles.name, { color: colors.text }]}>
-                        {profile?.full_name || 'Student'} рџ‘‹
+                        {profile?.full_name || 'Student'} {"\u{1F44B}"}
                     </Text>
                 </View>
                 <TouchableOpacity

@@ -333,7 +333,7 @@ const Changelog = () => {
             {/* Footer */}
             <div className="bg-white border-t border-slate-200 py-8">
                 <div className="max-w-4xl mx-auto px-8 text-center text-slate-400 text-sm">
-                    В© <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
+                    {"\u00A9"} <span onClick={handleSecretClick} className="cursor-pointer select-none">2026</span> Prism. All rights reserved.
                 </div>
             </div>
 

@@ -120,9 +120,9 @@ export default function StudentDashboardScreen() {
     };
 
     const moodEmoji = (mood: number) => {
-        if (mood >= 4) return 'рџЉ';
-        if (mood <= 2) return 'рџ”';
-        return 'рџђ';
+        if (mood >= 4) return '\u{1F60A}';
+        if (mood <= 2) return '\u{1F614}';
+        return '\u{1F610}';
     };
 
     const loadAiAnalysis = async () => {
@@ -209,7 +209,7 @@ Data: ${checkinsText}`;
                 });
             }
 
-            Alert.alert('Done!', 'Response submitted вњ“');
+            Alert.alert('Done!', 'Response submitted \u2713');
             fetchData();
         } catch (err) {
             Alert.alert('Error', 'Failed to submit the response');
@@ -357,7 +357,7 @@ Data: ${checkinsText}`;
                     <>
                         {/* Greeting */}
                         <Text style={[styles.hi, { color: colors.text }]}>
-                            Hello, {profile?.full_name?.split(' ')[0] || 'Student'} рџ‘‹
+                            Hello, {profile?.full_name?.split(' ')[0] || 'Student'} {"\u{1F44B}"}
                         </Text>
                         <Text style={[styles.hiSub, { color: colors.subtext }]}>
                             Ready to track your progress?
@@ -492,10 +492,10 @@ Data: ${checkinsText}`;
                                             )}
                                             <View style={styles.miniStats}>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
-                                                    рџґ {entry.sleep_hours || '?'}h
+                                                    {"\u{1F634}"} {entry.sleep_hours || '?'}h
                                                 </Text>
                                                 <Text style={[styles.miniStat, { color: colors.subtext }]}>
-                                                    вљЎ {entry.energy_level || '?'}/10
+                                                    {"\u26A1"} {entry.energy_level || '?'}/10
                                                 </Text>
 
                                             </View>
@@ -535,7 +535,7 @@ Data: ${checkinsText}`;
                                         </View>
                                         {task.mySubmission?.completed ? (
                                             <View style={[styles.badge, { backgroundColor: 'rgba(34,197,94,0.15)' }]}>
-                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>вњ“ Submitted</Text>
+                                                <Text style={{ color: 'rgb(34,197,94)', fontSize: 11, fontWeight: '600' }}>{"\u2713 Submitted"}</Text>
                                             </View>
                                         ) : (
                                             <View style={[styles.badge, { backgroundColor: colors.accent + '20' }]}>
@@ -749,7 +749,7 @@ Data: ${checkinsText}`;
                                         backgroundColor: moodHeatColor(m),
                                     }} />
                                 ))}
-                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>Low в†’ Great</Text>
+                                <Text style={{ color: colors.subtext, fontSize: 10, marginLeft: 4 }}>{"Low \u2192 Great"}</Text>
                             </View>
                         </Card>
 

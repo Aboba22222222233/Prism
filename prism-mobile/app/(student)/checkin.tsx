@@ -14,10 +14,10 @@ import {
 } from 'phosphor-react-native';
 
 const emotionsList = [
-    'рџЊ Calm', 'рџЉ Joy', 'рџ° Anxiety', 'рџґ Tiredness',
-    'рџ  Anger', 'вњЁ Inspiration', 'рџў Sadness', 'рџ‘ Boredom',
-    'рџҐ° Gratitude', 'рџ¤ Irritation', 'рџ” Disappointment', 'рџ¤© Excitement',
-    'рџџ Worry', 'рџ’Є Confidence', 'рџ«Ј Shyness', 'рџ¶ Indifference',
+    '\u{1F60C} Calm', '\u{1F60A} Joy', '\u{1F630} Anxiety', '\u{1F634} Tiredness',
+    '\u{1F620} Anger', '\u2728 Inspiration', '\u{1F622} Sadness', '\u{1F611} Boredom',
+    '\u{1F970} Gratitude', '\u{1F624} Irritation', '\u{1F614} Disappointment', '\u{1F929} Excitement',
+    '\u{1F61F} Worry', '\u{1F4AA} Confidence', '\u{1FAE3} Shyness', '\u{1F636} Indifference',
 ];
 
 const categorizedFactors: Record<string, string[]> = {
